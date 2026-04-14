@@ -25,7 +25,8 @@ enum UserAuthType : i32 {
     PIN = 1,
     FACE = 2,
     FINGERPRINT = 4,
-    PRIVATE_PIN = 16
+    PRIVATE_PIN = 16,
+    COMPANION_DEVICE = 64
 }
  
 enum AuthTrustLevel : i32 {

@@ -85,6 +85,12 @@ void ScheduleNodeImpl::GetScheduleAttribute(bool isVerifier, Attributes &attribu
     if (!info_.additionalInfo.empty()) {
         attribute.SetStringValue(Attributes::ATTR_ADDITIONAL_INFO, info_.additionalInfo);
     }
+
+    if (!info_.title.empty()) {
+        attribute.SetStringValue(Attributes::ATTR_WIDGET_TITLE, info_.title);
+    }
+
+    attribute.SetInt32Value(Attributes::ATTR_AUTH_SCENE, static_cast<int32_t>(info_.authScene));
 }
 
 uint64_t ScheduleNodeImpl::GetScheduleId() const

@@ -96,7 +96,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_002, TestSize.Level0)
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
         contextId);
     EXPECT_EQ(ret, INVALID_PARAMETERS);
-    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -120,7 +119,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_003, TestSize.Level0)
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
         contextId);
     EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
-    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -144,7 +142,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_004, TestSize.Level0)
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
         contextId);
     EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
-    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -172,7 +169,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_005, TestSize.Level0)
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
         contextId);
     EXPECT_EQ(ret, FAIL);
-    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     service.CancelAuthOrIdentify(contextId, 0);
     IpcCommon::DeleteAllPermission();
 }
@@ -201,7 +197,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_006, TestSize.Level0)
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
         contextId);
     EXPECT_EQ(ret, FAIL);
-    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     service.CancelAuthOrIdentify(contextId, 0);
     IpcCommon::DeleteAllPermission();
 }
@@ -229,7 +224,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_007, TestSize.Level0)
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
         contextId);
     EXPECT_EQ(ret, INVALID_PARAMETERS);
-    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
 
     authParam.authTypes.push_back(FACE);
     authParam.authTypes.push_back(FACE);
@@ -238,7 +232,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_007, TestSize.Level0)
     ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
         contextId);
     EXPECT_EQ(ret, INVALID_PARAMETERS);
-    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -263,7 +256,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_008, TestSize.Level0)
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
         contextId);
     EXPECT_EQ(ret, TYPE_NOT_SUPPORT);
-    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -288,7 +280,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_009, TestSize.Level0)
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
         contextId);
     EXPECT_EQ(ret, TYPE_NOT_SUPPORT);
-    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -313,7 +304,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_010, TestSize.Level0)
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
         contextId);
     EXPECT_EQ(ret, TRUST_LEVEL_NOT_SUPPORT);
-    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -338,7 +328,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_011, TestSize.Level0)
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
         contextId);
     EXPECT_EQ(ret, TYPE_NOT_SUPPORT);
-    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -366,7 +355,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_012, TestSize.Level0)
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
         contextId);
     EXPECT_EQ(ret, FAIL);
-    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     service.CancelAuthOrIdentify(contextId, 0);
     IpcCommon::DeleteAllPermission();
 }
@@ -400,7 +388,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_013, TestSize.Level0)
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, modalCallback,
         contextId);
     EXPECT_EQ(ret, FAIL);
-    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -426,7 +413,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_014, TestSize.Level0)
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback,
         contextId);
     EXPECT_EQ(ret, TRUST_LEVEL_NOT_SUPPORT);
-    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -470,7 +456,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_015, TestSize.Level0)
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback,
         contextId);
     EXPECT_EQ(ret, FAIL);
-    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     service.CancelAuthOrIdentify(contextId, 0);
     IpcCommon::DeleteAllPermission();
 }
@@ -519,7 +504,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_016, TestSize.Level0)
     uint64_t contextId = 0;
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
     EXPECT_EQ(ret, FAIL);
-    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
     service.CancelAuthOrIdentify(contextId, 0);
     IpcCommon::DeleteAllPermission();
@@ -570,7 +554,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0017, TestSize.Level0)
     uint64_t contextId = 0;
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
     EXPECT_EQ(ret, FAIL);
-    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
     service.CancelAuthOrIdentify(contextId, 0);
     IpcCommon::DeleteAllPermission();
@@ -622,7 +605,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0018, TestSize.Level0)
     uint64_t contextId = 0;
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
     EXPECT_EQ(ret, FAIL);
-    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
     service.CancelAuthOrIdentify(contextId, 0);
     IpcCommon::DeleteAllPermission();
@@ -674,7 +656,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0019, TestSize.Level0)
     uint64_t contextId = 0;
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
     EXPECT_EQ(ret, FAIL);
-    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
     service.CancelAuthOrIdentify(contextId, 0);
     IpcCommon::DeleteAllPermission();
@@ -725,7 +706,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0020, TestSize.Level0)
     uint64_t contextId = 0;
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
     EXPECT_EQ(ret, TYPE_NOT_SUPPORT);
-    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
     IpcCommon::DeleteAllPermission();
 }
@@ -775,7 +755,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_0021, TestSize.Level0)
     uint64_t contextId = 0;
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
     EXPECT_EQ(ret, TYPE_NOT_SUPPORT);
-    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
     IpcCommon::DeleteAllPermission();
 }
@@ -825,7 +804,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_022, TestSize.Level0)
     uint64_t contextId = 0;
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
     EXPECT_EQ(ret, TYPE_NOT_SUPPORT);
-    EXPECT_NE(contextId, INVALID_CONTEXT_ID);
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
     IpcCommon::DeleteAllPermission();
 }
@@ -878,19 +856,27 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_024, TestSize.Level0)
     InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
     IpcWidgetParamInner widgetParam;
     InitIpcWidgetParamInner(widgetParam, "使用密码验证", "确定", WindowModeType::UNKNOWN_WINDOW_MODE);
-    sptr<IIamCallback> testCallback = new MockUserAuthCallback();
+    sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
     EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _)).Times(0);
     EXPECT_CALL(*mockHdi, BeginAuthenticationExt(_, _, _)).Times(0);
+    ON_CALL(*mockHdi, GetValidSolution)
+        .WillByDefault(
+            [](int32_t userId, const std::vector<int32_t>& authTypes, uint32_t authTrustLevel,
+            std::vector<int32_t>& validTypes) {
+                validTypes.clear();
+                return HDF_ERR_INVALID_PARAM;
+            }
+        );
     sptr<IModalCallback> testModalCallback(nullptr);
     uint64_t contextId = 0;
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
-    EXPECT_EQ(ret, TYPE_NOT_SUPPORT);
-    EXPECT_EQ(contextId, BAD_CONTEXT_ID);
+    EXPECT_EQ(ret, HDF_ERR_INVALID_PARAM);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1177,861 +1163,629 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_033, TestSize.Level0)
     sptr<IModalCallback> testModalCallback(nullptr);
     uint64_t contextId = 0;
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
-    EXPECT_EQ(ret, TYPE_NOT_SUPPORT);
+    EXPECT_EQ(ret, INVALID_PARAMETERS);
     EXPECT_EQ(contextId, BAD_CONTEXT_ID);
     IpcCommon::DeleteAllPermission();
 }
 
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthPermissionAndParam_001, TestSize.Level0)
+HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_CompanionDevice_001, TestSize.Level0)
 {
     UserAuthService service;
-    std::vector<uint8_t> challenge = {1};
-    const AuthParamInner authParam = {
-        .challenge = challenge,
-        .authTypes = {PIN, FACE, PRIVATE_PIN},
-        .authTrustLevel = ATL2,
-        .isUserIdSpecified = true,
-    };
-    const WidgetParamInner widgetParam = {
-        .title = "使用密码验证",
-        .navigationButtonText = "navigationButtonText",
-        .windowMode = WindowModeType::NONE_INTERRUPTION_DIALOG_BOX,
-    };
-    int32_t ret = service.CheckAuthPermissionAndParam(authParam, widgetParam, true);
-    EXPECT_EQ(ret, CHECK_SYSTEM_APP_FAILED);
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthPermissionAndParam_002, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<uint8_t> challenge = {1};
-    const AuthParamInner authParam = {
-        .challenge = challenge,
-        .authTypes = {PIN, FACE, PRIVATE_PIN},
-        .authTrustLevel = ATL2,
-        .isUserIdSpecified = true,
-    };
-    const WidgetParamInner widgetParam = {
-        .title = "使用密码验证",
-        .navigationButtonText = "navigationButtonText",
-        .windowMode = WindowModeType::UNKNOWN_WINDOW_MODE,
-    };
-    int32_t ret = service.CheckAuthPermissionAndParam(authParam, widgetParam, true);
-    EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
-    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    ret = service.CheckAuthPermissionAndParam(authParam, widgetParam, true);
-    EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
+    int32_t apiVersion = 10;
+    std::vector<uint8_t> challenge = {1, 2, 3, 4};
+    std::vector<int32_t> authTypes = {static_cast<int32_t>(AuthType::COMPANION_DEVICE)};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "Companion Device Auth", "", WindowModeType::DIALOG_BOX);
+    sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(2);
+    IpcCommon::AddPermission(IS_SYSTEM_APP);
+    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _)).Times(0);
+    EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _)).Times(1);
+    ON_CALL(*mockHdi, GetValidSolution).WillByDefault([](auto userId, auto &authTypes,
+        auto authTrustLevel, auto &validTypes) {
+        validTypes = {AuthType::COMPANION_DEVICE};
+        return HDF_SUCCESS;
+    });
+    ON_CALL(*mockHdi, GetCredential).WillByDefault([](auto userId, auto authType, auto &infos) {
+        infos.push_back({.credentialId = 1, .executorIndex = 0, .templateId = 3,
+            .authType = static_cast<HdiAuthType>(AuthType::COMPANION_DEVICE)});
+        return HDF_SUCCESS;
+    });
+    auto resourceNode = Common::MakeShared<MockResourceNode>();
+    EXPECT_CALL(*resourceNode, GetExecutorIndex()).WillRepeatedly(Return(0));
+    ResourceNodePool::Instance().Insert(resourceNode);
+    ON_CALL(*resourceNode, GetProperty).WillByDefault([](auto &condition, auto &values) {
+        values.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, -1);
+        values.SetInt32Value(Attributes::ATTR_FREEZING_TIME, 0);
+        return SUCCESS;
+    });
+    sptr<IIamCallback> callbackInterface = testCallback;
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
+        contextId);
+    EXPECT_EQ(ret, SUCCESS);
+    EXPECT_NE(contextId, BAD_CONTEXT_ID);
+    service.CancelAuthOrIdentify(contextId, 0);
+    EXPECT_TRUE(ResourceNodePool::Instance().Delete(0));
     IpcCommon::DeleteAllPermission();
 }
 
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthPermissionAndParam_003, TestSize.Level0)
+HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_CompanionDeviceWithPin_001, TestSize.Level0)
 {
     UserAuthService service;
-    std::vector<uint8_t> challenge = {1};
-    AuthParamInner authParam = {
-        .challenge = challenge,
-        .authTypes = {PIN, FACE, PRIVATE_PIN},
-        .authTrustLevel = ATL2,
-        .isUserIdSpecified = true,
-    };
-    WidgetParamInner widgetParam = {
-        .title = "使用密码验证",
-        .navigationButtonText = "navigationButtonText",
-        .windowMode = WindowModeType::UNKNOWN_WINDOW_MODE,
-    };
+    int32_t apiVersion = 10;
+    std::vector<uint8_t> challenge = {1, 2, 3, 4};
+    std::vector<int32_t> authTypes = {static_cast<int32_t>(AuthType::COMPANION_DEVICE), PIN};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "Mixed Auth", "", WindowModeType::DIALOG_BOX);
+    sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
-    int32_t ret = service.CheckAuthPermissionAndParam(authParam, widgetParam, true);
-    EXPECT_EQ(ret, CHECK_PERMISSION_FAILED);
-
-    authParam.credentialIdList.resize(MAX_USER_CREDENTIAL_SIZE + 1);
-    ret = service.CheckAuthPermissionAndParam(authParam, widgetParam, true);
+    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _)).Times(0);
+    EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _)).Times(0);
+    sptr<IIamCallback> callbackInterface = testCallback;
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
+        contextId);
     EXPECT_EQ(ret, INVALID_PARAMETERS);
     IpcCommon::DeleteAllPermission();
 }
 
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthPermissionAndParam_004, TestSize.Level0)
+HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_CompanionDeviceWithPrivatePin_001, TestSize.Level0)
 {
     UserAuthService service;
-    std::vector<uint8_t> challenge = {1};
-    const AuthParamInner authParam = {
-        .userId = 200,
-        .challenge = challenge,
-        .authTypes = {PIN, FACE, PRIVATE_PIN},
-        .authTrustLevel = ATL2,
-        .isUserIdSpecified = true,
-    };
-    const WidgetParamInner widgetParam = {
-        .navigationButtonText = "navigationButtonText",
-        .windowMode = WindowModeType::UNKNOWN_WINDOW_MODE,
-    };
-    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    int32_t apiVersion = 10;
+    std::vector<uint8_t> challenge = {1, 2, 3, 4};
+    std::vector<int32_t> authTypes = {static_cast<int32_t>(AuthType::COMPANION_DEVICE),
+        static_cast<int32_t>(AuthType::PRIVATE_PIN)};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "Mixed Auth", "", WindowModeType::DIALOG_BOX);
+    sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
-    IpcCommon::AddPermission(USER_AUTH_FROM_BACKGROUND);
-    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    int32_t ret = service.CheckAuthPermissionAndParam(authParam, widgetParam, true);
+    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    sptr<IIamCallback> callbackInterface = testCallback;
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
+        contextId);
     EXPECT_EQ(ret, INVALID_PARAMETERS);
     IpcCommon::DeleteAllPermission();
 }
 
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_002, TestSize.Level0)
+HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_CompanionDeviceHdiFail_001, TestSize.Level0)
 {
     UserAuthService service;
-    std::vector<uint8_t> challenge = {1};
-    const WidgetParamInner widgetParam = {
-        .title = "使用密码验证",
-        .navigationButtonText = "navigationButtonText",
-        .windowMode = WindowModeType::UNKNOWN_WINDOW_MODE,
-    };
-    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    int32_t apiVersion = 10;
+    std::vector<uint8_t> challenge = {1, 2, 3, 4};
+    std::vector<int32_t> authTypes = {static_cast<int32_t>(AuthType::COMPANION_DEVICE)};
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "Companion Device Auth", "", WindowModeType::DIALOG_BOX);
+    sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
-    IpcCommon::AddPermission(USER_AUTH_FROM_BACKGROUND);
-    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    int32_t userId = 100;
+    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _)).Times(0);
+    EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _)).Times(1);
+    ON_CALL(*mockHdi, GetValidSolution)
+        .WillByDefault(
+            [](int32_t userId, const std::vector<int32_t>& authTypes, uint32_t authTrustLevel,
+            std::vector<int32_t>& validTypes) {
+                validTypes.clear();
+                validTypes.push_back(AuthType::COMPANION_DEVICE);
+                return HDF_FAILURE;
+            }
+        );
+    sptr<IIamCallback> callbackInterface = testCallback;
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
+        contextId);
+    EXPECT_EQ(ret, HDF_FAILURE);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_FilterCompanionDevice_001, TestSize.Level0)
+{
+    UserAuthService service;
+    int32_t apiVersion = 10;
+    IpcAuthParamInner authParam;
+    IpcWidgetParamInner widgetParam;
+    std::vector<uint8_t> challenge = {1, 2, 3, 4};
+    std::vector<int32_t> authTypes = {AuthType::COMPANION_DEVICE, AuthType::FACE};
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    InitIpcWidgetParamInner(widgetParam, "Mixed Auth", "", WindowModeType::DIALOG_BOX);
+    sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
+    IpcCommon::AddPermission(IS_SYSTEM_APP);
+    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _)).Times(0);
+    EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _)).Times(1);
+    ON_CALL(*mockHdi, GetValidSolution).WillByDefault([](auto, auto, auto, auto &v) {
+        v = {AuthType::COMPANION_DEVICE, AuthType::FACE};
+        return HDF_SUCCESS;
+    });
+    ON_CALL(*mockHdi, GetCredential).WillByDefault([](auto, auto t, auto &i) {
+        (t == AuthType::COMPANION_DEVICE) ?
+            i.push_back({.credentialId = 1, .executorIndex = 1, .templateId = 1,
+                .authType = static_cast<HdiAuthType>(AuthType::COMPANION_DEVICE)}) :
+            i.push_back({.credentialId = 2, .executorIndex = 2, .templateId = 2,
+                .authType = static_cast<HdiAuthType>(AuthType::FACE)});
+        return HDF_SUCCESS;
+    });
+    auto node1 = Common::MakeShared<MockResourceNode>();
+    EXPECT_CALL(*node1, GetExecutorIndex()).WillRepeatedly(Return(1));
+    auto node2 = Common::MakeShared<MockResourceNode>();
+    EXPECT_CALL(*node2, GetExecutorIndex()).WillRepeatedly(Return(2));
+    ResourceNodePool::Instance().Insert(node1);
+    ResourceNodePool::Instance().Insert(node2);
+    auto prop = [](const Attributes &, Attributes &v) {
+        v.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, -1);
+        v.SetInt32Value(Attributes::ATTR_FREEZING_TIME, 0);
+        return SUCCESS;
+    };
+    ON_CALL(*node1, GetProperty).WillByDefault(prop);
+    ON_CALL(*node2, GetProperty).WillByDefault(prop);
+    uint64_t contextId = 0;
+    EXPECT_EQ(service.AuthWidget(apiVersion, authParam, widgetParam, testCallback,
+        sptr<IModalCallback>(nullptr), contextId), SUCCESS);
+    service.CancelAuthOrIdentify(contextId, 0);
+    (void)ResourceNodePool::Instance().Delete(1);
+    (void)ResourceNodePool::Instance().Delete(2);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_ThreeTypesCombo_001, TestSize.Level0)
+{
+    UserAuthService service;
+    int32_t apiVersion = 10;
+    std::vector<uint8_t> challenge = {1, 2, 3, 4};
+    std::vector<int32_t> authTypes = {
+        static_cast<int32_t>(AuthType::FACE),
+        static_cast<int32_t>(AuthType::FINGERPRINT),
+        static_cast<int32_t>(AuthType::COMPANION_DEVICE)
+    };
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "Three Types Auth", "", WindowModeType::DIALOG_BOX);
+    sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
+    IpcCommon::AddPermission(IS_SYSTEM_APP);
+    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    sptr<IIamCallback> callbackInterface = testCallback;
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
+        contextId);
+    EXPECT_EQ(ret, INVALID_PARAMETERS);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_CompanionDeviceWithPinAndPrivatePin_001, TestSize.Level0)
+{
+    UserAuthService service;
+    int32_t apiVersion = 10;
+    std::vector<uint8_t> challenge = {1, 2, 3, 4};
+    std::vector<int32_t> authTypes = {
+        static_cast<int32_t>(AuthType::COMPANION_DEVICE),
+        PIN,
+        static_cast<int32_t>(AuthType::PRIVATE_PIN)
+    };
+    IpcAuthParamInner authParam;
+    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
+    IpcWidgetParamInner widgetParam;
+    InitIpcWidgetParamInner(widgetParam, "Three Types Auth", "", WindowModeType::DIALOG_BOX);
+    sptr<MockUserAuthCallback> testCallback(new (std::nothrow) MockUserAuthCallback);
+    EXPECT_NE(testCallback, nullptr);
+    EXPECT_CALL(*testCallback, OnResult(_, _)).Times(1);
+    IpcCommon::AddPermission(IS_SYSTEM_APP);
+    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    sptr<IIamCallback> callbackInterface = testCallback;
+    sptr<IModalCallback> testModalCallback(nullptr);
+    uint64_t contextId = 0;
+    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
+        contextId);
+    EXPECT_EQ(ret, INVALID_PARAMETERS);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckPrivatePinEnroll_ThreeTypesCombo_001, TestSize.Level0)
+{
+    UserAuthService service;
     std::vector<AuthType> authTypeList;
-    authTypeList.push_back(FACE);
-    authTypeList.push_back(ALL);
-    authTypeList.push_back(PIN);
-    authTypeList.push_back(FINGERPRINT);
-    AuthTrustLevel atl = ATL3;
+    authTypeList.push_back(AuthType::FINGERPRINT);
+    authTypeList.push_back(AuthType::FACE);
+    authTypeList.push_back(AuthType::PRIVATE_PIN);
+    std::vector<AuthType> validAuthTypeList;
+    validAuthTypeList.push_back(AuthType::FINGERPRINT);
+    validAuthTypeList.push_back(AuthType::FACE);
+    validAuthTypeList.push_back(AuthType::COMPANION_DEVICE);
+    EXPECT_EQ(service.CheckPrivatePinEnroll(authTypeList, validAuthTypeList), false);
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckPrivatePinEnroll_ThreeTypesWithoutFace_001, TestSize.Level0)
+{
+    UserAuthService service;
+    std::vector<AuthType> authTypeList;
+    authTypeList.push_back(AuthType::FINGERPRINT);
+    authTypeList.push_back(AuthType::PRIVATE_PIN);
+    std::vector<AuthType> validAuthTypeList;
+    validAuthTypeList.push_back(AuthType::FINGERPRINT);
+    validAuthTypeList.push_back(AuthType::COMPANION_DEVICE);
+    validAuthTypeList.push_back(AuthType::PIN);
+    EXPECT_EQ(service.CheckPrivatePinEnroll(authTypeList, validAuthTypeList), true);
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckPrivatePinEnroll_ThreeTypesWithoutFinger_001, TestSize.Level0)
+{
+    UserAuthService service;
+    std::vector<AuthType> authTypeList;
+    authTypeList.push_back(AuthType::FACE);
+    authTypeList.push_back(AuthType::PRIVATE_PIN);
+    std::vector<AuthType> validAuthTypeList;
+    validAuthTypeList.push_back(AuthType::FACE);
+    validAuthTypeList.push_back(AuthType::COMPANION_DEVICE);
+    validAuthTypeList.push_back(AuthType::PIN);
+    EXPECT_EQ(service.CheckPrivatePinEnroll(authTypeList, validAuthTypeList), true);
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckPrivatePinEnroll_ThreeTypesWithoutCompanion_001, TestSize.Level0)
+{
+    UserAuthService service;
+    std::vector<AuthType> authTypeList;
+    authTypeList.push_back(AuthType::FINGERPRINT);
+    authTypeList.push_back(AuthType::FACE);
+    authTypeList.push_back(AuthType::PRIVATE_PIN);
+    std::vector<AuthType> validAuthTypeList;
+    validAuthTypeList.push_back(AuthType::FINGERPRINT);
+    validAuthTypeList.push_back(AuthType::FACE);
+    validAuthTypeList.push_back(AuthType::PIN);
+    EXPECT_EQ(service.CheckPrivatePinEnroll(authTypeList, validAuthTypeList), true);
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckSkipLockedBiometricAuth_NaviBtnWithOnlyCompanion_001, TestSize.Level0)
+{
+    UserAuthService service;
+    int32_t userId = 100;
+    AuthParamInner authParam = {};
+    authParam.authTypes.push_back(AuthType::COMPANION_DEVICE);
+    authParam.skipLockedBiometricAuth = true;
+    WidgetParamInner widgetParam = {};
+    widgetParam.title = "test";
+    widgetParam.navigationButtonText = "navigationBtn";
+    std::vector<AuthType> validType;
+    validType.push_back(AuthType::COMPANION_DEVICE);
+
+    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    IpcCommon::AddPermission(IS_SYSTEM_APP);
+    IpcCommon::AddPermission(USER_AUTH_FROM_BACKGROUND);
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetCredential(_, _, _))
+        .WillOnce([](int32_t userId, int32_t authType, std::vector<HdiCredentialInfo> &infos) {
+            HdiCredentialInfo tempInfo = {
+                .credentialId = 1,
+                .executorIndex = 0,
+                .templateId = 3,
+                .authType = static_cast<HdiAuthType>(AuthType::COMPANION_DEVICE),
+            };
+            infos.push_back(tempInfo);
+            return HDF_SUCCESS;
+        });
+
+    auto resourceNode = Common::MakeShared<MockResourceNode>();
+    EXPECT_CALL(*resourceNode, GetExecutorIndex()).WillRepeatedly(Return(0));
+    ResourceNodePool::Instance().Insert(resourceNode);
+    ON_CALL(*resourceNode, GetProperty)
+        .WillByDefault(
+            [](const Attributes &condition, Attributes &values) {
+                values.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, -1);
+                values.SetInt32Value(Attributes::ATTR_FREEZING_TIME, 0);
+                return SUCCESS;
+            }
+        );
+
+    int32_t ret = service.CheckSkipLockedBiometricAuth(userId, authParam, widgetParam, validType);
+    EXPECT_EQ(ret, CANCELED_FROM_WIDGET);
+    
+    ResourceNodePool::Instance().Delete(0);
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckSkipLockedBiometricAuth_EmptyAuthTypeList_001, TestSize.Level0)
+{
+    UserAuthService service;
+    int32_t userId = 100;
+    AuthParamInner authParam = {};
+    authParam.skipLockedBiometricAuth = true;
+    WidgetParamInner widgetParam = {};
+    widgetParam.title = "test";
+    widgetParam.navigationButtonText = "navigationBtn";
+    std::vector<AuthType> validType;
+
+    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    IpcCommon::AddPermission(IS_SYSTEM_APP);
+    IpcCommon::AddPermission(USER_AUTH_FROM_BACKGROUND);
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+
+    int32_t ret = service.CheckSkipLockedBiometricAuth(userId, authParam, widgetParam, validType);
+    EXPECT_EQ(ret, CANCELED_FROM_WIDGET);
+    
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceFilterCompanionDevice_OnlyCompanionDevice_001, TestSize.Level0)
+{
+    UserAuthService service;
+    std::vector<AuthType> validType;
+    validType.push_back(AuthType::COMPANION_DEVICE);
+    service.FilterCompanionDevice(validType);
+    EXPECT_EQ(validType.size(), 1);
+    EXPECT_EQ(validType[0], AuthType::COMPANION_DEVICE);
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceFilterCompanionDevice_OnlyOtherTypes_001, TestSize.Level0)
+{
+    UserAuthService service;
+    std::vector<AuthType> validType;
+    validType.push_back(AuthType::FACE);
+    validType.push_back(AuthType::FINGERPRINT);
+    service.FilterCompanionDevice(validType);
+    EXPECT_EQ(validType.size(), 2);
+    EXPECT_NE(validType[0], AuthType::COMPANION_DEVICE);
+    EXPECT_NE(validType[1], AuthType::COMPANION_DEVICE);
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceFilterCompanionDevice_EmptyList_001, TestSize.Level0)
+{
+    UserAuthService service;
+    std::vector<AuthType> validType;
+    service.FilterCompanionDevice(validType);
+    EXPECT_EQ(validType.size(), 0);
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_NaviBtnWithFaceFingerCompanion_001, TestSize.Level0)
+{
+    UserAuthService service;
+    std::vector<uint8_t> challenge = {1};
+    int32_t userId = 100;
+    const WidgetParamInner widgetParam = {
+        .title = "test_title",
+        .navigationButtonText = "navButton",
+        .windowMode = WindowModeType::DIALOG_BOX,
+    };
     const AuthParamInner authParam = {
         .userId = userId,
         .challenge = challenge,
-        .authTypes = authTypeList,
-        .authTrustLevel = atl,
+        .authTypes = {AuthType::FACE, AuthType::FINGERPRINT, AuthType::COMPANION_DEVICE},
+        .authTrustLevel = ATL3,
         .isUserIdSpecified = true,
     };
+    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    IpcCommon::AddPermission(IS_SYSTEM_APP);
+    IpcCommon::AddPermission(USER_AUTH_FROM_BACKGROUND);
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     std::vector<AuthType> validTypeList;
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _)).WillOnce(Return(HDF_SUCCESS));
+    EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _))
+        .WillOnce([](int32_t userId, const std::vector<int32_t> &authTypes,
+            uint32_t authTrustLevel, std::vector<int32_t> &validTypes) {
+            validTypes.push_back(static_cast<int32_t>(AuthType::FACE));
+            validTypes.push_back(static_cast<int32_t>(AuthType::FINGERPRINT));
+            validTypes.push_back(static_cast<int32_t>(AuthType::COMPANION_DEVICE));
+            return HDF_SUCCESS;
+        });
     int32_t ret = service.CheckValidSolution(userId, authParam, widgetParam, validTypeList);
-    EXPECT_EQ(ret, TYPE_NOT_SUPPORT);
+    EXPECT_EQ(ret, SUCCESS);
     MockIUserAuthInterface::Holder::GetInstance().Reset();
     IpcCommon::DeleteAllPermission();
 }
 
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckPrivatePinEnroll001, TestSize.Level0)
+HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_NaviBtnWithOnlyCompanion_001, TestSize.Level0)
 {
     UserAuthService service;
-    std::vector<AuthType> authTypeList;
-    authTypeList.push_back(AuthType::FINGERPRINT);
-    authTypeList.push_back(AuthType::FACE);
-    authTypeList.push_back(AuthType::PRIVATE_PIN);
-    std::vector<AuthType> validAuthTypeList;
-    validAuthTypeList.push_back(AuthType::FINGERPRINT);
-    validAuthTypeList.push_back(AuthType::FACE);
-    EXPECT_EQ(service.CheckPrivatePinEnroll(authTypeList, validAuthTypeList), false);
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckPrivatePinEnroll002, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<AuthType> authTypeList;
-    authTypeList.push_back(AuthType::FINGERPRINT);
-    authTypeList.push_back(AuthType::FACE);
-    authTypeList.push_back(AuthType::PRIVATE_PIN);
-    std::vector<AuthType> validAuthTypeList;
-    validAuthTypeList.push_back(AuthType::PRIVATE_PIN);
-    validAuthTypeList.push_back(AuthType::FACE);
-    EXPECT_EQ(service.CheckPrivatePinEnroll(authTypeList, validAuthTypeList), true);
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckPrivatePinEnroll003, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<AuthType> authTypeList;
-    authTypeList.push_back(AuthType::FINGERPRINT);
-    authTypeList.push_back(AuthType::FACE);
-    authTypeList.push_back(AuthType::PRIVATE_PIN);
-    std::vector<AuthType> validAuthTypeList;
-    validAuthTypeList.push_back(AuthType::FINGERPRINT);
-    validAuthTypeList.push_back(AuthType::PRIVATE_PIN);
-    EXPECT_EQ(service.CheckPrivatePinEnroll(authTypeList, validAuthTypeList), true);
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceNotice_001, TestSize.Level0)
-{
-    UserAuthService service;
-    IpcCommon::AddPermission(SUPPORT_USER_AUTH);
-    int32_t ret = service.Notice(static_cast<int32_t>(NoticeType::WIDGET_NOTICE), "PIN");
-    EXPECT_NE(ret, ResultCode::SUCCESS);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceNotice_002, TestSize.Level0)
-{
-    UserAuthService service;
+    std::vector<uint8_t> challenge = {1};
+    int32_t userId = 100;
+    const WidgetParamInner widgetParam = {
+        .title = "test_title",
+        .navigationButtonText = "navButton",
+        .windowMode = WindowModeType::DIALOG_BOX,
+    };
+    const AuthParamInner authParam = {
+        .userId = userId,
+        .challenge = challenge,
+        .authTypes = {AuthType::COMPANION_DEVICE},
+        .authTrustLevel = ATL3,
+        .isUserIdSpecified = true,
+    };
+    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
-    int32_t ret = service.Notice(static_cast<int32_t>(NoticeType::WIDGET_NOTICE), "PIN");
-    EXPECT_EQ(ret, ResultCode::CHECK_PERMISSION_FAILED);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceNotice_003, TestSize.Level0)
-{
-    UserAuthService service;
-    IpcCommon::AddPermission(IS_SYSTEM_APP);
-    IpcCommon::AddPermission(SUPPORT_USER_AUTH);
-    int32_t ret = service.Notice(static_cast<int32_t>(NoticeType::WIDGET_NOTICE), "PIN");
-    EXPECT_EQ(ret, ResultCode::INVALID_PARAMETERS);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceRegisterWidgetCallback_001, TestSize.Level0)
-{
-    UserAuthService service;
-    sptr<IWidgetCallback> testCallback = nullptr;
-    EXPECT_EQ(service.RegisterWidgetCallback(1, testCallback), ResultCode::CHECK_SYSTEM_APP_FAILED);
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceRegisterWidgetCallback_002, TestSize.Level0)
-{
-    UserAuthService service;
-    sptr<IWidgetCallback> testCallback = nullptr;
-    IpcCommon::AddPermission(IS_SYSTEM_APP);
-    EXPECT_EQ(service.RegisterWidgetCallback(1, testCallback), ResultCode::CHECK_PERMISSION_FAILED);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceRegisterWidgetCallback_003, TestSize.Level0)
-{
-    UserAuthService service;
-    sptr<IWidgetCallback> testCallback = nullptr;
-    IpcCommon::AddPermission(IS_SYSTEM_APP);
-    IpcCommon::AddPermission(SUPPORT_USER_AUTH);
-    EXPECT_EQ(service.RegisterWidgetCallback(2, testCallback), ResultCode::INVALID_PARAMETERS);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceRegisterWidgetCallback_004, TestSize.Level0)
-{
-    UserAuthService service;
-    sptr<IWidgetCallback> testCallback = nullptr;
-    IpcCommon::AddPermission(IS_SYSTEM_APP);
-    IpcCommon::AddPermission(SUPPORT_USER_AUTH);
-    EXPECT_EQ(service.RegisterWidgetCallback(1, testCallback), ResultCode::INVALID_PARAMETERS);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceRegisterWidgetCallback_005, TestSize.Level0)
-{
-    UserAuthService service;
-    sptr<IWidgetCallback> testCallback = new MockIWidgetCallback();
-    IpcCommon::AddPermission(IS_SYSTEM_APP);
-    IpcCommon::AddPermission(SUPPORT_USER_AUTH);
-    EXPECT_EQ(service.RegisterWidgetCallback(1, testCallback), ResultCode::SUCCESS);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceRegisterWidgetCallback_006, TestSize.Level0)
-{
-    UserAuthService service;
-    sptr<IWidgetCallback> testCallback = nullptr;
-    IpcCommon::AddPermission(IS_SYSTEM_APP);
-    EXPECT_EQ(service.RegisterWidgetCallback(1, testCallback), ResultCode::CHECK_PERMISSION_FAILED);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceRegistEventListerner_001, TestSize.Level0)
-{
-    UserAuthService service;
-    sptr<IEventListenerCallback> testCallback = nullptr;
-    IpcCommon::AddPermission(IS_SYSTEM_APP);
-    EXPECT_EQ(service.RegistUserAuthSuccessEventListener(testCallback), ResultCode::INVALID_PARAMETERS);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceRegistEventListerner_003, TestSize.Level0)
-{
-    UserAuthService service;
-    sptr<IEventListenerCallback> testCallback = new MockEventListener();
-    IpcCommon::AddPermission(IS_SYSTEM_APP);
-    EXPECT_EQ(service.RegistUserAuthSuccessEventListener(testCallback),
-        ResultCode::CHECK_PERMISSION_FAILED);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceRegistEventListerner_004, TestSize.Level0)
-{
-    UserAuthService service;
-    sptr<IEventListenerCallback> testCallback = new MockEventListener();
+    IpcCommon::AddPermission(USER_AUTH_FROM_BACKGROUND);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    EXPECT_EQ(service.RegistUserAuthSuccessEventListener(testCallback),
-        ResultCode::GENERAL_ERROR);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceRegistEventListerner_005, TestSize.Level0)
-{
-    UserAuthService service;
-    sptr<IEventListenerCallback> testCallback = new MockEventListener();
-    EXPECT_EQ(service.RegistUserAuthSuccessEventListener(testCallback),
-        ResultCode::CHECK_PERMISSION_FAILED);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceUnRegistEventListerner_001, TestSize.Level0)
-{
-    UserAuthService service;
-    sptr<IEventListenerCallback> testCallback = nullptr;
-    IpcCommon::AddPermission(IS_SYSTEM_APP);
-    EXPECT_EQ(service.UnRegistUserAuthSuccessEventListener(testCallback), ResultCode::INVALID_PARAMETERS);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceUnRegistEventListerner_002, TestSize.Level0)
-{
-    UserAuthService service;
-    sptr<IEventListenerCallback> testCallback = new MockEventListener();
-    IpcCommon::AddPermission(IS_SYSTEM_APP);
-    EXPECT_EQ(service.UnRegistUserAuthSuccessEventListener(testCallback), ResultCode::CHECK_PERMISSION_FAILED);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceUnRegistEventListerner_003, TestSize.Level0)
-{
-    UserAuthService service;
-    sptr<IEventListenerCallback> testCallback = new MockEventListener();
-    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    EXPECT_EQ(service.UnRegistUserAuthSuccessEventListener(testCallback), ResultCode::GENERAL_ERROR);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceUnRegistEventListerner_004, TestSize.Level0)
-{
-    UserAuthService service;
-    sptr<IEventListenerCallback> testCallback = new MockEventListener();
-    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    EXPECT_EQ(service.RegistUserAuthSuccessEventListener(testCallback), ResultCode::GENERAL_ERROR);
-    EXPECT_EQ(service.UnRegistUserAuthSuccessEventListener(testCallback), ResultCode::GENERAL_ERROR);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceSetGlobalConfigParam001, TestSize.Level0)
-{
-    UserAuthService service;
-    IpcGlobalConfigParam param = {};
-    EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::CHECK_PERMISSION_FAILED);
-
-    IpcCommon::AddPermission(ENTERPRISE_DEVICE_MGR);
-    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::INVALID_PARAMETERS);
-
-    param.type = PIN_EXPIRED_PERIOD;
-    EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::INVALID_PARAMETERS);
-    param.authTypes.push_back(PIN);
-    EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::SUCCESS);
-
+    std::vector<AuthType> validTypeList;
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, SetGlobalConfigParam(_)).Times(1);
-    ON_CALL(*mockHdi, SetGlobalConfigParam)
-        .WillByDefault(
-            [](const HdiGlobalConfigParam &param) {
-                return HDF_SUCCESS;
-            }
-        );
-    EXPECT_EQ(service.SetGlobalConfigParam(param), HDF_SUCCESS);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceSetGlobalConfigParam002, TestSize.Level0)
-{
-    UserAuthService service;
-    IpcGlobalConfigParam param = {};
-    EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::CHECK_PERMISSION_FAILED);
-
-    IpcCommon::AddPermission(ENTERPRISE_DEVICE_MGR);
-    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::INVALID_PARAMETERS);
-
-    param.type = ENABLE_STATUS;
-    param.value.enableStatus = true;
-    param.userIds.push_back(1);
-    param.authTypes.push_back(PIN);
-    EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::SUCCESS);
-
-    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, SetGlobalConfigParam(_)).Times(1);
-    ON_CALL(*mockHdi, SetGlobalConfigParam)
-        .WillByDefault(
-            [](const HdiGlobalConfigParam &param) {
-                return HDF_FAILURE;
-            }
-        );
-    EXPECT_EQ(service.SetGlobalConfigParam(param), HDF_FAILURE);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceSetGlobalConfigParam003, TestSize.Level0)
-{
-    UserAuthService service;
-    IpcGlobalConfigParam param = {};
-    IpcCommon::AddPermission(ENTERPRISE_DEVICE_MGR);
-    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::INVALID_PARAMETERS);
-
-    param.type = PIN_EXPIRED_PERIOD;
-    param.value.enableStatus = true;
-    param.userIds.push_back(1);
-    param.authTypes.push_back(ALL);
-    param.authTypes.push_back(PIN);
-    param.authTypes.push_back(FACE);
-    param.authTypes.push_back(FINGERPRINT);
-    param.authTypes.push_back(RECOVERY_KEY);
-    EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::INVALID_PARAMETERS);
-    param.authTypes.clear();
-    param.authTypes.push_back(FACE);
-    EXPECT_EQ(service.SetGlobalConfigParam(param), ResultCode::INVALID_PARAMETERS);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceVerifyAuthToken001, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<uint8_t> testTokenIn = {};
-    testTokenIn.resize(1);
-    uint64_t allowableDuration = 0;
-
-    sptr<MockVerifyTokenCallback> testCallback(nullptr);
-
-    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, VerifyAuthToken(_, _, _, _))
-        .WillOnce([](const std::vector<uint8_t>& tokenIn, uint64_t allowableDuration,
-            HdiUserAuthTokenPlain &tokenPlainOut, std::vector<uint8_t>& rootSecret) {
+    EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _))
+        .WillOnce([](int32_t userId, const std::vector<int32_t> &authTypes,
+            uint32_t authTrustLevel, std::vector<int32_t> &validTypes) {
+            validTypes.push_back(static_cast<int32_t>(AuthType::COMPANION_DEVICE));
             return HDF_SUCCESS;
         });
-
-    testCallback = sptr<MockVerifyTokenCallback>(new (std::nothrow) MockVerifyTokenCallback());
-    EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnVerifyTokenResult(_, _)).Times(1);
-    IpcCommon::AddPermission(USE_USER_ACCESS_MANAGER);
-    IpcCommon::AddPermission(IS_SYSTEM_APP);
-    sptr<IVerifyTokenCallback> callbackInterface = testCallback;
-    service.VerifyAuthToken(testTokenIn, allowableDuration, callbackInterface);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceVerifyAuthToken002, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<uint8_t> testTokenIn = {};
-    uint64_t allowableDuration = 0;
-    sptr<MockVerifyTokenCallback> testCallback(nullptr);
-    testCallback = sptr<MockVerifyTokenCallback>(new (std::nothrow) MockVerifyTokenCallback());
-    EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnVerifyTokenResult(_, _)).Times(2);
-    sptr<IVerifyTokenCallback> callbackInterface = testCallback;
-    EXPECT_EQ(service.VerifyAuthToken(testTokenIn, allowableDuration, callbackInterface), INVALID_PARAMETERS);
-
-    testTokenIn.resize(1);
-    allowableDuration = 25 * 60 * 60 * 1000;
-    service.VerifyAuthToken(testTokenIn, allowableDuration, callbackInterface);
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceVerifyAuthToken003, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<uint8_t> testTokenIn = {};
-    testTokenIn.resize(1);
-    uint64_t allowableDuration = 0;
-    sptr<MockVerifyTokenCallback> testCallback(nullptr);
-    testCallback = sptr<MockVerifyTokenCallback>(new (std::nothrow) MockVerifyTokenCallback());
-    EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnVerifyTokenResult(_, _)).Times(2);
-    sptr<IVerifyTokenCallback> callbackInterface = testCallback;
-    service.VerifyAuthToken(testTokenIn, allowableDuration, callbackInterface);
-
-    IpcCommon::AddPermission(USE_USER_ACCESS_MANAGER);
-    EXPECT_EQ(service.VerifyAuthToken(testTokenIn, allowableDuration, callbackInterface), CHECK_SYSTEM_APP_FAILED);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceVerifyAuthToken004, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<uint8_t> testTokenIn = {};
-    testTokenIn.resize(1);
-    uint64_t allowableDuration = 0;
-
-    sptr<MockVerifyTokenCallback> testCallback(nullptr);
-
-    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, VerifyAuthToken(_, _, _, _))
-        .WillOnce([](const std::vector<uint8_t>& tokenIn, uint64_t allowableDuration,
-            HdiUserAuthTokenPlain &tokenPlainOut, std::vector<uint8_t>& rootSecret) {
-            return HDF_FAILURE;
-        });
-
-    testCallback = sptr<MockVerifyTokenCallback>(new (std::nothrow) MockVerifyTokenCallback());
-    EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnVerifyTokenResult(_, _)).Times(1);
-    IpcCommon::AddPermission(USE_USER_ACCESS_MANAGER);
-    IpcCommon::AddPermission(IS_SYSTEM_APP);
-    sptr<IVerifyTokenCallback> callbackInterface = testCallback;
-    EXPECT_EQ(service.VerifyAuthToken(testTokenIn, allowableDuration, callbackInterface), HDF_FAILURE);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceVerifyAuthToken005, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<uint8_t> testTokenIn = {};
-    testTokenIn.resize(1);
-    uint64_t allowableDuration = 0;
-
-    sptr<MockVerifyTokenCallback> testCallback(nullptr);
-
-    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, VerifyAuthToken(_, _, _, _))
-        .WillOnce([](const std::vector<uint8_t>& tokenIn, uint64_t allowableDuration,
-            HdiUserAuthTokenPlain &tokenPlainOut, std::vector<uint8_t>& rootSecret) {
-            rootSecret.push_back(1);
-            return HDF_SUCCESS;
-        });
-
-    testCallback = sptr<MockVerifyTokenCallback>(new (std::nothrow) MockVerifyTokenCallback());
-    EXPECT_NE(testCallback, nullptr);
-    EXPECT_CALL(*testCallback, OnVerifyTokenResult(_, _)).Times(1);
-    IpcCommon::AddPermission(USE_USER_ACCESS_MANAGER);
-    IpcCommon::AddPermission(IS_SYSTEM_APP);
-    sptr<IVerifyTokenCallback> callbackInterface = testCallback;
-    EXPECT_EQ(service.VerifyAuthToken(testTokenIn, allowableDuration, callbackInterface), SUCCESS);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, QueryReusableAuthResult001, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<uint8_t> tempChallenge = {};
-    tempChallenge.resize(32);
-    IpcAuthParamInner ipcAuthParamInner = {};
-    ipcAuthParamInner.userId = 1;
-    ipcAuthParamInner.isUserIdSpecified = true;
-    ipcAuthParamInner.challenge = tempChallenge;
-    ipcAuthParamInner.authTrustLevel = ATL3;
-    ipcAuthParamInner.authTypes.push_back(PIN);
-    ipcAuthParamInner.reuseUnlockResult.isReuse = true;
-    ipcAuthParamInner.reuseUnlockResult.reuseMode = AUTH_TYPE_RELEVANT;
-    ipcAuthParamInner.reuseUnlockResult.reuseDuration = 5 * 60 * 1000;
-
-    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, CheckReuseUnlockResult(_, _))
-        .WillOnce([](const HdiReuseUnlockParam &info, HdiReuseUnlockInfo &reuseInfo) {
-            static const uint32_t USER_AUTH_TOKEN_LEN = 148;
-            reuseInfo.token.resize(USER_AUTH_TOKEN_LEN);
-            return HDF_SUCCESS;
-        });
-
-    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    IpcCommon::AddPermission(IS_SYSTEM_APP);
-    std::vector<uint8_t> token;
-    EXPECT_EQ(service.QueryReusableAuthResult(ipcAuthParamInner, token), SUCCESS);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, QueryReusableAuthResult002, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<uint8_t> tempChallenge = {};
-    tempChallenge.resize(32);
-    IpcAuthParamInner ipcAuthParamInner = {};
-    ipcAuthParamInner.userId = 1;
-    ipcAuthParamInner.isUserIdSpecified = true;
-    ipcAuthParamInner.challenge = tempChallenge;
-    ipcAuthParamInner.authTrustLevel = ATL3;
-    ipcAuthParamInner.authTypes.push_back(PIN);
-    ipcAuthParamInner.reuseUnlockResult.isReuse = true;
-    ipcAuthParamInner.reuseUnlockResult.reuseMode = AUTH_TYPE_RELEVANT;
-    ipcAuthParamInner.reuseUnlockResult.reuseDuration = 5 * 60 * 1000;
-
-    IpcCommon::AddPermission(IS_SYSTEM_APP);
-    std::vector<uint8_t> token;
-    EXPECT_EQ(service.QueryReusableAuthResult(ipcAuthParamInner, token), CHECK_PERMISSION_FAILED);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, QueryReusableAuthResult003, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<uint8_t> tempChallenge = {};
-    tempChallenge.resize(32);
-    IpcAuthParamInner ipcAuthParamInner = {};
-    ipcAuthParamInner.userId = 1;
-    ipcAuthParamInner.isUserIdSpecified = true;
-    ipcAuthParamInner.challenge = tempChallenge;
-    ipcAuthParamInner.authTrustLevel = ATL3;
-    ipcAuthParamInner.authTypes.push_back(PIN);
-    ipcAuthParamInner.reuseUnlockResult.isReuse = true;
-    ipcAuthParamInner.reuseUnlockResult.reuseMode = AUTH_TYPE_RELEVANT;
-    ipcAuthParamInner.reuseUnlockResult.reuseDuration = 5 * 60 * 1000;
-
-    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    std::vector<uint8_t> token;
-    EXPECT_EQ(service.QueryReusableAuthResult(ipcAuthParamInner, token), CHECK_SYSTEM_APP_FAILED);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, QueryReusableAuthResult004, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<uint8_t> tempChallenge = {};
-    tempChallenge.resize(32);
-    IpcAuthParamInner ipcAuthParamInner = {};
-    ipcAuthParamInner.userId = 1;
-    ipcAuthParamInner.isUserIdSpecified = true;
-    ipcAuthParamInner.challenge = tempChallenge;
-    ipcAuthParamInner.authTrustLevel = ATL3;
-    ipcAuthParamInner.authTypes.push_back(PIN);
-    ipcAuthParamInner.reuseUnlockResult.isReuse = true;
-    ipcAuthParamInner.reuseUnlockResult.reuseMode = AUTH_TYPE_RELEVANT;
-    ipcAuthParamInner.reuseUnlockResult.reuseDuration = 5 * 60 * 1000;
-
-    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, CheckReuseUnlockResult(_, _))
-        .WillOnce([](const HdiReuseUnlockParam &info, HdiReuseUnlockInfo &reuseInfo) {
-            return HDF_FAILURE;
-        });
-
-    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    IpcCommon::AddPermission(IS_SYSTEM_APP);
-    std::vector<uint8_t> token;
-    EXPECT_EQ(service.QueryReusableAuthResult(ipcAuthParamInner, token), HDF_FAILURE);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, QueryReusableAuthResult005, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<uint8_t> tempChallenge = {};
-    tempChallenge.resize(32);
-    IpcAuthParamInner ipcAuthParamInner = {};
-    ipcAuthParamInner.userId = 1;
-    ipcAuthParamInner.isUserIdSpecified = true;
-    ipcAuthParamInner.challenge = tempChallenge;
-    ipcAuthParamInner.authTrustLevel = ATL3;
-    ipcAuthParamInner.authTypes.push_back(PIN);
-    ipcAuthParamInner.reuseUnlockResult.isReuse = true;
-    ipcAuthParamInner.reuseUnlockResult.reuseMode = AUTH_TYPE_RELEVANT;
-    ipcAuthParamInner.reuseUnlockResult.reuseDuration = 5 * 60 * 1000;
-
-    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, CheckReuseUnlockResult(_, _))
-        .WillOnce([](const HdiReuseUnlockParam &info, HdiReuseUnlockInfo &reuseInfo) {
-            return HDF_SUCCESS;
-        });
-
-    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    IpcCommon::AddPermission(IS_SYSTEM_APP);
-    std::vector<uint8_t> token;
-    EXPECT_EQ(service.QueryReusableAuthResult(ipcAuthParamInner, token), SUCCESS);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, GetAuthLockState001, TestSize.Level0)
-{
-    UserAuthService service;
-    AuthType testAuthType = PIN;
-    sptr<MockGetExecutorPropertyCallback> testCallback(nullptr);
-    int32_t ret = service.GetAuthLockState(testAuthType, testCallback);
+    int32_t ret = service.CheckValidSolution(userId, authParam, widgetParam, validTypeList);
     EXPECT_EQ(ret, INVALID_PARAMETERS);
-
-    testCallback = sptr<MockGetExecutorPropertyCallback>(new (std::nothrow) MockGetExecutorPropertyCallback());
-    EXPECT_NE(testCallback, nullptr);
-    ret = service.GetAuthLockState(testAuthType, testCallback);
-    EXPECT_EQ(ret, SUCCESS);
-
-    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
-    ret = service.GetAuthLockState(testAuthType, testCallback);
-    EXPECT_EQ(ret, SUCCESS);
+    MockIUserAuthInterface::Holder::GetInstance().Reset();
     IpcCommon::DeleteAllPermission();
 }
 
-HWTEST_F(UserAuthServiceTest, GetAuthLockState002, TestSize.Level0)
-{
-    UserAuthService service;
-    AuthType testAuthType = FACE;
-    auto testCallback = sptr<MockGetExecutorPropertyCallback>(new (std::nothrow) MockGetExecutorPropertyCallback());
-    EXPECT_NE(testCallback, nullptr);
-    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
-    OHOS::UserIam::UserAuth::IpcCommon::skipFlag_ = true;
-    auto ret = service.GetAuthLockState(testAuthType, testCallback);
-    EXPECT_EQ(ret, SUCCESS);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthPermissionAndParam_Utf8Title001, TestSize.Level0)
+HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_Fullscreen_OnlyFace_001, TestSize.Level0)
 {
     UserAuthService service;
     std::vector<uint8_t> challenge = {1};
-    const AuthParamInner authParam = {
-        .challenge = challenge,
-        .authTypes = {FACE},
-        .authTrustLevel = ATL2,
-        .isUserIdSpecified = true,
+    int32_t userId = 100;
+    const WidgetParamInner widgetParam = {
+        .title = "test_title",
+        .navigationButtonText = "",
+        .windowMode = WindowModeType::FULLSCREEN,
     };
-    WidgetParamInner widgetParam = {
-        .title = "使用密码验证",
-        .navigationButtonText = "navigationButtonText",
-        .windowMode = WindowModeType::UNKNOWN_WINDOW_MODE,
+    const AuthParamInner authParam = {
+        .userId = userId,
+        .challenge = challenge,
+        .authTypes = {AuthType::FACE},
+        .authTrustLevel = ATL3,
+        .isUserIdSpecified = true,
     };
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     IpcCommon::AddPermission(USER_AUTH_FROM_BACKGROUND);
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    int32_t ret = service.CheckAuthPermissionAndParam(authParam, widgetParam, true);
-    EXPECT_EQ(ret, SUCCESS);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthPermissionAndParam_Utf8Title002, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<uint8_t> challenge = {1};
-    const AuthParamInner authParam = {
-        .challenge = challenge,
-        .authTypes = {FACE},
-        .authTrustLevel = ATL2,
-        .isUserIdSpecified = true,
-    };
-    std::string longTitle(501, 'a');
-    WidgetParamInner widgetParam = {
-        .title = longTitle,
-        .navigationButtonText = "navigationButtonText",
-        .windowMode = WindowModeType::UNKNOWN_WINDOW_MODE,
-    };
-    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
-    IpcCommon::AddPermission(IS_SYSTEM_APP);
-    IpcCommon::AddPermission(USER_AUTH_FROM_BACKGROUND);
-    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    int32_t ret = service.CheckAuthPermissionAndParam(authParam, widgetParam, true);
-    EXPECT_EQ(ret, INVALID_PARAMETERS);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthPermissionAndParam_Utf8NaviBtn001, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<uint8_t> challenge = {1};
-    const AuthParamInner authParam = {
-        .challenge = challenge,
-        .authTypes = {FACE},
-        .authTrustLevel = ATL2,
-        .isUserIdSpecified = true,
-    };
-    WidgetParamInner widgetParam = {
-        .title = "使用密码验证",
-        .navigationButtonText = "确定",
-        .windowMode = WindowModeType::UNKNOWN_WINDOW_MODE,
-    };
-    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
-    IpcCommon::AddPermission(IS_SYSTEM_APP);
-    IpcCommon::AddPermission(USER_AUTH_FROM_BACKGROUND);
-    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    int32_t ret = service.CheckAuthPermissionAndParam(authParam, widgetParam, true);
-    EXPECT_EQ(ret, SUCCESS);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthPermissionAndParam_Utf8NaviBtn002, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<uint8_t> challenge = {1};
-    const AuthParamInner authParam = {
-        .challenge = challenge,
-        .authTypes = {FACE},
-        .authTrustLevel = ATL2,
-        .isUserIdSpecified = true,
-    };
-    std::string longNaviBtn(61, 'a');
-    WidgetParamInner widgetParam = {
-        .title = "使用密码验证",
-        .navigationButtonText = longNaviBtn,
-        .windowMode = WindowModeType::UNKNOWN_WINDOW_MODE,
-    };
-    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
-    IpcCommon::AddPermission(IS_SYSTEM_APP);
-    IpcCommon::AddPermission(USER_AUTH_FROM_BACKGROUND);
-    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
-    int32_t ret = service.CheckAuthPermissionAndParam(authParam, widgetParam, true);
-    EXPECT_EQ(ret, INVALID_PARAMETERS);
-    IpcCommon::DeleteAllPermission();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_Utf8Title001, TestSize.Level0)
-{
-    UserAuthService service;
-    int32_t apiVersion = 10;
-    std::vector<uint8_t> challenge = {1};
-    std::vector<int32_t> authTypes = {PIN};
-    IpcAuthParamInner authParam;
-    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
-    IpcWidgetParamInner widgetParam;
-    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "", WindowModeType::FULLSCREEN);
-    sptr<IIamCallback> testCallback = new MockUserAuthCallback();
-    EXPECT_NE(testCallback, nullptr);
-    IpcCommon::AddPermission(IS_SYSTEM_APP);
-    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    std::vector<AuthType> validTypeList;
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _)).Times(0);
-    EXPECT_CALL(*mockHdi, BeginAuthenticationExt(_, _, _)).Times(0);
-    ON_CALL(*mockHdi, GetValidSolution)
-        .WillByDefault(
-            [](int32_t userId, const std::vector<int32_t>& authTypes, uint32_t authTrustLevel,
-            std::vector<int32_t>& validTypes) {
-                validTypes.clear();
-                validTypes.push_back(AuthType::PIN);
-                return HDF_SUCCESS;
-            }
-        );
-    sptr<IModalCallback> testModalCallback(nullptr);
-    uint64_t contextId = 0;
-    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
-    EXPECT_EQ(ret, GENERAL_ERROR);
-    EXPECT_EQ(contextId, BAD_CONTEXT_ID);
+    EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _))
+        .WillOnce([](int32_t userId, const std::vector<int32_t> &authTypes,
+            uint32_t authTrustLevel, std::vector<int32_t> &validTypes) {
+            validTypes.push_back(static_cast<int32_t>(AuthType::FACE));
+            return HDF_SUCCESS;
+        });
+    int32_t ret = service.CheckValidSolution(userId, authParam, widgetParam, validTypeList);
+    EXPECT_EQ(ret, INVALID_PARAMETERS);
+    MockIUserAuthInterface::Holder::GetInstance().Reset();
     IpcCommon::DeleteAllPermission();
 }
 
-HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_Utf8NaviBtn001, TestSize.Level0)
+HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_Fullscreen_OnlyFinger_001, TestSize.Level0)
 {
     UserAuthService service;
-    int32_t apiVersion = 10;
     std::vector<uint8_t> challenge = {1};
-    std::vector<int32_t> authTypes = {PIN};
-    IpcAuthParamInner authParam;
-    InitIpcAuthParamInner(authParam, challenge, authTypes, ATL2);
-    IpcWidgetParamInner widgetParam;
-    InitIpcWidgetParamInner(widgetParam, "使用密码验证", "确定", WindowModeType::DIALOG_BOX);
-    sptr<IIamCallback> testCallback = new MockUserAuthCallback();
-    EXPECT_NE(testCallback, nullptr);
-    IpcCommon::AddPermission(IS_SYSTEM_APP);
+    int32_t userId = 100;
+    const WidgetParamInner widgetParam = {
+        .title = "test_title",
+        .navigationButtonText = "",
+        .windowMode = WindowModeType::FULLSCREEN,
+    };
+    const AuthParamInner authParam = {
+        .userId = userId,
+        .challenge = challenge,
+        .authTypes = {AuthType::FINGERPRINT},
+        .authTrustLevel = ATL3,
+        .isUserIdSpecified = true,
+    };
     IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    IpcCommon::AddPermission(IS_SYSTEM_APP);
+    IpcCommon::AddPermission(USER_AUTH_FROM_BACKGROUND);
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    std::vector<AuthType> validTypeList;
     auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
     EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, GetAvailableStatus(_, _, _, _)).Times(0);
-    EXPECT_CALL(*mockHdi, BeginAuthenticationExt(_, _, _)).Times(0);
-    ON_CALL(*mockHdi, GetValidSolution)
-        .WillByDefault(
-            [](int32_t userId, const std::vector<int32_t>& authTypes, uint32_t authTrustLevel,
-            std::vector<int32_t>& validTypes) {
-                validTypes.clear();
-                validTypes.push_back(AuthType::PIN);
-                return HDF_SUCCESS;
-            }
-        );
-    sptr<IModalCallback> testModalCallback(nullptr);
-    uint64_t contextId = 0;
-    int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
-    EXPECT_EQ(ret, GENERAL_ERROR);
-    EXPECT_EQ(contextId, BAD_CONTEXT_ID);
+    EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _))
+        .WillOnce([](int32_t userId, const std::vector<int32_t> &authTypes,
+            uint32_t authTrustLevel, std::vector<int32_t> &validTypes) {
+            validTypes.push_back(static_cast<int32_t>(AuthType::FINGERPRINT));
+            return HDF_SUCCESS;
+        });
+    int32_t ret = service.CheckValidSolution(userId, authParam, widgetParam, validTypeList);
+    EXPECT_EQ(ret, INVALID_PARAMETERS);
+    MockIUserAuthInterface::Holder::GetInstance().Reset();
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_Fullscreen_OnlyCompanion_001, TestSize.Level0)
+{
+    UserAuthService service;
+    std::vector<uint8_t> challenge = {1};
+    int32_t userId = 100;
+    const WidgetParamInner widgetParam = {
+        .title = "test_title",
+        .navigationButtonText = "",
+        .windowMode = WindowModeType::FULLSCREEN,
+    };
+    const AuthParamInner authParam = {
+        .userId = userId,
+        .challenge = challenge,
+        .authTypes = {AuthType::COMPANION_DEVICE},
+        .authTrustLevel = ATL3,
+        .isUserIdSpecified = true,
+    };
+    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    IpcCommon::AddPermission(IS_SYSTEM_APP);
+    IpcCommon::AddPermission(USER_AUTH_FROM_BACKGROUND);
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    std::vector<AuthType> validTypeList;
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _))
+        .WillOnce([](int32_t userId, const std::vector<int32_t> &authTypes,
+            uint32_t authTrustLevel, std::vector<int32_t> &validTypes) {
+            validTypes.push_back(static_cast<int32_t>(AuthType::COMPANION_DEVICE));
+            return HDF_SUCCESS;
+        });
+    int32_t ret = service.CheckValidSolution(userId, authParam, widgetParam, validTypeList);
+    EXPECT_EQ(ret, SUCCESS);
+    MockIUserAuthInterface::Holder::GetInstance().Reset();
+    IpcCommon::DeleteAllPermission();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_Fullscreen_FaceAndFinger_001, TestSize.Level0)
+{
+    UserAuthService service;
+    std::vector<uint8_t> challenge = {1};
+    int32_t userId = 100;
+    const WidgetParamInner widgetParam = {
+        .title = "test_title",
+        .navigationButtonText = "",
+        .windowMode = WindowModeType::FULLSCREEN,
+    };
+    const AuthParamInner authParam = {
+        .userId = userId,
+        .challenge = challenge,
+        .authTypes = {AuthType::FACE, AuthType::FINGERPRINT},
+        .authTrustLevel = ATL3,
+        .isUserIdSpecified = true,
+    };
+    IpcCommon::AddPermission(ACCESS_BIOMETRIC_PERMISSION);
+    IpcCommon::AddPermission(IS_SYSTEM_APP);
+    IpcCommon::AddPermission(USER_AUTH_FROM_BACKGROUND);
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    std::vector<AuthType> validTypeList;
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _))
+        .WillOnce([](int32_t userId, const std::vector<int32_t> &authTypes,
+            uint32_t authTrustLevel, std::vector<int32_t> &validTypes) {
+            validTypes.push_back(static_cast<int32_t>(AuthType::FACE));
+            validTypes.push_back(static_cast<int32_t>(AuthType::FINGERPRINT));
+            return HDF_SUCCESS;
+        });
+    int32_t ret = service.CheckValidSolution(userId, authParam, widgetParam, validTypeList);
+    EXPECT_EQ(ret, INVALID_PARAMETERS);
+    MockIUserAuthInterface::Holder::GetInstance().Reset();
     IpcCommon::DeleteAllPermission();
 }
 } // namespace UserAuth

@@ -51,6 +51,9 @@ bool UserAuthAniHelper::ConvertUserAuthType(int32_t userAuthType, userAuth::User
         case AuthType::PRIVATE_PIN:
             userAuthTypeOut = userAuth::UserAuthType::key_t::PRIVATE_PIN;
             return true;
+        case AuthType::COMPANION_DEVICE:
+            userAuthTypeOut = userAuth::UserAuthType::key_t::COMPANION_DEVICE;
+            return true;
         default:
             IAM_LOGE("invalid userAuthType:%{public}d", userAuthType);
             return false;

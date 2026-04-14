@@ -33,6 +33,7 @@ const std::string AUTH_TYPE_FACE = "face";
 const std::string AUTH_TYPE_FINGER_PRINT = "fingerprint";
 const std::string AUTH_TYPE_ALL = "all";
 const std::string AUTH_TYPE_PRIVATE_PIN = "privatePin";
+const std::string AUTH_TYPE_COMPANION_DEVICE = "companionDevice";
 
 const std::string WINDOW_MODE_DIALOG = "DIALOG_BOX";
 const std::string WINDOW_MODE_FULLSCREEN = "FULLSCREEN";
@@ -264,6 +265,8 @@ AuthType Str2AuthType(const std::string &strAuthType)
         authType = AuthType::FINGERPRINT;
     } else if (strAuthType.compare(AUTH_TYPE_PRIVATE_PIN) == 0) {
         authType = AuthType::PRIVATE_PIN;
+    } else if (strAuthType.compare(AUTH_TYPE_COMPANION_DEVICE) == 0) {
+        authType = AuthType::COMPANION_DEVICE;
     } else {
         IAM_LOGE("strAuthType: %{public}s", strAuthType.c_str());
     }
@@ -292,6 +295,10 @@ std::string AuthType2Str(const AuthType &authType)
         }
         case AuthType::PRIVATE_PIN: {
             strAuthType = AUTH_TYPE_PRIVATE_PIN;
+            break;
+        }
+        case AuthType::COMPANION_DEVICE: {
+            strAuthType = AUTH_TYPE_COMPANION_DEVICE;
             break;
         }
         default: {

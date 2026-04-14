@@ -58,6 +58,8 @@ public:
         int32_t authIntent {0};
         int32_t userId {0};
         std::string additionalInfo;
+        std::string title;
+        AuthScene authScene {AUTH_SCENE_DEFAULT};
     };
     explicit ScheduleNodeImpl(ScheduleInfo &info);
     ~ScheduleNodeImpl() override;

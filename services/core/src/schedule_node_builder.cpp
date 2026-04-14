@@ -142,6 +142,18 @@ std::shared_ptr<Builder> ScheduleNodeBuilder::SetAdditionalInfo(const std::strin
     return shared_from_this();
 }
 
+std::shared_ptr<Builder> ScheduleNodeBuilder::SetTitle(const std::string &title)
+{
+    info_.title = title;
+    return shared_from_this();
+}
+
+std::shared_ptr<Builder> ScheduleNodeBuilder::SetAuthScene(AuthScene authScene)
+{
+    info_.authScene = authScene;
+    return shared_from_this();
+}
+
 std::shared_ptr<ScheduleNode> ScheduleNodeBuilder::Build()
 {
     if (!CheckParameters()) {

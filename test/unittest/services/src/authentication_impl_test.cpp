@@ -308,6 +308,253 @@ HWTEST_F(AuthenticationImplTest, AuthenticationImplTestSetLatestError, TestSize.
     ASSERT_NE(authentication, nullptr);
     authentication->SetLatestError(0);
 }
+
+HWTEST_F(AuthenticationImplTest, AuthenticationImplHdiFail_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    Authentication::AuthenticationPara para = {};
+    para.userId = TEST_USER_ID;
+    para.callerName = "com.ohos.test";
+    para.sdkVersion = 10;
+    para.authType = PIN;
+    para.atl = ATL2;
+    para.callerType = Security::AccessToken::TOKEN_HAP;
+
+    auto authentication = std::make_shared<AuthenticationImpl>(contextId, para);
+    ASSERT_NE(authentication, nullptr);
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, BeginAuthenticationExt(_, _, _))
+        .WillRepeatedly(Return(HDF_FAILURE));
+
+    std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
+    auto callback = Common::MakeShared<MockScheduleNodeCallback>();
+    EXPECT_NE(callback, nullptr);
+
+    bool result = authentication->Start(scheduleList, callback);
+    EXPECT_FALSE(result);
+    int32_t latestError = authentication->GetLatestError();
+    EXPECT_NE(latestError, ResultCode::SUCCESS);
+}
+
+HWTEST_F(AuthenticationImplTest, AuthenticationImplGetAuthParamFail_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    Authentication::AuthenticationPara para = {};
+    para.userId = TEST_USER_ID;
+    para.callerName = "com.ohos.test";
+    para.sdkVersion = 10;
+    para.authType = FACE;
+    para.atl = ATL2;
+    para.callerType = 9999; // Invalid caller type for test
+
+    auto authentication = std::make_shared<AuthenticationImpl>(contextId, para);
+    ASSERT_NE(authentication, nullptr);
+
+    HdiAuthParamExt param = {};
+    bool result = authentication->GetAuthParam(param);
+    EXPECT_FALSE(result);
+}
+
+HWTEST_F(AuthenticationImplTest, AuthenticationImplUpdateFail_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    Authentication::AuthenticationPara para = {};
+    para.userId = TEST_USER_ID;
+    para.callerName = "com.ohos.test";
+    para.sdkVersion = 10;
+    para.authType = PIN;
+    para.atl = ATL2;
+
+    auto authentication = std::make_shared<AuthenticationImpl>(contextId, para);
+    ASSERT_NE(authentication, nullptr);
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, UpdateAuthenticationResult(_, _, _, _))
+        .WillRepeatedly(Return(HDF_FAILURE));
+
+    std::vector<uint8_t> scheduleResult = {1, 2, 3, 4};
+    Authentication::AuthResultInfo resultInfo = {};
+    bool result = authentication->Update(scheduleResult, resultInfo);
+    EXPECT_FALSE(result); // Update returns false when HDI fails
+
+    int32_t latestError = authentication->GetLatestError();
+    EXPECT_EQ(latestError, HDF_FAILURE); // latestError is set correctly
+}
+
+HWTEST_F(AuthenticationImplTest, AuthenticationImplCancel_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    Authentication::AuthenticationPara para = {};
+    para.userId = TEST_USER_ID;
+    para.callerName = "com.ohos.test";
+    para.sdkVersion = 10;
+    para.authType = FACE;
+    para.atl = ATL3;
+
+    auto authentication = std::make_shared<AuthenticationImpl>(contextId, para);
+    ASSERT_NE(authentication, nullptr);
+
+    authentication->SetAccessTokenId(12345);
+    authentication->SetChallenge({1, 2, 3, 4});
+    authentication->SetEndAfterFirstFail(true);
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, CancelAuthentication(_))
+        .WillRepeatedly(Return(HDF_SUCCESS));
+
+    EXPECT_NO_THROW(authentication->Cancel());
+}
+
+HWTEST_F(AuthenticationImplTest, AuthenticationImplGetAuthExecutorMsgs_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    Authentication::AuthenticationPara para = {};
+    para.userId = TEST_USER_ID;
+    para.authType = PIN;
+    para.atl = ATL2;
+
+    auto authentication = std::make_shared<AuthenticationImpl>(contextId, para);
+    ASSERT_NE(authentication, nullptr);
+
+    std::vector<Authentication::AuthExecutorMsg> msgs = authentication->GetAuthExecutorMsgs();
+    EXPECT_EQ(msgs.size(), 0);
+}
+
+HWTEST_F(AuthenticationImplTest, AuthenticationImplSetExecutor_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    Authentication::AuthenticationPara para = {};
+    para.userId = TEST_USER_ID;
+    para.authType = FACE;
+
+    auto authentication = std::make_shared<AuthenticationImpl>(contextId, para);
+    ASSERT_NE(authentication, nullptr);
+
+    uint32_t executorIndex = 12345;
+    authentication->SetExecutor(executorIndex);
+    EXPECT_NO_THROW(authentication->GetLatestError());
+}
+
+HWTEST_F(AuthenticationImplTest, AuthenticationImplSetCollectorUdid_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    Authentication::AuthenticationPara para = {};
+    para.userId = TEST_USER_ID;
+    para.authType = FINGERPRINT;
+
+    auto authentication = std::make_shared<AuthenticationImpl>(contextId, para);
+    ASSERT_NE(authentication, nullptr);
+
+    std::string collectorUdid = "test_udid_12345";
+    authentication->SetCollectorUdid(collectorUdid);
+    EXPECT_NO_THROW(authentication->GetLatestError());
+}
+
+HWTEST_F(AuthenticationImplTest, AuthenticationImplEmptyScheduleList_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    Authentication::AuthenticationPara para = {};
+    para.userId = TEST_USER_ID;
+    para.authType = PIN;
+    para.atl = ATL1;
+    para.callerType = Security::AccessToken::TOKEN_HAP;
+
+    auto authentication = std::make_shared<AuthenticationImpl>(contextId, para);
+    ASSERT_NE(authentication, nullptr);
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    std::vector<HdiScheduleInfo> emptyInfos;
+
+    EXPECT_CALL(*mockHdi, BeginAuthenticationExt(_, _, _))
+        .WillOnce([&emptyInfos](uint64_t contextId, const HdiAuthParamExt &param,
+            std::vector<HdiScheduleInfo> &infos) {
+            infos = emptyInfos;
+            return HDF_SUCCESS;
+        });
+
+    std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
+    auto callback = Common::MakeShared<MockScheduleNodeCallback>();
+    EXPECT_NE(callback, nullptr);
+
+    bool result = authentication->Start(scheduleList, callback);
+    EXPECT_FALSE(result);
+}
+
+HWTEST_F(AuthenticationImplTest, AuthenticationImplSuccessWithToken_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    Authentication::AuthenticationPara para = {};
+    para.userId = TEST_USER_ID;
+    para.authType = FACE;
+    para.atl = ATL3;
+    para.sdkVersion = 12;
+
+    auto authentication = std::make_shared<AuthenticationImpl>(contextId, para);
+    ASSERT_NE(authentication, nullptr);
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+
+    EXPECT_CALL(*mockHdi, UpdateAuthenticationResult(_, _, _, _))
+        .WillOnce([](uint64_t contextId, const std::vector<uint8_t> &scheduleResult,
+            HdiAuthResultInfo &info, HdiEnrolledState &enrolledState) {
+            info.result = HDF_SUCCESS;
+            info.token = {0x01, 0x02, 0x03, 0x04};
+            info.userId = TEST_USER_ID;
+            info.lockoutDuration = 0;
+            info.remainAttempts = -1;
+            enrolledState.credentialDigest = 12345;
+            enrolledState.credentialCount = 2;
+            return HDF_SUCCESS;
+        });
+
+    std::vector<uint8_t> scheduleResult = {1, 2, 3, 4};
+    Authentication::AuthResultInfo resultInfo = {};
+    bool result = authentication->Update(scheduleResult, resultInfo);
+    EXPECT_TRUE(result);
+    EXPECT_EQ(resultInfo.result, ResultCode::SUCCESS);
+    EXPECT_EQ(resultInfo.token.size(), 4);
+    EXPECT_EQ(resultInfo.userId, TEST_USER_ID);
+}
+
+HWTEST_F(AuthenticationImplTest, AuthenticationImplGetUserIdAndType_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    Authentication::AuthenticationPara para = {};
+    para.userId = 100;
+    para.authType = AuthType::PIN;
+
+    auto authentication = std::make_shared<AuthenticationImpl>(contextId, para);
+    ASSERT_NE(authentication, nullptr);
+
+    int32_t userId = authentication->GetUserId();
+    EXPECT_EQ(userId, 100);
+
+    int32_t authType = authentication->GetAuthType();
+    EXPECT_EQ(authType, AuthType::PIN);
+}
+
+HWTEST_F(AuthenticationImplTest, AuthenticationImplGetAccessTokenId_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    Authentication::AuthenticationPara para = {};
+    para.userId = TEST_USER_ID;
+    para.authType = FACE;
+
+    auto authentication = std::make_shared<AuthenticationImpl>(contextId, para);
+    ASSERT_NE(authentication, nullptr);
+
+    uint32_t tokenId = 67890;
+    authentication->SetAccessTokenId(tokenId);
+
+    uint32_t resultTokenId = authentication->GetAccessTokenId();
+    EXPECT_EQ(resultTokenId, tokenId);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

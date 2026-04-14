@@ -28,6 +28,8 @@
 #include <string>
 #include <vector>
 
+#include "../iam_common_defines.h"
+
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
@@ -84,6 +86,10 @@ struct AuthenticateParam {
     int32_t authIntent;
     /** User id. */
     int32_t userId;
+    /** Auth scene. */
+    AuthScene authScene {AUTH_SCENE_DEFAULT};
+    /** Widget title. */
+    std::string title;
 };
 
 /**

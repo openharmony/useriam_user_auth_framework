@@ -47,6 +47,31 @@ using namespace OHOS::UserIam::UserAuth;
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+namespace {
+constexpr uint64_t TEST_TOKEN_ID = 123;
+constexpr uint64_t TEST_SCHEDULE_ID = 456;
+constexpr int32_t TEST_AUTH_INTENT = 1;
+constexpr int32_t TEST_USER_ID = 100;
+constexpr int32_t TEST_AUTH_SCENE = AUTH_SCENE_WIDGET_AUTH_NO_DISTURB;
+const std::string TEST_WIDGET_TITLE = "test_widget_title";
+const std::vector<uint64_t> TEST_TEMPLATE_ID_LIST = {7, 8, 9};
+const std::vector<uint8_t> TEST_EXTRA_INFO = {4, 5, 6};
+constexpr bool TEST_END_AFTER_FIRST_FAIL = true;
+
+void SetAuthCommandAttributes(Attributes &attrs)
+{
+    attrs.SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, AUTH);
+    attrs.SetUint64ArrayValue(Attributes::AttributeKey::ATTR_TEMPLATE_ID_LIST, TEST_TEMPLATE_ID_LIST);
+    attrs.SetUint32Value(Attributes::AttributeKey::ATTR_ACCESS_TOKEN_ID, TEST_TOKEN_ID);
+    attrs.SetUint32Value(Attributes::ATTR_USER_ID, TEST_USER_ID);
+    attrs.SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, TEST_EXTRA_INFO);
+    attrs.SetBoolValue(Attributes::ATTR_END_AFTER_FIRST_FAIL, TEST_END_AFTER_FIRST_FAIL);
+    attrs.SetInt32Value(Attributes::ATTR_AUTH_INTENTION, TEST_AUTH_INTENT);
+    attrs.SetInt32Value(Attributes::ATTR_AUTH_SCENE, TEST_AUTH_SCENE);
+    attrs.SetStringValue(Attributes::ATTR_WIDGET_TITLE, TEST_WIDGET_TITLE);
+}
+}
+
 class ExecutorUnitTest : public testing::Test {
 public:
     static void SetUpTestCase();
@@ -574,14 +599,6 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_EnrollTest_003, TestS
 
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_001, TestSize.Level0)
 {
-    static const uint64_t testTokenId = 123;
-    static const uint64_t testScheduleId = 456;
-    static const std::vector<uint64_t> testTemplateIdList = {7, 8, 9};
-    static const std::vector<uint8_t> testExtraInfo = {4, 5, 6};
-    static const bool endAfterFirstFail = true;
-    static int32_t authIntent = 1;
-    static int32_t testUserId = 100;
-
     shared_ptr<Executor> executor;
     shared_ptr<ExecutorRegisterCallback> executorCallback;
     shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
@@ -593,14 +610,18 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_001, TestSiz
     EXPECT_CALL(*mockExecutorHdi, Authenticate(_, _, _))
         .Times(Exactly(1))
         .WillOnce(
-            [&cmdCallback](uint64_t scheduleId, const AuthenticateParam &param,
+            [&cmdCallback](
+                uint64_t scheduleId, const AuthenticateParam &param,
                 const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) {
-                EXPECT_EQ(scheduleId, testScheduleId);
-                EXPECT_EQ(param.tokenId, testTokenId);
-                EXPECT_EQ(param.templateIdList, testTemplateIdList);
-                EXPECT_EQ(param.extraInfo, testExtraInfo);
-                EXPECT_EQ(param.endAfterFirstFail, endAfterFirstFail);
-                EXPECT_EQ(param.authIntent, authIntent);
+                EXPECT_EQ(scheduleId, TEST_SCHEDULE_ID);
+                EXPECT_EQ(param.tokenId, TEST_TOKEN_ID);
+                EXPECT_EQ(param.templateIdList, TEST_TEMPLATE_ID_LIST);
+                EXPECT_EQ(param.extraInfo, TEST_EXTRA_INFO);
+                EXPECT_EQ(param.endAfterFirstFail, TEST_END_AFTER_FIRST_FAIL);
+                EXPECT_EQ(param.authIntent, TEST_AUTH_INTENT);
+                EXPECT_EQ(param.userId, TEST_USER_ID);
+                EXPECT_EQ(param.authScene, static_cast<AuthScene>(TEST_AUTH_SCENE));
+                EXPECT_EQ(param.title, TEST_WIDGET_TITLE);
                 cmdCallback = callbackObj;
                 return ResultCode::SUCCESS;
             });
@@ -611,14 +632,8 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_001, TestSiz
     vector<uint8_t> uselessPublicKey;
     auto commandAttrs = MakeShared<Attributes>();
     ASSERT_NE(commandAttrs, nullptr);
-    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, AUTH);
-    commandAttrs->SetUint64ArrayValue(Attributes::AttributeKey::ATTR_TEMPLATE_ID_LIST, testTemplateIdList);
-    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_ACCESS_TOKEN_ID, testTokenId);
-    commandAttrs->SetUint32Value(Attributes::ATTR_USER_ID, testUserId);
-    commandAttrs->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, testExtraInfo);
-    commandAttrs->SetBoolValue(Attributes::ATTR_END_AFTER_FIRST_FAIL, endAfterFirstFail);
-    commandAttrs->SetInt32Value(Attributes::ATTR_AUTH_INTENTION, authIntent);
-    ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, *commandAttrs);
+    SetAuthCommandAttributes(*commandAttrs);
+    ret = executorCallback->OnBeginExecute(TEST_SCHEDULE_ID, uselessPublicKey, *commandAttrs);
     ASSERT_NE(cmdCallback, nullptr);
     ASSERT_EQ(ret, ResultCode::SUCCESS);
 }
@@ -703,6 +718,151 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_004, TestSiz
     executor->OnHdiDisconnect();
     ret = executorCallback->OnBeginExecute(testScheduleId, uselessPublicKey, *commandAttrs);
     ASSERT_EQ(ret, ResultCode::GENERAL_ERROR);
+}
+
+HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_005, TestSize.Level0)
+{
+    shared_ptr<Executor> executor;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
+    shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
+    int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
+    ASSERT_EQ(ret, ResultCode::SUCCESS);
+
+    shared_ptr<UserAuth::IExecuteCallback> cmdCallback = nullptr;
+    EXPECT_CALL(*mockExecutorHdi, Authenticate(_, _, _))
+        .Times(Exactly(1))
+        .WillOnce(
+            [&cmdCallback](
+                uint64_t scheduleId, const AuthenticateParam &param,
+                const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) {
+                EXPECT_EQ(scheduleId, TEST_SCHEDULE_ID);
+                EXPECT_EQ(param.tokenId, TEST_TOKEN_ID);
+                EXPECT_EQ(param.templateIdList, TEST_TEMPLATE_ID_LIST);
+                EXPECT_EQ(param.extraInfo, TEST_EXTRA_INFO);
+                EXPECT_EQ(param.endAfterFirstFail, TEST_END_AFTER_FIRST_FAIL);
+                EXPECT_EQ(param.authIntent, TEST_AUTH_INTENT);
+                EXPECT_EQ(param.userId, TEST_USER_ID);
+                EXPECT_EQ(param.authScene, AUTH_SCENE_DEFAULT);
+                EXPECT_EQ(param.title, "");
+                cmdCallback = callbackObj;
+                return ResultCode::SUCCESS;
+            });
+
+    EXPECT_CALL(*mockMessenger, SendData(_, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, Finish(_, _, _)).Times(Exactly(0));
+
+    vector<uint8_t> uselessPublicKey;
+    auto commandAttrs = MakeShared<Attributes>();
+    ASSERT_NE(commandAttrs, nullptr);
+    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, AUTH);
+    commandAttrs->SetUint64ArrayValue(Attributes::AttributeKey::ATTR_TEMPLATE_ID_LIST, TEST_TEMPLATE_ID_LIST);
+    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_ACCESS_TOKEN_ID, TEST_TOKEN_ID);
+    commandAttrs->SetUint32Value(Attributes::ATTR_USER_ID, TEST_USER_ID);
+    commandAttrs->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, TEST_EXTRA_INFO);
+    commandAttrs->SetBoolValue(Attributes::ATTR_END_AFTER_FIRST_FAIL, TEST_END_AFTER_FIRST_FAIL);
+    commandAttrs->SetInt32Value(Attributes::ATTR_AUTH_INTENTION, TEST_AUTH_INTENT);
+    ret = executorCallback->OnBeginExecute(TEST_SCHEDULE_ID, uselessPublicKey, *commandAttrs);
+    ASSERT_NE(cmdCallback, nullptr);
+    ASSERT_EQ(ret, ResultCode::SUCCESS);
+}
+
+HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_006, TestSize.Level0)
+{
+    constexpr int32_t customAuthScene = AUTH_SCENE_WIDGET_AUTH_NO_DISTURB;
+    shared_ptr<Executor> executor;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
+    shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
+    int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
+    ASSERT_EQ(ret, ResultCode::SUCCESS);
+
+    shared_ptr<UserAuth::IExecuteCallback> cmdCallback = nullptr;
+    EXPECT_CALL(*mockExecutorHdi, Authenticate(_, _, _))
+        .Times(Exactly(1))
+        .WillOnce(
+            [&cmdCallback, customAuthScene](
+                uint64_t scheduleId, const AuthenticateParam &param,
+                const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) {
+                EXPECT_EQ(scheduleId, TEST_SCHEDULE_ID);
+                EXPECT_EQ(param.tokenId, TEST_TOKEN_ID);
+                EXPECT_EQ(param.templateIdList, TEST_TEMPLATE_ID_LIST);
+                EXPECT_EQ(param.extraInfo, TEST_EXTRA_INFO);
+                EXPECT_EQ(param.endAfterFirstFail, TEST_END_AFTER_FIRST_FAIL);
+                EXPECT_EQ(param.authIntent, TEST_AUTH_INTENT);
+                EXPECT_EQ(param.userId, TEST_USER_ID);
+                EXPECT_EQ(param.authScene, static_cast<AuthScene>(customAuthScene));
+                EXPECT_EQ(param.title, "");
+                cmdCallback = callbackObj;
+                return ResultCode::SUCCESS;
+            });
+
+    EXPECT_CALL(*mockMessenger, SendData(_, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, Finish(_, _, _)).Times(Exactly(0));
+
+    vector<uint8_t> uselessPublicKey;
+    auto commandAttrs = MakeShared<Attributes>();
+    ASSERT_NE(commandAttrs, nullptr);
+    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, AUTH);
+    commandAttrs->SetUint64ArrayValue(Attributes::AttributeKey::ATTR_TEMPLATE_ID_LIST, TEST_TEMPLATE_ID_LIST);
+    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_ACCESS_TOKEN_ID, TEST_TOKEN_ID);
+    commandAttrs->SetUint32Value(Attributes::ATTR_USER_ID, TEST_USER_ID);
+    commandAttrs->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, TEST_EXTRA_INFO);
+    commandAttrs->SetBoolValue(Attributes::ATTR_END_AFTER_FIRST_FAIL, TEST_END_AFTER_FIRST_FAIL);
+    commandAttrs->SetInt32Value(Attributes::ATTR_AUTH_INTENTION, TEST_AUTH_INTENT);
+    commandAttrs->SetInt32Value(Attributes::ATTR_AUTH_SCENE, customAuthScene);
+    ret = executorCallback->OnBeginExecute(TEST_SCHEDULE_ID, uselessPublicKey, *commandAttrs);
+    ASSERT_NE(cmdCallback, nullptr);
+    ASSERT_EQ(ret, ResultCode::SUCCESS);
+}
+
+HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthTest_007, TestSize.Level0)
+{
+    const std::string customTitle = "custom_widget_title";
+    shared_ptr<Executor> executor;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
+    shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
+    int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
+    ASSERT_EQ(ret, ResultCode::SUCCESS);
+
+    shared_ptr<UserAuth::IExecuteCallback> cmdCallback = nullptr;
+    EXPECT_CALL(*mockExecutorHdi, Authenticate(_, _, _))
+        .Times(Exactly(1))
+        .WillOnce(
+            [&cmdCallback, customTitle](
+                uint64_t scheduleId, const AuthenticateParam &param,
+                const std::shared_ptr<UserAuth::IExecuteCallback> &callbackObj) {
+                EXPECT_EQ(scheduleId, TEST_SCHEDULE_ID);
+                EXPECT_EQ(param.tokenId, TEST_TOKEN_ID);
+                EXPECT_EQ(param.templateIdList, TEST_TEMPLATE_ID_LIST);
+                EXPECT_EQ(param.extraInfo, TEST_EXTRA_INFO);
+                EXPECT_EQ(param.endAfterFirstFail, TEST_END_AFTER_FIRST_FAIL);
+                EXPECT_EQ(param.authIntent, TEST_AUTH_INTENT);
+                EXPECT_EQ(param.userId, TEST_USER_ID);
+                EXPECT_EQ(param.authScene, AUTH_SCENE_DEFAULT);
+                EXPECT_EQ(param.title, customTitle);
+                cmdCallback = callbackObj;
+                return ResultCode::SUCCESS;
+            });
+
+    EXPECT_CALL(*mockMessenger, SendData(_, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, Finish(_, _, _)).Times(Exactly(0));
+
+    vector<uint8_t> uselessPublicKey;
+    auto commandAttrs = MakeShared<Attributes>();
+    ASSERT_NE(commandAttrs, nullptr);
+    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, AUTH);
+    commandAttrs->SetUint64ArrayValue(Attributes::AttributeKey::ATTR_TEMPLATE_ID_LIST, TEST_TEMPLATE_ID_LIST);
+    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_ACCESS_TOKEN_ID, TEST_TOKEN_ID);
+    commandAttrs->SetUint32Value(Attributes::ATTR_USER_ID, TEST_USER_ID);
+    commandAttrs->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, TEST_EXTRA_INFO);
+    commandAttrs->SetBoolValue(Attributes::ATTR_END_AFTER_FIRST_FAIL, TEST_END_AFTER_FIRST_FAIL);
+    commandAttrs->SetInt32Value(Attributes::ATTR_AUTH_INTENTION, TEST_AUTH_INTENT);
+    commandAttrs->SetStringValue(Attributes::ATTR_WIDGET_TITLE, customTitle);
+    ret = executorCallback->OnBeginExecute(TEST_SCHEDULE_ID, uselessPublicKey, *commandAttrs);
+    ASSERT_NE(cmdCallback, nullptr);
+    ASSERT_EQ(ret, ResultCode::SUCCESS);
 }
 
 HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_IdentifyTest_001, TestSize.Level0)
@@ -1477,6 +1637,187 @@ HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnSetProperty_OnSendDataTest_001, Te
     property->SetInt32Value(Attributes::ATTR_SRC_ROLE, value1);
     property->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, extraInfo);
     executorCallback->OnSendData(scheduleId, *property);
+}
+
+HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthWithoutAuthScene_001, TestSize.Level0)
+{
+    shared_ptr<Executor> executor;
+    shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
+    int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
+    ASSERT_EQ(ret, ResultCode::SUCCESS);
+
+    shared_ptr<UserAuth::IExecuteCallback> cmdCallback;
+    EXPECT_CALL(*mockExecutorHdi, Authenticate(_, _, _))
+        .WillOnce([&cmdCallback](uint64_t scheduleId, const AuthenticateParam &param,
+            const shared_ptr<UserAuth::IExecuteCallback> &callbackObj) {
+                EXPECT_EQ(param.authScene, AuthScene::AUTH_SCENE_DEFAULT);
+                cmdCallback = callbackObj;
+                return ResultCode::SUCCESS;
+            });
+
+    EXPECT_CALL(*mockMessenger, SendData(_, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, Finish(_, _, _)).Times(Exactly(0));
+
+    vector<uint8_t> uselessPublicKey;
+    auto commandAttrs = MakeShared<Attributes>();
+    ASSERT_NE(commandAttrs, nullptr);
+    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, AUTH);
+    commandAttrs->SetUint64ArrayValue(Attributes::AttributeKey::ATTR_TEMPLATE_ID_LIST, TEST_TEMPLATE_ID_LIST);
+    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_ACCESS_TOKEN_ID, TEST_TOKEN_ID);
+    commandAttrs->SetUint32Value(Attributes::ATTR_USER_ID, TEST_USER_ID);
+    commandAttrs->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, TEST_EXTRA_INFO);
+    commandAttrs->SetBoolValue(Attributes::ATTR_END_AFTER_FIRST_FAIL, TEST_END_AFTER_FIRST_FAIL);
+    commandAttrs->SetInt32Value(Attributes::ATTR_AUTH_INTENTION, TEST_AUTH_INTENT);
+    commandAttrs->SetStringValue(Attributes::ATTR_WIDGET_TITLE, TEST_WIDGET_TITLE);
+    ret = executorCallback->OnBeginExecute(TEST_SCHEDULE_ID, uselessPublicKey, *commandAttrs);
+    ASSERT_NE(cmdCallback, nullptr);
+    ASSERT_EQ(ret, ResultCode::SUCCESS);
+}
+
+HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthWithoutTitle_001, TestSize.Level0)
+{
+    shared_ptr<Executor> executor;
+    shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
+    int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
+    ASSERT_EQ(ret, ResultCode::SUCCESS);
+
+    shared_ptr<UserAuth::IExecuteCallback> cmdCallback;
+    EXPECT_CALL(*mockExecutorHdi, Authenticate(_, _, _))
+        .WillOnce([&cmdCallback](uint64_t scheduleId, const AuthenticateParam &param,
+            const shared_ptr<UserAuth::IExecuteCallback> &callbackObj) {
+                EXPECT_EQ(param.authScene, static_cast<AuthScene>(TEST_AUTH_SCENE));
+                EXPECT_EQ(param.title, "");
+                cmdCallback = callbackObj;
+                return ResultCode::SUCCESS;
+            });
+
+    EXPECT_CALL(*mockMessenger, SendData(_, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, Finish(_, _, _)).Times(Exactly(0));
+
+    vector<uint8_t> uselessPublicKey;
+    auto commandAttrs = MakeShared<Attributes>();
+    ASSERT_NE(commandAttrs, nullptr);
+    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, AUTH);
+    commandAttrs->SetUint64ArrayValue(Attributes::AttributeKey::ATTR_TEMPLATE_ID_LIST, TEST_TEMPLATE_ID_LIST);
+    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_ACCESS_TOKEN_ID, TEST_TOKEN_ID);
+    commandAttrs->SetUint32Value(Attributes::ATTR_USER_ID, TEST_USER_ID);
+    commandAttrs->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, TEST_EXTRA_INFO);
+    commandAttrs->SetBoolValue(Attributes::ATTR_END_AFTER_FIRST_FAIL, TEST_END_AFTER_FIRST_FAIL);
+    commandAttrs->SetInt32Value(Attributes::ATTR_AUTH_INTENTION, TEST_AUTH_INTENT);
+    commandAttrs->SetInt32Value(Attributes::ATTR_AUTH_SCENE, TEST_AUTH_SCENE);
+    ret = executorCallback->OnBeginExecute(TEST_SCHEDULE_ID, uselessPublicKey, *commandAttrs);
+    ASSERT_NE(cmdCallback, nullptr);
+    ASSERT_EQ(ret, ResultCode::SUCCESS);
+}
+
+HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthWithoutAuthScene_002, TestSize.Level0)
+{
+    shared_ptr<Executor> executor;
+    shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
+    int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
+    ASSERT_EQ(ret, ResultCode::SUCCESS);
+
+    shared_ptr<UserAuth::IExecuteCallback> cmdCallback;
+    EXPECT_CALL(*mockExecutorHdi, Authenticate(_, _, _))
+        .WillOnce([&cmdCallback](uint64_t scheduleId, const AuthenticateParam &param,
+            const shared_ptr<UserAuth::IExecuteCallback> &callbackObj) {
+                EXPECT_EQ(param.authScene, AuthScene::AUTH_SCENE_DEFAULT);
+                EXPECT_EQ(param.title, TEST_WIDGET_TITLE);
+                cmdCallback = callbackObj;
+                return ResultCode::SUCCESS;
+            });
+
+    EXPECT_CALL(*mockMessenger, SendData(_, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, Finish(_, _, _)).Times(Exactly(0));
+
+    vector<uint8_t> uselessPublicKey;
+    auto commandAttrs = MakeShared<Attributes>();
+    ASSERT_NE(commandAttrs, nullptr);
+    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, AUTH);
+    commandAttrs->SetUint64ArrayValue(Attributes::AttributeKey::ATTR_TEMPLATE_ID_LIST, TEST_TEMPLATE_ID_LIST);
+    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_ACCESS_TOKEN_ID, TEST_TOKEN_ID);
+    commandAttrs->SetUint32Value(Attributes::ATTR_USER_ID, TEST_USER_ID);
+    commandAttrs->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, TEST_EXTRA_INFO);
+    commandAttrs->SetBoolValue(Attributes::ATTR_END_AFTER_FIRST_FAIL, TEST_END_AFTER_FIRST_FAIL);
+    commandAttrs->SetInt32Value(Attributes::ATTR_AUTH_INTENTION, TEST_AUTH_INTENT);
+    commandAttrs->SetStringValue(Attributes::ATTR_WIDGET_TITLE, TEST_WIDGET_TITLE);
+    ret = executorCallback->OnBeginExecute(TEST_SCHEDULE_ID, uselessPublicKey, *commandAttrs);
+    ASSERT_NE(cmdCallback, nullptr);
+    ASSERT_EQ(ret, ResultCode::SUCCESS);
+}
+
+HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthWithoutBothAttributes_001, TestSize.Level0)
+{
+    shared_ptr<Executor> executor;
+    shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
+    int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
+    ASSERT_EQ(ret, ResultCode::SUCCESS);
+
+    shared_ptr<UserAuth::IExecuteCallback> cmdCallback;
+    EXPECT_CALL(*mockExecutorHdi, Authenticate(_, _, _))
+        .WillOnce([&cmdCallback](uint64_t scheduleId, const AuthenticateParam &param,
+            const shared_ptr<UserAuth::IExecuteCallback> &callbackObj) {
+                EXPECT_EQ(param.authScene, AuthScene::AUTH_SCENE_DEFAULT);
+                EXPECT_EQ(param.title, "");
+                cmdCallback = callbackObj;
+                return ResultCode::SUCCESS;
+            });
+
+    EXPECT_CALL(*mockMessenger, SendData(_, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, Finish(_, _, _)).Times(Exactly(0));
+
+    vector<uint8_t> uselessPublicKey;
+    auto commandAttrs = MakeShared<Attributes>();
+    ASSERT_NE(commandAttrs, nullptr);
+    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_SCHEDULE_MODE, AUTH);
+    commandAttrs->SetUint64ArrayValue(Attributes::AttributeKey::ATTR_TEMPLATE_ID_LIST, TEST_TEMPLATE_ID_LIST);
+    commandAttrs->SetUint32Value(Attributes::AttributeKey::ATTR_ACCESS_TOKEN_ID, TEST_TOKEN_ID);
+    commandAttrs->SetUint32Value(Attributes::ATTR_USER_ID, TEST_USER_ID);
+    commandAttrs->SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, TEST_EXTRA_INFO);
+    commandAttrs->SetBoolValue(Attributes::ATTR_END_AFTER_FIRST_FAIL, TEST_END_AFTER_FIRST_FAIL);
+    commandAttrs->SetInt32Value(Attributes::ATTR_AUTH_INTENTION, TEST_AUTH_INTENT);
+    ret = executorCallback->OnBeginExecute(TEST_SCHEDULE_ID, uselessPublicKey, *commandAttrs);
+    ASSERT_NE(cmdCallback, nullptr);
+    ASSERT_EQ(ret, ResultCode::SUCCESS);
+}
+
+HWTEST_F(ExecutorUnitTest, UserAuthExecutor_OnBeginExecute_AuthWithBothAttributes_001, TestSize.Level0)
+{
+    shared_ptr<Executor> executor;
+    shared_ptr<MockIAuthExecutorHdi> mockExecutorHdi;
+    shared_ptr<ExecutorRegisterCallback> executorCallback;
+    shared_ptr<MockIExecutorMessenger> mockMessenger;
+    int32_t ret = GetExecutorAndMockStub(executor, executorCallback, mockExecutorHdi, mockMessenger);
+    ASSERT_EQ(ret, ResultCode::SUCCESS);
+
+    shared_ptr<UserAuth::IExecuteCallback> cmdCallback;
+    EXPECT_CALL(*mockExecutorHdi, Authenticate(_, _, _))
+        .WillOnce([&cmdCallback](uint64_t scheduleId, const AuthenticateParam &param,
+            const shared_ptr<UserAuth::IExecuteCallback> &callbackObj) {
+                EXPECT_EQ(param.authScene, static_cast<AuthScene>(TEST_AUTH_SCENE));
+                EXPECT_EQ(param.title, TEST_WIDGET_TITLE);
+                cmdCallback = callbackObj;
+                return ResultCode::SUCCESS;
+            });
+
+    EXPECT_CALL(*mockMessenger, SendData(_, _, _)).Times(Exactly(0));
+    EXPECT_CALL(*mockMessenger, Finish(_, _, _)).Times(Exactly(0));
+
+    vector<uint8_t> uselessPublicKey;
+    auto commandAttrs = MakeShared<Attributes>();
+    ASSERT_NE(commandAttrs, nullptr);
+    SetAuthCommandAttributes(*commandAttrs);
+    ret = executorCallback->OnBeginExecute(TEST_SCHEDULE_ID, uselessPublicKey, *commandAttrs);
+    ASSERT_NE(cmdCallback, nullptr);
+    ASSERT_EQ(ret, ResultCode::SUCCESS);
 }
 } // namespace UserAuth
 } // namespace UserIam

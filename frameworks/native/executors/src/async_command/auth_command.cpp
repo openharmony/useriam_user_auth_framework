@@ -65,9 +65,24 @@ ResultCode AuthCommand::SendRequest()
     bool getUserId = attributes_->GetInt32Value(Attributes::ATTR_USER_ID, userId);
     IF_FALSE_LOGE_AND_RETURN_VAL(getUserId == true, ResultCode::GENERAL_ERROR);
 
+    int32_t authSceneValue = static_cast<int32_t>(AUTH_SCENE_DEFAULT);
+    bool getAuthScene = attributes_->GetInt32Value(Attributes::ATTR_AUTH_SCENE, authSceneValue);
+    if (!getAuthScene) {
+        IAM_LOGI("%{public}s ATTR_AUTH_SCENE not found, use default scene", GetDescription());
+    }
+
+    std::string title;
+    bool getTitle = attributes_->GetStringValue(Attributes::ATTR_WIDGET_TITLE, title);
+    if (!getTitle) {
+        IAM_LOGI("%{public}s ATTR_WIDGET_TITLE not found, use empty title", GetDescription());
+    }
+
     IamHitraceHelper traceHelper("hdi Authenticate");
     ResultCode ret = hdi->Authenticate(scheduleId_,
-        (AuthenticateParam) { tokenId, templateIdList, extraInfo, endAfterFirstFail, authIntent, userId},
+        (AuthenticateParam) {
+            tokenId, templateIdList, extraInfo, endAfterFirstFail, authIntent, userId,
+            static_cast<AuthScene>(authSceneValue), title
+        },
         shared_from_this());
     IAM_LOGD("%{public}s authenticate result %{public}d", GetDescription(), ret);
     return ret;

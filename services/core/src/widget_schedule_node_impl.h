@@ -38,6 +38,7 @@ public:
     WidgetScheduleNodeImpl();
     ~WidgetScheduleNodeImpl() override = default;
     bool StartSchedule() override;
+    bool StartDirectAuth() override;
     bool StopSchedule() override;
     bool StartAuthList(const std::vector<AuthType> &authTypeList, bool endAfterFirstFail,
         AuthIntent authIntent) override;
@@ -55,6 +56,7 @@ public:
 protected:
     void OnStartSchedule(FiniteStateMachine &machine, uint32_t event);
     void OnStopSchedule(FiniteStateMachine &machine, uint32_t event);
+    void OnStartDirectAuth(FiniteStateMachine &machine, uint32_t event);
     void OnStartAuth(FiniteStateMachine &machine, uint32_t event);
     void OnStopAuthList(FiniteStateMachine &machine, uint32_t event);
     void OnSuccessAuth(FiniteStateMachine &machine, uint32_t event);

@@ -212,6 +212,10 @@ public:
         ATTR_TOKEN_FROM_REMOTE_DEVICE = 100093,
         /** Additional info from caller, the value type is string. */
         ATTR_ADDITIONAL_INFO = 100094,
+        /** Auth scene, the value type is int32_t. */
+        ATTR_AUTH_SCENE = 100095,
+        /** Widget title, the value type is string. */
+        ATTR_WIDGET_TITLE = 100096,
     };
 
     /**
