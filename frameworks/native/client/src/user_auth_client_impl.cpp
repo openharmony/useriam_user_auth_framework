@@ -27,7 +27,6 @@
 #include "iam_ptr.h"
 #include "ipc_client_utils.h"
 #include "modal_callback_service.h"
-#include "xcollie_helper.h"
 #include "user_auth_callback_service.h"
 #include "user_auth_modal_inner_callback.h"
 #include "widget_callback_service.h"
@@ -765,7 +764,6 @@ int32_t UserAuthClientImpl::RegistUserAuthSuccessEventListener(const std::vector
     const std::shared_ptr<AuthSuccessEventListener> &listener)
 {
     IAM_LOGI("start");
-    Common::XCollieHelper xcollie(__FUNCTION__, Common::CLIENT_CALL_TIMEOUT);
     return EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().RegisterListener(authTypes, listener);
 }
 
@@ -773,7 +771,6 @@ int32_t UserAuthClientImpl::UnRegistUserAuthSuccessEventListener(
     const std::shared_ptr<AuthSuccessEventListener> &listener)
 {
     IAM_LOGI("start");
-    Common::XCollieHelper xcollie(__FUNCTION__, Common::CLIENT_CALL_TIMEOUT);
     return EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().UnRegisterListener(listener);
 }
 
