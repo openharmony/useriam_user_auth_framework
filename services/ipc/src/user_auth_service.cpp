@@ -41,6 +41,7 @@
 #include "remote_iam_callback.h"
 #include "remote_auth_service.h"
 #include "thread_handler_manager.h"
+#include "user_auth_helper.h"
 #include "device_manager_util.h"
 #include "xcollie_helper.h"
 
@@ -1158,6 +1159,33 @@ int32_t UserAuthService::CheckCallerPermissionForUserId(const AuthParamInner &au
     return CHECK_PERMISSION_FAILED;
 }
 
+int32_t UserAuthService::CheckAuthWidgetParam(const AuthParamInner &authParam, const WidgetParamInner &widgetParam)
+{
+    if (widgetParam.navigationButtonText.empty()) {
+        static const size_t authTypeTwo = 2;
+        static const size_t authType0 = 0;
+        static const size_t authType1 = 1;
+        std::vector<AuthType> authType = authParam.authTypes;
+        if (((authType.size() == authTypeTwo) &&
+                (authType[authType0] == AuthType::FACE) && (authType[authType1] == AuthType::FINGERPRINT)) ||
+            ((authType.size() == authTypeTwo) &&
+                (authType[authType0] == AuthType::FINGERPRINT) && (authType[authType1] == AuthType::FACE))) {
+            IAM_LOGE("only face and finger not support");
+            return INVALID_PARAMETERS;
+        }
+    }
+    const size_t buttonTextMax = 60;
+    if (UserAuthHelper::GetUtf8CharCount(widgetParam.navigationButtonText) > buttonTextMax) {
+        IAM_LOGE("navigation button text is invalid");
+        return INVALID_PARAMETERS;
+    }
+    if (widgetParam.title.empty() || UserAuthHelper::GetUtf8CharCount(widgetParam.title) > TITLE_MAX) {
+        IAM_LOGE("title is invalid");
+        return INVALID_PARAMETERS;
+    }
+    return SUCCESS;
+}
+
 int32_t UserAuthService::CheckAuthPermissionAndParam(const AuthParamInner &authParam,
     const WidgetParamInner &widgetParam, bool isBackgroundApplication)
 {
@@ -1191,24 +1219,8 @@ int32_t UserAuthService::CheckAuthPermissionAndParam(const AuthParamInner &authP
         IAM_LOGE("authTrustLevel is not in correct range");
         return ResultCode::TRUST_LEVEL_NOT_SUPPORT;
     }
-    if (widgetParam.navigationButtonText.empty()) {
-        static const size_t authTypeTwo = 2;
-        static const size_t authType0 = 0;
-        static const size_t authType1 = 1;
-        std::vector<AuthType> authType = authParam.authTypes;
-        if (((authType.size() == authTypeTwo) &&
-                (authType[authType0] == AuthType::FACE) && (authType[authType1] == AuthType::FINGERPRINT)) ||
-            ((authType.size() == authTypeTwo) &&
-                (authType[authType0] == AuthType::FINGERPRINT) && (authType[authType1] == AuthType::FACE))) {
-            IAM_LOGE("only face and finger not support");
-            return INVALID_PARAMETERS;
-        }
-    }
-    if (widgetParam.title.empty() || widgetParam.title.size() > TITLE_MAX) {
-        IAM_LOGE("title is invalid");
-        return INVALID_PARAMETERS;
-    }
-    return SUCCESS;
+
+    return CheckAuthWidgetParam(authParam, widgetParam);
 }
 
 int32_t UserAuthService::CheckWindowMode(const WidgetParamInner &widgetParam)
