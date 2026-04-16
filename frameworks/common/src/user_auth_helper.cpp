@@ -109,6 +109,38 @@ bool UserAuthHelper::CheckAuthTrustLevel(uint32_t authTrustLevel)
     }
     return true;
 }
+
+size_t UserAuthHelper::GetUtf8CharCount(const std::string &str)
+{
+    // 统计显示字符数，编码规则解析
+    // UTF-8采用变长字节编码，单个字节的最高位为1时表示后续字节采用多字节编码。
+    const unsigned char UTF8_TWO_BYTE_MASK = 0xE0; // 0xE0：对应二进制1110 xxxx，表示字符需要2个字节编码。
+    const unsigned char UTF8_THREE_BYTE_MASK = 0xF0; // 0xF0：对应二进制1111 0xxx，表示字符需要3个字节编码。
+    const unsigned char UTF8_FOUR_BYTE_MASK = 0xF8; // 0xF8：对应二进制1111 1xxx，表示字符需要4个字节编码。
+    const unsigned char UTF8_TWO_BYTE_START = 0xC0;
+    const unsigned char UTF8_THREE_BYTE_START = 0xE0;
+    const unsigned char UTF8_FOUR_BYTE_START = 0xF0;
+    const size_t ONE_BYTE_UTF8 = 1;
+    const size_t TWO_BYTE_UTF8 = 2;
+    const size_t THREE_BYTE_UTF8 = 3;
+    const size_t FOUR_BYTE_UTF8 = 4;
+    
+    size_t charCount = 0;
+    for (size_t i = 0; i < str.size();) {
+        unsigned char c = static_cast<unsigned char>(str[i]);
+        if ((c & UTF8_TWO_BYTE_MASK) == UTF8_TWO_BYTE_START) {
+            i += TWO_BYTE_UTF8;
+        } else if ((c & UTF8_THREE_BYTE_MASK) == UTF8_THREE_BYTE_START) {
+            i += THREE_BYTE_UTF8;
+        } else if ((c & UTF8_FOUR_BYTE_MASK) == UTF8_FOUR_BYTE_START) {
+            i += FOUR_BYTE_UTF8;
+        } else {
+            i += ONE_BYTE_UTF8;
+        }
+        charCount++;
+    }
+    return charCount;
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

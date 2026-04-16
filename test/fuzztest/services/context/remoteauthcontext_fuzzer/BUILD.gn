@@ -58,6 +58,7 @@ ohos_fuzztest("RemoteAuthContextFuzzTest") {
   ]
 
   sources = [
+    "../../../../../frameworks/common/src/user_auth_helper.cpp",
     "../../../../../services/base/src/finite_state_machine_builder.cpp",
     "../../../../../services/base/src/finite_state_machine_impl.cpp",
     "../../../../../services/base/src/system_ability_listener.cpp",
