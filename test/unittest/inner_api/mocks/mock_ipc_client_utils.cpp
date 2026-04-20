@@ -34,7 +34,7 @@ void IpcClientUtils::ResetObj()
     obj_ = nullptr;
 }
 
-int32_t IpcClientUtils::RunOnResidentSync(std::function<FwkResultCode()> func, uint32_t timeoutSec)
+int32_t IpcClientUtils::RunOnResidentSync(std::function<int32_t()> func, uint32_t timeoutSec)
 {
     static_cast<void>(func);
     static_cast<void>(timeoutSec);
