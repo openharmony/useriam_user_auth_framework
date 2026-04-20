@@ -17,8 +17,9 @@
 #include <exception>
 #include <future>
 
-#include "iservice_registry.h"
+#include "iam_common_defines.h"
 #include "iam_logger.h"
+#include "iservice_registry.h"
 
 #define LOG_TAG "USER_AUTH_SDK"
 
