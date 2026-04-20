@@ -25,7 +25,6 @@
 #include "iam_para2str.h"
 #include "ipc_client_utils.h"
 #include "user_idm_callback_service.h"
-#include "xcollie_helper.h"
 
 #define LOG_TAG "USER_IDM_SDK"
 
@@ -378,15 +377,19 @@ int32_t UserIdmClientImpl::RegistCredChangeEventListener(const std::vector<AuthT
     const std::shared_ptr<CredChangeEventListener> &listener)
 {
     IAM_LOGI("start");
-    Common::XCollieHelper xcollie(__FUNCTION__, Common::CLIENT_CALL_TIMEOUT);
-    return EventListenerCallbackManager<CredChangeEventListener>::GetInstance().RegisterListener(authTypes, listener);
+    int32_t ret = IpcClientUtils::RunOnResidentSync([authTypes, listener]() {
+        return EventListenerCallbackManager<CredChangeEventListener>::GetInstance().RegisterListener(authTypes, listener);
+    }, MAX_SYNC_WAIT_TIME_SEC);
+    return ret;
 }
 
 int32_t UserIdmClientImpl::UnRegistCredChangeEventListener(const std::shared_ptr<CredChangeEventListener> &listener)
 {
     IAM_LOGI("start");
-    Common::XCollieHelper xcollie(__FUNCTION__, Common::CLIENT_CALL_TIMEOUT);
-    return EventListenerCallbackManager<CredChangeEventListener>::GetInstance().UnRegisterListener(listener);
+    int32_t ret = IpcClientUtils::RunOnResidentSync([authTypes, listener]() {
+        return EventListenerCallbackManager<CredChangeEventListener>::GetInstance().UnRegisterListener(listener);
+    }, MAX_SYNC_WAIT_TIME_SEC);
+    return ret;
 }
 
 int32_t UserIdmClientImpl::GetCredentialInfoSync(int32_t userId, AuthType authType,
