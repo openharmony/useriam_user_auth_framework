@@ -60,7 +60,6 @@ ohos_fuzztest("UserAccessCtrlClientFuzzTest") {
   ]
 
   deps = [
-    "../../../../common:iam_utils",
     "../../../../frameworks/native/ipc:userauth_client_ipc_fuzzer",
     "../../common_fuzzer:attributes_fuzzer",
     "../../common_fuzzer:dfx_fuzzer",
