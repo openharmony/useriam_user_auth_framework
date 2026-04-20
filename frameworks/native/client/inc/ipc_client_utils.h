@@ -16,7 +16,6 @@
 #ifndef IPC_CLIENT_UTILS_H
 #define IPC_CLIENT_UTILS_H
 
-#include "iam_common_defines.h"
 #include "iremote_object.h"
 
 namespace OHOS {
