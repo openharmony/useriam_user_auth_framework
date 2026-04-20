@@ -14,8 +14,10 @@
  */
 #include "ipc_client_utils.h"
 
-#include "iservice_registry.h"
+#include <exception>
+#include <future>
 
+#include "iservice_registry.h"
 #include "iam_logger.h"
 
 #define LOG_TAG "USER_AUTH_SDK"
