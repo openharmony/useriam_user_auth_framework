@@ -27,7 +27,7 @@ constexpr uint32_t MAX_SYNC_WAIT_TIME_SEC = 4; // 4 seconds
 class IpcClientUtils {
 public:
     static sptr<IRemoteObject> GetRemoteObject(int32_t saId);
-    static int32_t RunOnResidentSync(std::function<int32_t> func, uint32_t timeoutSec);
+    static int32_t RunOnResidentSync(std::function<int32_t()> func, uint32_t timeoutSec);
 };
 } // namespace UserAuth
 } // namespace UserIam
