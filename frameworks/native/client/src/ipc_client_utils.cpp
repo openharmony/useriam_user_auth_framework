@@ -42,7 +42,7 @@ sptr<IRemoteObject> IpcClientUtils::GetRemoteObject(int32_t saId)
     return obj;
 }
 
-int32_t IpcClientUtils::RunOnResidentSync(std::function<int32_t()> func, uint32_t timeoutSec)
+int32_t IpcClientUtils::RunOnResidentSync(std::function<int32_t>() func, uint32_t timeoutSec)
 {
     IAM_LOGI("start");
     auto resultPromise = std::make_shared<std::promise<int32_t>>();
