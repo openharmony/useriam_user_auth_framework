@@ -17,13 +17,17 @@
 #define IPC_CLIENT_UTILS_H
 
 #include "iremote_object.h"
+#include "iam_common_defines.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 class IpcClientUtils {
+constexpr uint32_t MAX_SYNC_WAIT_TIME_SEC = 4; // 4 second
+
 public:
     static sptr<IRemoteObject> GetRemoteObject(int32_t saId);
+    static int32_t RunOnResidentSync(std::function<int32_t> func, uint32_t timeoutSec);
 };
 } // namespace UserAuth
 } // namespace UserIam
