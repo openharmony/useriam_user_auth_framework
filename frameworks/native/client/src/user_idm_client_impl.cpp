@@ -377,13 +377,20 @@ int32_t UserIdmClientImpl::RegistCredChangeEventListener(const std::vector<AuthT
     const std::shared_ptr<CredChangeEventListener> &listener)
 {
     IAM_LOGI("start");
-    return EventListenerCallbackManager<CredChangeEventListener>::GetInstance().RegisterListener(authTypes, listener);
+    int32_t ret = IpcClientUtils::RunOnResidentSync([authTypes, listener]() {
+        return EventListenerCallbackManager<CredChangeEventListener>::GetInstance().RegisterListener(
+            authTypes, listener);
+    }, MAX_SYNC_WAIT_TIME_SEC);
+    return ret;
 }
 
 int32_t UserIdmClientImpl::UnRegistCredChangeEventListener(const std::shared_ptr<CredChangeEventListener> &listener)
 {
     IAM_LOGI("start");
-    return EventListenerCallbackManager<CredChangeEventListener>::GetInstance().UnRegisterListener(listener);
+    int32_t ret = IpcClientUtils::RunOnResidentSync([listener]() {
+        return EventListenerCallbackManager<CredChangeEventListener>::GetInstance().UnRegisterListener(listener);
+    }, MAX_SYNC_WAIT_TIME_SEC);
+    return ret;
 }
 
 int32_t UserIdmClientImpl::GetCredentialInfoSync(int32_t userId, AuthType authType,
