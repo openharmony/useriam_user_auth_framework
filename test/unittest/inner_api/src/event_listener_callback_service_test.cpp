@@ -21,6 +21,7 @@
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
+#include "user_auth_client_impl.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -60,6 +61,119 @@ HWTEST_F(EventListenerCallbackServiceTest, RegisterListenerTest, TestSize.Level0
     ret = EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().UnRegisterListener(tmpListener);
     EXPECT_EQ(ret, GENERAL_ERROR);
     EventListenerCallbackManager<AuthSuccessEventListener>::GetInstance().GetEventListenerSet(AuthType::PIN);
+}
+
+HWTEST_F(EventListenerCallbackServiceTest, OnNotifyAuthSuccessEventSuccess, TestSize.Level0)
+{
+    auto service = EventListenerCallbackService::GetInstance();
+    ASSERT_NE(service, nullptr);
+
+    IpcAuthSuccessEventInfo eventInfo = {
+        .callerName = "testCaller",
+        .callerType = 1,
+        .isWidgetAuth = false
+    };
+
+    auto ret = service->OnNotifyAuthSuccessEvent(1001, AuthType::PIN, eventInfo);
+    EXPECT_EQ(ret, SUCCESS);
+
+    ret = service->OnNotifyAuthSuccessEvent(1002, AuthType::FACE, eventInfo);
+    EXPECT_EQ(ret, SUCCESS);
+
+    ret = service->OnNotifyAuthSuccessEvent(1003, AuthType::FINGERPRINT, eventInfo);
+    EXPECT_EQ(ret, SUCCESS);
+}
+
+HWTEST_F(EventListenerCallbackServiceTest, OnNotifyAuthSuccessEventWithListenerSuccess, TestSize.Level0)
+{
+    auto mockService = Common::MakeShared<MockUserAuthService>();
+    ASSERT_NE(mockService, nullptr);
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    ASSERT_NE(obj, nullptr);
+    IpcClientUtils::SetObj(obj);
+
+    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
+    ON_CALL(*obj, SendRequest)
+        .WillByDefault([&mockService](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            mockService->OnRemoteRequest(code, data, reply, option);
+            return OHOS::NO_ERROR;
+        });
+
+    ON_CALL(*mockService, RegistUserAuthSuccessEventListener)
+        .WillByDefault([](const sptr<IEventListenerCallback> &listener) {
+            return SUCCESS;
+        });
+
+    auto listener = Common::MakeShared<MockAuthSuccessEventListener>();
+    ASSERT_NE(listener, nullptr);
+    EXPECT_CALL(*listener, OnNotifyAuthSuccessEvent(_, _, _)).Times(1);
+
+    std::vector<AuthType> authTypes = {AuthType::PIN};
+    auto regRet = UserAuthClientImpl::Instance().RegistUserAuthSuccessEventListener(authTypes, listener);
+    EXPECT_EQ(regRet, SUCCESS);
+
+    auto service = EventListenerCallbackService::GetInstance();
+    ASSERT_NE(service, nullptr);
+    IpcAuthSuccessEventInfo eventInfo = {
+        .callerName = "testCaller",
+        .callerType = 1,
+        .isWidgetAuth = false
+    };
+    auto ret = service->OnNotifyAuthSuccessEvent(1001, AuthType::PIN, eventInfo);
+    EXPECT_EQ(ret, SUCCESS);
+    auto unregRet = UserAuthClientImpl::Instance().UnRegistUserAuthSuccessEventListener(listener);
+    EXPECT_EQ(unregRet, SUCCESS);
+    IpcClientUtils::ResetObj();
+}
+
+HWTEST_F(EventListenerCallbackServiceTest, OnNotifyAuthSuccessEventMultiListenersSuccess, TestSize.Level0)
+{
+    auto mockService = Common::MakeShared<MockUserAuthService>();
+    ASSERT_NE(mockService, nullptr);
+    sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
+    ASSERT_NE(obj, nullptr);
+    IpcClientUtils::SetObj(obj);
+
+    EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
+    ON_CALL(*obj, SendRequest)
+        .WillByDefault([&mockService](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            mockService->OnRemoteRequest(code, data, reply, option);
+            return OHOS::NO_ERROR;
+        });
+
+    ON_CALL(*mockService, RegistUserAuthSuccessEventListener)
+        .WillByDefault([](const sptr<IEventListenerCallback> &listener) {
+            return SUCCESS;
+        });
+
+    auto listener1 = Common::MakeShared<MockAuthSuccessEventListener>();
+    auto listener2 = Common::MakeShared<MockAuthSuccessEventListener>();
+    ASSERT_NE(listener1, nullptr);
+    ASSERT_NE(listener2, nullptr);
+
+    EXPECT_CALL(*listener1, OnNotifyAuthSuccessEvent(_, _, _)).Times(1);
+    EXPECT_CALL(*listener2, OnNotifyAuthSuccessEvent(_, _, _)).Times(1);
+
+    std::vector<AuthType> authTypes = {AuthType::FACE};
+    auto regRet1 = UserAuthClientImpl::Instance().RegistUserAuthSuccessEventListener(authTypes, listener1);
+    EXPECT_EQ(regRet1, SUCCESS);
+
+    auto regRet2 = UserAuthClientImpl::Instance().RegistUserAuthSuccessEventListener(authTypes, listener2);
+    EXPECT_EQ(regRet2, SUCCESS);
+    auto service = EventListenerCallbackService::GetInstance();
+    ASSERT_NE(service, nullptr);
+    IpcAuthSuccessEventInfo eventInfo = {
+        .callerName = "multiTestCaller",
+        .callerType = 2,
+        .isWidgetAuth = true
+    };
+    auto ret = service->OnNotifyAuthSuccessEvent(1002, AuthType::FACE, eventInfo);
+    EXPECT_EQ(ret, SUCCESS);
+    auto unregRet1 = UserAuthClientImpl::Instance().UnRegistUserAuthSuccessEventListener(listener1);
+    EXPECT_EQ(unregRet1, SUCCESS);
+    auto unregRet2 = UserAuthClientImpl::Instance().UnRegistUserAuthSuccessEventListener(listener2);
+    EXPECT_EQ(unregRet2, SUCCESS);
+    IpcClientUtils::ResetObj();
 }
 } // namespace UserAuth
 } // namespace UserIam
