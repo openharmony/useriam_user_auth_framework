@@ -648,6 +648,96 @@ HWTEST_F(SimpleAuthContextTest, SimpleAuthContextTest_ContextFree, TestSize.Leve
     std::this_thread::sleep_for(std::chrono::milliseconds(500));
     ASSERT_EQ(weakContext.lock(), nullptr);
 }
+
+HWTEST_F(SimpleAuthContextTest, GetPropertyTemplateIds_0001, TestSize.Level0)
+{
+    Authentication::AuthResultInfo resultInfo;
+    resultInfo.userId = 100;
+    const uint64_t testContestId = 2;
+    std::shared_ptr<MockAuthentication> mockAuth = Common::MakeShared<MockAuthentication>();
+    std::shared_ptr<MockContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
+    auto context = Common::MakeShared<SimpleAuthContext>(testContestId, mockAuth, contextCallback, true);
+    ASSERT_NE(context, nullptr);
+    auto result = context->GetPropertyTemplateIds(resultInfo);
+    EXPECT_FALSE(result.has_value());
+}
+
+HWTEST_F(SimpleAuthContextTest, GetPropertyTemplateIds_0002, TestSize.Level0)
+{
+    Authentication::AuthResultInfo resultInfo;
+    resultInfo.userId = 100;
+    const uint64_t testContestId = 2;
+    std::shared_ptr<MockAuthentication> mockAuth = Common::MakeShared<MockAuthentication>();
+    ASSERT_NE(mockAuth, nullptr);
+    EXPECT_CALL(*mockAuth, Start(_, _))
+        .Times(Exactly(1))
+        .WillOnce([](std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
+                      std::shared_ptr<ScheduleNodeCallback> callback) {
+            auto scheduleNode = Common::MakeShared<MockScheduleNode>();
+            EXPECT_CALL(*scheduleNode, GetAuthType()).WillRepeatedly(Return(FACE));
+            EXPECT_CALL(*scheduleNode, GetTemplateIdList())
+                .WillRepeatedly(Return(std::vector<uint64_t>{1, 2, 3}));
+            scheduleList.push_back(scheduleNode);
+            return true;
+        });
+    std::shared_ptr<MockContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
+    auto context = Common::MakeShared<SimpleAuthContext>(testContestId, mockAuth, contextCallback, true);
+    ASSERT_NE(context, nullptr);
+    context->Start();
+    auto result = context->GetPropertyTemplateIds(resultInfo);
+    ASSERT_TRUE(result.has_value());
+    EXPECT_EQ(result.value(), std::vector<uint64_t>({1, 2, 3}));
+}
+
+HWTEST_F(SimpleAuthContextTest, GetPropertyTemplateIds_0003, TestSize.Level0)
+{
+    Authentication::AuthResultInfo resultInfo;
+    resultInfo.userId = 100;
+    const uint64_t testContestId = 2;
+    std::shared_ptr<MockAuthentication> mockAuth = Common::MakeShared<MockAuthentication>();
+    ASSERT_NE(mockAuth, nullptr);
+    EXPECT_CALL(*mockAuth, Start(_, _))
+        .Times(Exactly(1))
+        .WillOnce([](std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
+                      std::shared_ptr<ScheduleNodeCallback> callback) {
+            auto scheduleNode = Common::MakeShared<MockScheduleNode>();
+            EXPECT_CALL(*scheduleNode, GetAuthType()).WillRepeatedly(Return(PRIVATE_PIN));
+            EXPECT_CALL(*scheduleNode, GetAuthIntent()).WillRepeatedly(Return(QUESTION_AUTH));
+            scheduleList.push_back(scheduleNode);
+            return true;
+        });
+    std::shared_ptr<MockContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
+    auto context = Common::MakeShared<SimpleAuthContext>(testContestId, mockAuth, contextCallback, true);
+    ASSERT_NE(context, nullptr);
+    context->Start();
+    auto result = context->GetPropertyTemplateIds(resultInfo);
+    EXPECT_FALSE(result.has_value());
+}
+
+HWTEST_F(SimpleAuthContextTest, GetPropertyTemplateIds_0004, TestSize.Level0)
+{
+    Authentication::AuthResultInfo resultInfo;
+    resultInfo.userId = 100;
+    const uint64_t testContestId = 2;
+    std::shared_ptr<MockAuthentication> mockAuth = Common::MakeShared<MockAuthentication>();
+    ASSERT_NE(mockAuth, nullptr);
+    EXPECT_CALL(*mockAuth, Start(_, _))
+        .Times(Exactly(1))
+        .WillOnce([](std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
+                      std::shared_ptr<ScheduleNodeCallback> callback) {
+            auto scheduleNode = Common::MakeShared<MockScheduleNode>();
+            EXPECT_CALL(*scheduleNode, GetAuthType()).WillRepeatedly(Return(PRIVATE_PIN));
+            EXPECT_CALL(*scheduleNode, GetAuthIntent()).WillRepeatedly(Return(AuthIntent::DEFAULT));
+            scheduleList.push_back(scheduleNode);
+            return true;
+        });
+    std::shared_ptr<MockContextCallback> contextCallback = Common::MakeShared<MockContextCallback>();
+    auto context = Common::MakeShared<SimpleAuthContext>(testContestId, mockAuth, contextCallback, true);
+    ASSERT_NE(context, nullptr);
+    context->Start();
+    auto result = context->GetPropertyTemplateIds(resultInfo);
+    EXPECT_FALSE(result.has_value());
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
