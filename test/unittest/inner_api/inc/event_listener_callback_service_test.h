@@ -16,7 +16,10 @@
 #define EVENT_LISTENER_CALLBACK_SERVICE_TEST
 
 #include <gtest/gtest.h>
+#include "mock_ipc_client_utils.h"
+#include "mock_remote_object.h"
 #include "mock_user_auth_client_callback.h"
+#include "mock_user_auth_service.h"
 
 namespace OHOS {
 namespace UserIam {

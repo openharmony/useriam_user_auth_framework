@@ -815,6 +815,140 @@ HWTEST_F(WidgetContextTest, WidgetContextTestDisconnectExtension, TestSize.Level
     widgetContext->para_.callerType = 9;
     widgetContext->GetCallerName();
 }
+
+HWTEST_F(WidgetContextTest, WidgetContextTestAuthTipInfo_0001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    Attributes extraInfo;
+    std::vector<uint8_t> tipInfo = {1, 2, 3};
+    extraInfo.SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, tipInfo);
+    int32_t tipType = 0;
+    int32_t authType = PIN;
+    EXPECT_NO_THROW(widgetContext->AuthTipInfo(tipType, authType, extraInfo));
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestAuthTipInfo_0002, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    Attributes extraInfo;
+    int32_t tipType = 1;
+    int32_t authType = FACE;
+    EXPECT_NO_THROW(widgetContext->AuthTipInfo(tipType, authType, extraInfo));
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestAuthTipInfo_0003, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    Attributes extraInfo;
+    std::vector<uint8_t> tipInfo = {0x01, 0x02, 0x03, 0x04};
+    extraInfo.SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, tipInfo);
+    int32_t tipType = USER_AUTH_TIP_SINGLE_AUTH_RESULT;
+    int32_t authType = FINGERPRINT;
+    EXPECT_NO_THROW(widgetContext->AuthTipInfo(tipType, authType, extraInfo));
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestAuthTipInfo_0004, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.skipLockedBiometricAuth = true;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    Attributes extraInfo;
+    std::vector<uint8_t> tipInfo = {5, 6, 7, 8, 9};
+    extraInfo.SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, tipInfo);
+    int32_t tipType = 2;
+    int32_t authType = FACE;
+    EXPECT_NO_THROW(widgetContext->AuthTipInfo(tipType, authType, extraInfo));
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestHandleAuthSuccessResult_0001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    widgetContext->authResultInfo_.authType = PIN;
+    widgetContext->authResultInfo_.credentialDigest = 100;
+    widgetContext->authResultInfo_.credentialCount = 5;
+    widgetContext->authResultInfo_.resultUserId = 1000;
+    Attributes attr;
+    bool result = widgetContext->HandleAuthSuccessResult(attr);
+    EXPECT_TRUE(result);
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestHandleAuthSuccessResult_0002, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    widgetContext->authResultInfo_.authType = FACE;
+    widgetContext->authResultInfo_.token = {0x01, 0x02, 0x03, 0x04};
+    widgetContext->authResultInfo_.credentialDigest = 200;
+    widgetContext->authResultInfo_.credentialCount = 3;
+    widgetContext->authResultInfo_.resultUserId = 2000;
+    Attributes attr;
+    bool result = widgetContext->HandleAuthSuccessResult(attr);
+    EXPECT_TRUE(result);
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestHandleAuthSuccessResult_0003, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    widgetContext->authResultInfo_.authType = FINGERPRINT;
+    widgetContext->authResultInfo_.token = {};
+    widgetContext->authResultInfo_.credentialDigest = 0;
+    widgetContext->authResultInfo_.credentialCount = 0;
+    widgetContext->authResultInfo_.resultUserId = 0;
+    Attributes attr;
+    bool result = widgetContext->HandleAuthSuccessResult(attr);
+    EXPECT_TRUE(result);
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestHandleAuthSuccessResult_0004, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+    widgetContext->authResultInfo_.authType = ALL;
+    widgetContext->authResultInfo_.token = {1, 2, 3, 4, 5, 6, 7, 8};
+    widgetContext->authResultInfo_.credentialDigest = 99999999999ULL;
+    widgetContext->authResultInfo_.credentialCount = 65535;
+    widgetContext->authResultInfo_.resultUserId = 2147483647;
+    Attributes attr;
+    bool result = widgetContext->HandleAuthSuccessResult(attr);
+    EXPECT_TRUE(result);
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
