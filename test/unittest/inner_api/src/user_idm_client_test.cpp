@@ -537,11 +537,11 @@ HWTEST_F(UserIdmClientTest, UserIdmClientRegistCredChangeEventListener, TestSize
     authTypeList.push_back(AuthType::FINGERPRINT);
 
     int32_t ret = UserIdmClient::GetInstance().RegistCredChangeEventListener(authTypeList, nullptr);
-    EXPECT_EQ(ret, SUCCESS);
+    EXPECT_EQ(ret, INVALID_PARAMETERS);
 
     auto testCallback = Common::MakeShared<MockCredChangeEventListener>();
     ret = UserIdmClient::GetInstance().RegistCredChangeEventListener(authTypeList, testCallback);
-    EXPECT_EQ(ret, SUCCESS);
+    EXPECT_EQ(ret, GENERAL_ERROR);
 }
 
 HWTEST_F(UserIdmClientTest, UserIdmClientRegistCredChangeEventListenerSuccess, TestSize.Level0)

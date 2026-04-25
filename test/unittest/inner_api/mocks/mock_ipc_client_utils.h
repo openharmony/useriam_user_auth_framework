@@ -26,7 +26,6 @@ public:
     static sptr<IRemoteObject> GetRemoteObject(int32_t saId);
     static void SetObj(const sptr<IRemoteObject> &obj);
     static void ResetObj();
-    static int32_t RunOnResidentSync(std::function<int32_t()> func, uint32_t timeoutSec);
 
 private:
     static sptr<IRemoteObject> obj_;
