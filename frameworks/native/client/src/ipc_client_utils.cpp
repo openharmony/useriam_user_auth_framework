@@ -14,12 +14,9 @@
  */
 #include "ipc_client_utils.h"
 
-#include <exception>
-#include <future>
-
-#include "iam_common_defines.h"
-#include "iam_logger.h"
 #include "iservice_registry.h"
+
+#include "iam_logger.h"
 
 #define LOG_TAG "USER_AUTH_SDK"
 
@@ -41,37 +38,6 @@ sptr<IRemoteObject> IpcClientUtils::GetRemoteObject(int32_t saId)
         return obj;
     }
     return obj;
-}
-
-int32_t IpcClientUtils::RunOnResidentSync(std::function<int32_t()> func, uint32_t timeoutSec)
-{
-    IAM_LOGI("start");
-    auto resultPromise = std::make_shared<std::promise<int32_t>>();
-    if (resultPromise == nullptr) {
-        IAM_LOGE("resultPromise is nullptr");
-        return GENERAL_ERROR;
-    }
-
-    auto future = resultPromise->get_future();
-    std::thread([taskFunc = std::move(func), promise = resultPromise]() mutable {
-        try {
-            promise->set_value(taskFunc());
-        } catch (...) {
-            try {
-                promise->set_exception(std::current_exception());
-            } catch (...) {
-                IAM_LOGE("RunOnResidentSync set_exception failed");
-            }
-        }
-    }).detach();
-
-    std::future_status status = future.wait_for(std::chrono::seconds(timeoutSec));
-    if (status != std::future_status::ready) {
-        IAM_LOGE("RunOnResidentSync timeout - task not completed in %{public}u second, status: %{public}d", timeoutSec,
-            static_cast<int32_t>(status));
-        return TIMEOUT;
-    }
-    return future.get();
 }
 } // namespace UserAuth
 } // namespace UserIam
