@@ -1754,6 +1754,25 @@ int32_t UserAuthService::UnRegistUserAuthSuccessEventListener(const sptr<IEventL
     return SUCCESS;
 }
 
+int32_t SetPinAlgorithmsProperty(const IpcGlobalConfigParam &ipcGlobalConfigParam, HdiGlobalConfigParam &paramConfig)
+{
+    if (ipcGlobalConfigParam.authTypes.size() != 1 || ipcGlobalConfigParam.authTypes[0] != PIN) {
+        IAM_LOGE("bad authTypes for PIN_EXPIRED_PERIOD");
+        return INVALID_PARAMETERS;
+    }
+    if (ipcGlobalConfigParam.value.pinAlgoType == PinEncrypAlgoType::AES_GCM) {
+        const int32_t pinAlgoAes = 3;
+        paramConfig.type = pinAlgoAes;
+    } else if (ipcGlobalConfigParam.value.pinAlgoType == PinEncrypAlgoType::SM4) {
+        const int32_t pinAlgoSM4 = 4;
+        paramConfig.type = pinAlgoSM4;
+    } else {
+        IAM_LOGE("bad pinAlgoType value:%{public}d", ipcGlobalConfigParam.value.pinAlgoType);
+        return INVALID_PARAMETERS;
+    }
+    return SUCCESS;
+}
+
 int32_t UserAuthService::SetGlobalConfigParam(const IpcGlobalConfigParam &ipcGlobalConfigParam)
 {
     IAM_LOGI("start, GlobalConfigType is %{public}d, userIds size %{public}zu, authTypes size %{public}zu",
@@ -1782,25 +1801,26 @@ int32_t UserAuthService::SetGlobalConfigParam(const IpcGlobalConfigParam &ipcGlo
         case GlobalConfigType::ENABLE_STATUS:
             paramConfig.value.enableStatus = ipcGlobalConfigParam.value.enableStatus;
             break;
+        case GlobalConfigType::PIN_ALGO_TYPE:
+            if (SetPinAlgorithmsProperty(ipcGlobalConfigParam, paramConfig) != SUCCESS) {
+                return INVALID_PARAMETERS;
+            }
+            break;
         default:
             IAM_LOGE("bad global config type");
             return INVALID_PARAMETERS;
     }
-    paramConfig.type = static_cast<HdiGlobalConfigType>(ipcGlobalConfigParam.type);
+    if (static_cast<GlobalConfigType>(ipcGlobalConfigParam.type) != GlobalConfigType::PIN_ALGO_TYPE) {
+        paramConfig.type = static_cast<HdiGlobalConfigType>(ipcGlobalConfigParam.type);
+    }
     paramConfig.userIds = ipcGlobalConfigParam.userIds;
     for (const auto authType : ipcGlobalConfigParam.authTypes) {
         paramConfig.authTypes.push_back(static_cast<AuthType>(authType));
     }
     auto hdi = HdiWrapper::GetHdiInstance();
-    if (hdi == nullptr) {
-        IAM_LOGE("hdi interface is nullptr");
-        return GENERAL_ERROR;
-    }
+    IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, GENERAL_ERROR);
     int32_t result = hdi->SetGlobalConfigParam(paramConfig);
-    if (result != SUCCESS) {
-        IAM_LOGE("failed to Set global config param");
-        return result;
-    }
+    IF_FALSE_LOGE_AND_RETURN_VAL(result == SUCCESS, result);
 
     return SUCCESS;
 }
