@@ -43,6 +43,8 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
+constexpr int32_t TEST_USER_ID = 100;
+
 class DummyUserAuthCallback : public IIamCallback {
 public:
     ~DummyUserAuthCallback() override = default;
@@ -508,6 +510,65 @@ void FuzzSetGlobalConfigParam(Parcel &parcel)
     IAM_LOGI("end");
 }
 
+void FuzzSetGlobalConfigParamWithPinAlgo(Parcel &parcel)
+{
+    IAM_LOGI("start");
+    IpcGlobalConfigParam param = {};
+    param.type = parcel.ReadInt32();
+    int32_t authTypeCount = parcel.ReadInt32() % 3;
+    for (int32_t i = 0; i < authTypeCount; i++) {
+        param.authTypes.push_back(parcel.ReadInt32());
+    }
+    param.value.pinAlgoType = parcel.ReadUint32();
+
+    g_userAuthService.SetGlobalConfigParam(param);
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    IpcCommon::AddPermission(ENTERPRISE_DEVICE_MGR);
+    g_userAuthService.SetGlobalConfigParam(param);
+    IpcCommon::DeleteAllPermission();
+    EnsureTask();
+    IAM_LOGI("end");
+}
+
+void FuzzSetGlobalConfigParamWithUserIds(Parcel &parcel)
+{
+    IAM_LOGI("start");
+    IpcGlobalConfigParam param = {};
+    param.type = parcel.ReadInt32();
+    param.authTypes.push_back(parcel.ReadInt32());
+    param.value.pinAlgoType = parcel.ReadUint32();
+
+    int32_t userIdCount = parcel.ReadInt32() % 5;
+    for (int32_t i = 0; i < userIdCount; i++) {
+        param.userIds.push_back(parcel.ReadInt32() + TEST_USER_ID);
+    }
+
+    g_userAuthService.SetGlobalConfigParam(param);
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    IpcCommon::AddPermission(ENTERPRISE_DEVICE_MGR);
+    g_userAuthService.SetGlobalConfigParam(param);
+    IpcCommon::DeleteAllPermission();
+    EnsureTask();
+    IAM_LOGI("end");
+}
+
+void FuzzSetGlobalConfigParamInvalid(Parcel &parcel)
+{
+    IAM_LOGI("start");
+    IpcGlobalConfigParam param = {};
+    param.type = parcel.ReadInt32();
+    param.authTypes.push_back(parcel.ReadInt32());
+    param.value.pinAlgoType = TEST_USER_ID;
+
+    g_userAuthService.SetGlobalConfigParam(param);
+    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    IpcCommon::AddPermission(ENTERPRISE_DEVICE_MGR);
+    g_userAuthService.SetGlobalConfigParam(param);
+    IpcCommon::DeleteAllPermission();
+    EnsureTask();
+    IAM_LOGI("end");
+}
+
 void FuzzPrepareRemoteAuth(Parcel &parcel)
 {
     IAM_LOGI("begin");
@@ -887,6 +948,9 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzRegisterWidgetCallback,
     FuzzRegistUserAuthSuccessEventListener,
     FuzzSetGlobalConfigParam,
+    FuzzSetGlobalConfigParamWithPinAlgo,
+    FuzzSetGlobalConfigParamWithUserIds,
+    FuzzSetGlobalConfigParamInvalid,
     FuzzPrepareRemoteAuth,
     FuzzCheckValidSolution,
     FuzzCompleteRemoteAuthParam,
