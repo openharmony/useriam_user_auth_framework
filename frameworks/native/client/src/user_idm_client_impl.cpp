@@ -377,8 +377,9 @@ int32_t UserIdmClientImpl::RegistCredChangeEventListener(const std::vector<AuthT
     const std::shared_ptr<CredChangeEventListener> &listener)
 {
     IAM_LOGI("start");
-    IF_FALSE_LOGE_AND_RETURN_VAL(proxy_ != nullptr, GENERAL_ERROR);
-    auto serviceRemote = proxy_->AsObject();
+    auto proxy = GetProxy();
+    IF_FALSE_LOGE_AND_RETURN_VAL(proxy != nullptr, GENERAL_ERROR);
+    auto serviceRemote = proxy->AsObject();
     IF_FALSE_LOGE_AND_RETURN_VAL(serviceRemote != nullptr, GENERAL_ERROR);
     if (!serviceRemote->IsProxyObject()) {
         return EventListenerCallbackManager<CredChangeEventListener>::GetInstance().RegisterListener(
@@ -394,8 +395,9 @@ int32_t UserIdmClientImpl::RegistCredChangeEventListener(const std::vector<AuthT
 int32_t UserIdmClientImpl::UnRegistCredChangeEventListener(const std::shared_ptr<CredChangeEventListener> &listener)
 {
     IAM_LOGI("start");
-    IF_FALSE_LOGE_AND_RETURN_VAL(proxy_ != nullptr, GENERAL_ERROR);
-    auto serviceRemote = proxy_->AsObject();
+    auto proxy = GetProxy();
+    IF_FALSE_LOGE_AND_RETURN_VAL(proxy != nullptr, GENERAL_ERROR);
+    auto serviceRemote = proxy->AsObject();
     IF_FALSE_LOGE_AND_RETURN_VAL(serviceRemote != nullptr, GENERAL_ERROR);
     if (!serviceRemote->IsProxyObject()) {
         return EventListenerCallbackManager<CredChangeEventListener>::GetInstance().UnRegisterListener(listener);
