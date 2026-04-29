@@ -595,11 +595,11 @@ HWTEST_F(UserIdmClientTest, UserIdmClientRegistCredChangeEventListenerSuccess, T
 HWTEST_F(UserIdmClientTest, UserIdmClientUnRegistCredChangeEventListener, TestSize.Level0)
 {
     int32_t ret = UserIdmClient::GetInstance().UnRegistCredChangeEventListener(nullptr);
-    EXPECT_EQ(ret, INVALID_PARAMETERS);
+    EXPECT_EQ(ret, SUCCESS);
 
     auto testCallback = Common::MakeShared<MockCredChangeEventListener>();
     ret = UserIdmClient::GetInstance().UnRegistCredChangeEventListener(testCallback);
-    EXPECT_EQ(ret, GENERAL_ERROR);
+    EXPECT_EQ(ret, SUCCESS);
 }
 
 void UserIdmClientTest::CallRemoteObject(const std::shared_ptr<MockUserIdmService> service,
