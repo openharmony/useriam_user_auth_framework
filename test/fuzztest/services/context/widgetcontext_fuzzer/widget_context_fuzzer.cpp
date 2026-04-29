@@ -72,7 +72,7 @@ std::shared_ptr<WidgetContext> CreateWidgetContext(Parcel &parcel)
     para.userId = parcel.ReadInt32();
     para.sdkVersion = parcel.ReadInt32();
     para.tokenId = parcel.ReadUint32();
-    FillFuzzString(parcel, para.callerName);
+    para.callerName = "com.test.sample";
     FillFuzzUint8Vector(parcel, para.challenge);
     para.authTypeList.push_back(static_cast<AuthType>(parcel.ReadInt32()));
     para.atl = static_cast<AuthTrustLevel>(parcel.ReadUint32());

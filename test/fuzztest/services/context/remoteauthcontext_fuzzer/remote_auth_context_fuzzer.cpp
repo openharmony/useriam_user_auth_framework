@@ -86,12 +86,18 @@ void ContextAppStateObserverFuzzTest(Parcel &parcel)
 
     contextAppStateObserver->SubscribeAppState(contextCallback, contextId);
     std::string callerName = parcel.ReadString();
+    if (callerName.empty()) {
+        return;
+    }
     contextCallback->SetTraceCallerName(callerName);
     contextAppStateObserver->SubscribeAppState(contextCallback, contextId);
 
     contextAppStateObserver->UnSubscribeAppState();
 
     std::string bundleName = parcel.ReadString();
+    if (bundleName.empty()) {
+        return;
+    }
     auto contextApp = MakeShared<ContextAppStateObserver>(contextId, bundleName);
     AppStateData appStateData;
     appStateData.state = static_cast<int32_t>(ApplicationState::APP_STATE_BACKGROUND);
