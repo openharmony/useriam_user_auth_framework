@@ -377,6 +377,13 @@ int32_t UserIdmClientImpl::RegistCredChangeEventListener(const std::vector<AuthT
     const std::shared_ptr<CredChangeEventListener> &listener)
 {
     IAM_LOGI("start");
+    IF_FALSE_LOGE_AND_RETURN_VAL(proxy_ != nullptr, GENERAL_ERROR);
+    auto serviceRemote = proxy_->AsObject();
+    IF_FALSE_LOGE_AND_RETURN_VAL(serviceRemote != nullptr, GENERAL_ERROR);
+    if (!serviceRemote->IsProxyObject()) {
+        return EventListenerCallbackManager<CredChangeEventListener>::GetInstance().RegisterListener(
+            authTypes, listener);
+    }
     int32_t ret = IpcClientUtils::RunOnResidentSync([authTypes, listener]() {
         return EventListenerCallbackManager<CredChangeEventListener>::GetInstance().RegisterListener(
             authTypes, listener);
@@ -387,6 +394,12 @@ int32_t UserIdmClientImpl::RegistCredChangeEventListener(const std::vector<AuthT
 int32_t UserIdmClientImpl::UnRegistCredChangeEventListener(const std::shared_ptr<CredChangeEventListener> &listener)
 {
     IAM_LOGI("start");
+    IF_FALSE_LOGE_AND_RETURN_VAL(proxy_ != nullptr, GENERAL_ERROR);
+    auto serviceRemote = proxy_->AsObject();
+    IF_FALSE_LOGE_AND_RETURN_VAL(serviceRemote != nullptr, GENERAL_ERROR);
+    if (!serviceRemote->IsProxyObject()) {
+        return EventListenerCallbackManager<CredChangeEventListener>::GetInstance().UnRegisterListener(listener);
+    }
     int32_t ret = IpcClientUtils::RunOnResidentSync([listener]() {
         return EventListenerCallbackManager<CredChangeEventListener>::GetInstance().UnRegisterListener(listener);
     }, MAX_SYNC_WAIT_TIME_SEC);
