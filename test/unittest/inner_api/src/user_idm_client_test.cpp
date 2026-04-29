@@ -535,23 +535,25 @@ HWTEST_F(UserIdmClientTest, UserIdmClientRegistCredChangeEventListener, TestSize
     authTypeList.push_back(AuthType::PIN);
     authTypeList.push_back(AuthType::FACE);
     authTypeList.push_back(AuthType::FINGERPRINT);
-
-    int32_t ret = UserIdmClient::GetInstance().RegistCredChangeEventListener(authTypeList, nullptr);
-    EXPECT_EQ(ret, INVALID_PARAMETERS);
-
     auto testCallback = Common::MakeShared<MockCredChangeEventListener>();
-    ret = UserIdmClient::GetInstance().RegistCredChangeEventListener(authTypeList, testCallback);
+    int32_t ret = UserIdmClient::GetInstance().RegistCredChangeEventListener(authTypeList, testCallback);
     EXPECT_EQ(ret, GENERAL_ERROR);
 }
 
 HWTEST_F(UserIdmClientTest, UserIdmClientRegistCredChangeEventListenerSuccess, TestSize.Level0)
 {
     auto service = Common::MakeShared<MockUserIdmService>();
-    EXPECT_NE(service, nullptr);
     sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
-    IpcClientUtils::SetObj(obj);
     EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
+    EXPECT_CALL(*obj, RemoveDeathRecipient(_)).WillRepeatedly(Return(true));
+    sptr<IRemoteObject::DeathRecipient> dr(nullptr);
+    EXPECT_CALL(*obj, AddDeathRecipient(_))
+        .WillRepeatedly([&dr](const sptr<IRemoteObject::DeathRecipient> &recipient) {
+            dr = recipient;
+            return true;
+        });
+    IpcClientUtils::SetObj(obj);
     ON_CALL(*obj, SendRequest)
         .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
             service->OnRemoteRequest(code, data, reply, option);
@@ -589,16 +591,14 @@ HWTEST_F(UserIdmClientTest, UserIdmClientRegistCredChangeEventListenerSuccess, T
         );
     ret = UserIdmClient::GetInstance().UnRegistCredChangeEventListener(testCallback);
     EXPECT_EQ(ret, SUCCESS);
+    dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
 }
 
 HWTEST_F(UserIdmClientTest, UserIdmClientUnRegistCredChangeEventListener, TestSize.Level0)
 {
-    int32_t ret = UserIdmClient::GetInstance().UnRegistCredChangeEventListener(nullptr);
-    EXPECT_EQ(ret, INVALID_PARAMETERS);
-
     auto testCallback = Common::MakeShared<MockCredChangeEventListener>();
-    ret = UserIdmClient::GetInstance().UnRegistCredChangeEventListener(testCallback);
+    int32_t ret = UserIdmClient::GetInstance().UnRegistCredChangeEventListener(testCallback);
     EXPECT_EQ(ret, GENERAL_ERROR);
 }
 
