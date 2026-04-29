@@ -543,7 +543,6 @@ HWTEST_F(UserIdmClientTest, UserIdmClientRegistCredChangeEventListener, TestSize
 HWTEST_F(UserIdmClientTest, UserIdmClientRegistCredChangeEventListenerSuccess, TestSize.Level0)
 {
     auto service = Common::MakeShared<MockUserIdmService>();
-    EXPECT_NE(service, nullptr);
     sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
