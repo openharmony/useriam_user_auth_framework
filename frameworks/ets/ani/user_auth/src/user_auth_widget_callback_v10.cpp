@@ -50,11 +50,16 @@ bool UserAuthWidgetCallback::HasCommandCallback()
 void UserAuthWidgetCallback::SendCommand(const std::string &cmdData)
 {
     IAM_LOGI("start");
-    if (commandCallback_ == nullptr) {
-        IAM_LOGE("commandCallback_ is null");
-        return;
+    std::shared_ptr<userAuth::IAuthWidgetCallback> callback;
+    {
+        std::lock_guard<std::mutex> guard(mutex_);
+        if (commandCallback_ == nullptr) {
+            IAM_LOGE("commandCallback_ is null");
+            return;
+        }
+        callback = commandCallback_;
     }
-    commandCallback_->sendCommand(cmdData);
+    callback->sendCommand(cmdData);
 }
 
 }  // namespace UserAuth

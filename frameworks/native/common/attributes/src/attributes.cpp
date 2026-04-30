@@ -120,14 +120,11 @@ Attributes::Impl::Impl(const std::vector<uint8_t> &raw)
 
     const uint8_t *curr = &raw.front();
     const uint8_t *end = &raw.back() + sizeof(uint8_t);
+    constexpr size_t headerSize = sizeof(uint32_t) + sizeof(uint32_t);
     while (curr < end) {
-        if (curr + sizeof(uint32_t) + sizeof(uint32_t) < curr) { // in case of out of range
-            IAM_LOGE("out of pointer range");
-            return;
-        }
-
-        if (curr + sizeof(uint32_t) + sizeof(uint32_t) > end) {
-            IAM_LOGE("out of end range");
+        size_t remaining = static_cast<size_t>(end - curr);
+        if (remaining < headerSize) {
+            IAM_LOGE("insufficient data");
             return;
         }
 

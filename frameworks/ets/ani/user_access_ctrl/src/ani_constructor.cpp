@@ -15,14 +15,22 @@
 
 #include "ohos.userIAM.userAccessCtrl.ani.hpp"
 
+#include "iam_logger.h"
+
+#define LOG_TAG "USER_ACCESS_CTRL_ANI"
+
 ANI_EXPORT ani_status ANI_Constructor(ani_vm *vm, uint32_t *result)
 {
+    if (vm == nullptr || result == nullptr) {
+        IAM_LOGE("Error from ohos::userIAM::userAccessCtrl");
+        return ANI_ERROR;
+    }
     ani_env *env;
     if (ANI_OK != vm->GetEnv(ANI_VERSION_1, &env)) {
         return ANI_ERROR;
     }
     if (ANI_OK != ohos::userIAM::userAccessCtrl::ANIRegister(env)) {
-        std::cerr << "ohos::userIAM::userAccessCtrl" << std::endl;
+        IAM_LOGE("Error from ohos::userIAM::userAccessCtrl::ANIRegister");
         return ANI_ERROR;
     }
     *result = ANI_VERSION_1;

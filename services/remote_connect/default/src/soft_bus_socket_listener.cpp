@@ -32,6 +32,11 @@ bool SoftBusSocketListener::OnNegotiate(int32_t socketId, PeerSocketInfo info)
         return false;
     }
 
+    if (info.pkgName == nullptr) {
+        IAM_LOGE("pkgName is null.");
+        return false;
+    }
+
     if (std::string(info.pkgName) != USER_AUTH_PACKAGE_NAME) {
         IAM_LOGE("unexpected package name %{public}s.", info.pkgName);
         return false;
@@ -45,6 +50,11 @@ void SoftBusSocketListener::OnBind(int32_t socketId, PeerSocketInfo info)
     IAM_LOGI("socket id is %{public}d.", socketId);
     if (socketId <= INVALID_SOCKET_ID) {
         IAM_LOGE("socket id invalid.");
+        return;
+    }
+
+    if (info.pkgName == nullptr) {
+        IAM_LOGE("pkgName is null.");
         return;
     }
 
@@ -88,6 +98,10 @@ void SoftBusSocketListener::OnServerBytes(int32_t socketId, const void *data, ui
     IAM_LOGI("socket fd %{public}d, recv len %{public}u.", socketId, dataLen);
     if (socketId <= INVALID_SOCKET_ID) {
         IAM_LOGE("socket id invalid.");
+        return;
+    }
+    if (dataLen > MAX_DATA_LEN) {
+        IAM_LOGE("exceed max data length");
         return;
     }
     SoftBusManager::GetInstance().OnServerBytes(socketId, data, dataLen);
