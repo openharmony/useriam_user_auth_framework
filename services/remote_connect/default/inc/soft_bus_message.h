@@ -47,7 +47,7 @@ public:
     std::string GetDestEndPoint();
     std::string GetConnectionName();
     std::shared_ptr<Attributes> CreateMessage(bool response);
-    std::shared_ptr<Attributes> ParseMessage(void *message, uint32_t messageLen);
+    std::shared_ptr<Attributes> ParseMessage(const void *message, uint32_t messageLen);
 
 private:
     uint32_t messageSeq_ = 0;

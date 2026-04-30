@@ -37,7 +37,8 @@ constexpr uint32_t SETUP_CONNECTION_TIME_OUT_MS = 3 * 60 * 1000; // 3min
 }
 class RemoteAuthContextMessageCallback : public ConnectionListener, public NoCopyable {
 public:
-    RemoteAuthContextMessageCallback(std::weak_ptr<BaseContext> callbackWeakBase, RemoteAuthContext *callback)
+    RemoteAuthContextMessageCallback(std::weak_ptr<BaseContext> callbackWeakBase,
+        std::weak_ptr<RemoteAuthContext> callback)
         : callbackWeakBase_(callbackWeakBase),
           callback_(callback),
           threadHandler_(ThreadHandler::GetSingleThreadInstance())
@@ -61,13 +62,14 @@ public:
 
         IF_FALSE_LOGE_AND_RETURN(threadHandler_ != nullptr);
         threadHandler_->PostTask(
-            [connectionName, connectStatus, callbackWeakBase = callbackWeakBase_, callback = callback_, this]() {
+            [connectionName, connectStatus, callbackWeakBase = callbackWeakBase_, callbackWeak = callback_, this]() {
                 IAM_LOGI("OnConnectStatus process begin");
                 auto callbackSharedBase = callbackWeakBase.lock();
                 IF_FALSE_LOGE_AND_RETURN(callbackSharedBase != nullptr);
 
-                IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
-                callback->OnConnectStatus(connectionName, connectStatus);
+                auto callbackShared = callbackWeak.lock();
+                IF_FALSE_LOGE_AND_RETURN(callbackShared != nullptr);
+                callbackShared->OnConnectStatus(connectionName, connectStatus);
                 IAM_LOGI("OnConnectStatus process success");
             });
         IAM_LOGI("task posted");
@@ -75,7 +77,7 @@ public:
 
 private:
     std::weak_ptr<BaseContext> callbackWeakBase_;
-    RemoteAuthContext *callback_ = nullptr;
+    std::weak_ptr<RemoteAuthContext> callback_;
     std::shared_ptr<ThreadHandler> threadHandler_ = nullptr;
 };
 
@@ -271,7 +273,8 @@ bool RemoteAuthContext::SetupConnection()
     IAM_LOGI("%{public}s start", GetDescription());
 
     std::shared_ptr<RemoteAuthContextMessageCallback> callback =
-        Common::MakeShared<RemoteAuthContextMessageCallback>(shared_from_this(), this);
+        Common::MakeShared<RemoteAuthContextMessageCallback>(shared_from_this(),
+            std::static_pointer_cast<RemoteAuthContext>(shared_from_this()));
     IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, false);
 
     ResultCode registerResult =

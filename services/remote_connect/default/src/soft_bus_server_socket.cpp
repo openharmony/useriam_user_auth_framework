@@ -85,7 +85,7 @@ void ServerSocket::OnBytes(int32_t socketId, const void *data, uint32_t dataLen)
         return;
     }
 
-    std::shared_ptr<SoftBusMessage> softBusMessage = ParseMessage(networkId, const_cast<void *>(data), dataLen);
+    std::shared_ptr<SoftBusMessage> softBusMessage = ParseMessage(networkId, data, dataLen);
     if (softBusMessage == nullptr) {
         IAM_LOGE("serverSocket parse message fail.");
         return;

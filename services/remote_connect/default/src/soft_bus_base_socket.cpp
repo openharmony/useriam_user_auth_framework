@@ -289,7 +289,7 @@ ResultCode BaseSocket::SendResponse(const int32_t socketId, const std::string &c
 }
 
 std::shared_ptr<SoftBusMessage> BaseSocket::ParseMessage(const std::string &networkId,
-    void *message, uint32_t messageLen)
+    const void *message, uint32_t messageLen)
 {
     IAM_LOGD("start.");
     IF_FALSE_LOGE_AND_RETURN_VAL(message != nullptr, nullptr);

@@ -311,6 +311,17 @@ HWTEST_F(SoftBusManagerTest, SoftBusSocketListener01, TestSize.Level0)
     IAM_LOGI("SoftBusSocketListener01 end\n");
 }
 
+HWTEST_F(SoftBusManagerTest, SoftBusSocketListenerOnNegotiateNullPkgName, TestSize.Level0)
+{
+    IAM_LOGI("SoftBusSocketListenerOnNegotiateNullPkgName begin\n");
+    int32_t socketId = 1;
+    PeerSocketInfo info;
+    info.pkgName = nullptr;
+    bool retBool = SoftBusSocketListener::OnNegotiate(socketId, info);
+    EXPECT_EQ(retBool, false);
+    IAM_LOGI("SoftBusSocketListenerOnNegotiateNullPkgName end\n");
+}
+
 HWTEST_F(SoftBusManagerTest, SoftBusSocketListener02, TestSize.Level0)
 {
     IAM_LOGI("SoftBusSocketListener02 begin\n");
@@ -323,6 +334,16 @@ HWTEST_F(SoftBusManagerTest, SoftBusSocketListener02, TestSize.Level0)
     socketId = -2;
     EXPECT_NO_THROW(SoftBusSocketListener::OnBind(socketId, info));
     IAM_LOGI("SoftBusSocketListener02 end\n");
+}
+
+HWTEST_F(SoftBusManagerTest, SoftBusSocketListenerOnBindNullPkgName, TestSize.Level0)
+{
+    IAM_LOGI("SoftBusSocketListenerOnBindNullPkgName begin\n");
+    int32_t socketId = 1;
+    PeerSocketInfo info;
+    info.pkgName = nullptr;
+    EXPECT_NO_THROW(SoftBusSocketListener::OnBind(socketId, info));
+    IAM_LOGI("SoftBusSocketListenerOnBindNullPkgName end\n");
 }
 
 HWTEST_F(SoftBusManagerTest, SoftBusSocketListener03, TestSize.Level0)
@@ -361,6 +382,17 @@ HWTEST_F(SoftBusManagerTest, SoftBusSocketListener05, TestSize.Level0)
     socketId = -2;
     EXPECT_NO_THROW(SoftBusSocketListener::OnServerBytes(socketId, data, dataLen));
     IAM_LOGI("SoftBusSocketListener05 end\n");
+}
+
+HWTEST_F(SoftBusManagerTest, SoftBusSocketListenerOnServerBytesExceedMaxLen, TestSize.Level0)
+{
+    IAM_LOGI("SoftBusSocketListenerOnServerBytesExceedMaxLen begin\n");
+    int32_t socketId = 1;
+    const void *data = new char[10];
+    const uint32_t MAX_DATA_LEN = 4096;
+    uint32_t dataLen = MAX_DATA_LEN + 1;
+    EXPECT_NO_THROW(SoftBusSocketListener::OnServerBytes(socketId, data, dataLen));
+    IAM_LOGI("SoftBusSocketListenerOnServerBytesExceedMaxLen end\n");
 }
 } // namespace UserAuth
 } // namespace UserIam
