@@ -110,8 +110,8 @@ bool UserAuthCallbackV10::DoTipInfoCallBack(int32_t tipType, uint32_t tipCode)
 {
     IAM_LOGI("DoTipInfoCallBack start, authType:%{public}d, tipCode:%{public}u", tipType, tipCode);
     auto tipCallback = GetTipCallback();
-    if (tipCallback == nullptr) {
-        IAM_LOGE("tipCallback is null");
+    if (tipCallback == nullptr || !tipCallback->has_value()) {
+        IAM_LOGE("tipCallback is null or has no value");
         return false;
     }
     userAuth::AuthTipInfo authTipInfo = {

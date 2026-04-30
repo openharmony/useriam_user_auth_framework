@@ -62,7 +62,7 @@ public:
         const std::string &srcEndPoint, const std::string &destEndPoint, const std::shared_ptr<Attributes> &attributes,
         uint32_t messageSeq);
     std::shared_ptr<SoftBusMessage> ParseMessage(const std::string &networkId,
-        void *message, uint32_t messageLen);
+        const void *message, uint32_t messageLen);
     ResultCode ProcDataReceive(const int32_t socketId, std::shared_ptr<SoftBusMessage> &softBusMessage);
     std::string GetConnectionName(uint32_t messageSeq);
     MsgCallback GetMsgCallback(uint32_t messageSeq);

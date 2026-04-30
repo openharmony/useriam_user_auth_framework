@@ -115,7 +115,7 @@ std::shared_ptr<Attributes> SoftBusMessage::CreateMessage(bool isAck)
     return attributes;
 }
 
-std::shared_ptr<Attributes> SoftBusMessage::ParseMessage(void *message, uint32_t messageLen)
+std::shared_ptr<Attributes> SoftBusMessage::ParseMessage(const void *message, uint32_t messageLen)
 {
     IAM_LOGD("start.");
     if (message == nullptr || messageLen == 0) {
@@ -123,7 +123,7 @@ std::shared_ptr<Attributes> SoftBusMessage::ParseMessage(void *message, uint32_t
         return nullptr;
     }
 
-    std::vector<uint8_t> data(static_cast<char *>(message), static_cast<char *>(message) + messageLen);
+    std::vector<uint8_t> data(static_cast<const char *>(message), static_cast<const char *>(message) + messageLen);
     auto attributes = Common::MakeShared<Attributes>(data);
     if (attributes == nullptr) {
         IAM_LOGE("attributes create fail");
