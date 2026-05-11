@@ -1867,54 +1867,6 @@ HWTEST_F(UserAuthServiceTest, GetAuthLockState002, TestSize.Level0)
     IpcCommon::DeleteAllPermission();
 }
 
-HWTEST_F(UserAuthServiceTest, UserAuthHelperGetUtf8CharCount001, TestSize.Level0)
-{
-    std::string emptyStr = "";
-    EXPECT_EQ(UserAuthHelper::GetUtf8CharCount(emptyStr), 0);
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthHelperGetUtf8CharCount002, TestSize.Level0)
-{
-    std::string asciiStr = "Hello";
-    EXPECT_EQ(UserAuthHelper::GetUtf8CharCount(asciiStr), 5);
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthHelperGetUtf8CharCount003, TestSize.Level0)
-{
-    std::string chineseStr = "你好";
-    EXPECT_EQ(UserAuthHelper::GetUtf8CharCount(chineseStr), 2);
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthHelperGetUtf8CharCount004, TestSize.Level0)
-{
-    std::string mixedStr = "Hello你好World";
-    EXPECT_EQ(UserAuthHelper::GetUtf8CharCount(mixedStr), 12);
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthHelperGetUtf8CharCount005, TestSize.Level0)
-{
-    std::string emojiStr = "😀😁";
-    EXPECT_EQ(UserAuthHelper::GetUtf8CharCount(emojiStr), 2);
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthHelperGetUtf8CharCount006, TestSize.Level0)
-{
-    std::string specialStr = "\xE2\x28\xA1";
-    EXPECT_EQ(UserAuthHelper::GetUtf8CharCount(specialStr), 1);
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthHelperGetUtf8CharCount007, TestSize.Level0)
-{
-    std::string twoByteStr = "\xC2\xA0";
-    EXPECT_EQ(UserAuthHelper::GetUtf8CharCount(twoByteStr), 1);
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthHelperGetUtf8CharCount008, TestSize.Level0)
-{
-    std::string invalidStr = "\x80";
-    EXPECT_EQ(UserAuthHelper::GetUtf8CharCount(invalidStr), 1);
-}
-
 HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthPermissionAndParam_Utf8Title001, TestSize.Level0)
 {
     UserAuthService service;

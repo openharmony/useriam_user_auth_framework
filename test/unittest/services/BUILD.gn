@@ -153,6 +153,7 @@ ohos_unittest("iam_services_test") {
     "src/enrolled_info_test.cpp",
     "src/enrollment_impl_test.cpp",
     "src/event_listener_manager_test.cpp",
+    "src/framework_common_test.cpp",
     "src/executor_messenger_service_test.cpp",
     "src/hisysevent_adapter_test.cpp",
     "src/identification_impl_test.cpp",
