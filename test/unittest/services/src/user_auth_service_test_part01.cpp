@@ -1878,27 +1878,11 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckCallerPermissionForUserIdTest,
     IpcCommon::SetSkipUserFlag(false);
 }
 
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckSkipLockedBiometricAuthTest, TestSize.Level0)
-{
-    auto service = Common::MakeShared<UserAuthService>();
-    AuthParamInner authParam = {};
-    WidgetParamInner widgetParam = {};
-    std::vector<AuthType> validType;
-    validType.emplace_back(FACE);
-    validType.emplace_back(PIN);
-    authParam.skipLockedBiometricAuth = true;
-    int32_t userId = 110;
-    EXPECT_EQ(service->CheckSkipLockedBiometricAuth(userId, authParam, widgetParam, validType),
-        SUCCESS);
-    widgetParam.navigationButtonText = "face";
-    EXPECT_EQ(service->CheckSkipLockedBiometricAuth(userId, authParam, widgetParam, validType),
-        SUCCESS);
-}
-
 HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolutionTest, TestSize.Level0)
 {
     auto service = Common::MakeShared<UserAuthService>();
-    int32_t userId = 100;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 100;
     AuthParamInner authParam = {};
     WidgetParamInner widgetParam = {};
     std::vector<AuthType> validType;
@@ -1922,17 +1906,16 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolutionTest, TestSize.Le
             return SUCCESS;
         });
     widgetParam.navigationButtonText = "face";
-    EXPECT_EQ(service->CheckValidSolution(userId, authParam, widgetParam, validType),
+    EXPECT_EQ(service->CheckValidSolution(para, authParam, widgetParam, validType),
         INVALID_PARAMETERS);
     widgetParam.navigationButtonText.clear();
     authParam.authTypes.emplace_back(PRIVATE_PIN);
-    EXPECT_EQ(service->CheckValidSolution(userId, authParam, widgetParam, validType),
+    EXPECT_EQ(service->CheckValidSolution(para, authParam, widgetParam, validType),
         INVALID_PARAMETERS);
     authParam.authTypes.clear();
     IpcCommon::SetSkipAccountVerifiedFlag(true);
     authParam.skipLockedBiometricAuth = false;
-    EXPECT_EQ(service->CheckValidSolution(userId, authParam, widgetParam, validType),
-        TYPE_NOT_SUPPORT);
+    EXPECT_EQ(service->CheckValidSolution(para, authParam, widgetParam, validType), LOCKED);
     IpcCommon::SetSkipAccountVerifiedFlag(false);
 }
 

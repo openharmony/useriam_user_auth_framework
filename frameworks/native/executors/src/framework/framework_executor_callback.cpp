@@ -38,6 +38,45 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+const std::map<Attributes::AttributeKey, std::function<bool(std::shared_ptr<Attributes>, const Property &)>>
+    FrameworkExecutorCallback::propertyFillers_ = {
+        {Attributes::ATTR_PIN_SUB_TYPE,
+            [](std::shared_ptr<Attributes> vals, const Property &prop) {
+                return vals->SetInt32Value(Attributes::ATTR_PIN_SUB_TYPE, prop.authSubType);
+            }},
+        {Attributes::ATTR_FREEZING_TIME,
+            [](std::shared_ptr<Attributes> vals, const Property &prop) {
+                return vals->SetInt32Value(Attributes::ATTR_FREEZING_TIME, prop.lockoutDuration);
+            }},
+        {Attributes::ATTR_REMAIN_TIMES,
+            [](std::shared_ptr<Attributes> vals, const Property &prop) {
+                return vals->SetInt32Value(Attributes::ATTR_REMAIN_TIMES, prop.remainAttempts);
+            }},
+        {Attributes::ATTR_ENROLL_PROGRESS,
+            [](std::shared_ptr<Attributes> vals, const Property &prop) {
+                return vals->SetStringValue(Attributes::ATTR_ENROLL_PROGRESS, prop.enrollmentProgress);
+            }},
+        {Attributes::ATTR_SENSOR_INFO,
+            [](std::shared_ptr<Attributes> vals, const Property &prop) {
+                return vals->SetStringValue(Attributes::ATTR_SENSOR_INFO, prop.sensorInfo);
+            }},
+        {Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION,
+            [](std::shared_ptr<Attributes> vals, const Property &prop) {
+                return vals->SetInt32Value(Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION, prop.nextFailLockoutDuration);
+            }},
+        {Attributes::ATTR_CREDENTIAL_LENGTH,
+            [](std::shared_ptr<Attributes> vals, const Property &prop) {
+                if (prop.credentialLength == 0) {
+                    return true;
+                }
+                return vals->SetUint32Value(Attributes::ATTR_CREDENTIAL_LENGTH, prop.credentialLength);
+            }},
+        {Attributes::ATTR_CAMERA_STATUS,
+            [](std::shared_ptr<Attributes> vals, const Property &prop) {
+                return vals->SetUint32Value(Attributes::ATTR_CAMERA_STATUS, prop.cameraStatus);
+            }},
+};
+
 FrameworkExecutorCallback::FrameworkExecutorCallback(std::weak_ptr<Executor> executor) : executor_(executor)
 {
     uint32_t callbackId = GenerateExecutorCallbackId();
@@ -371,53 +410,15 @@ ResultCode FrameworkExecutorCallback::ProcessAbandonCommand(uint64_t scheduleId,
 ResultCode FrameworkExecutorCallback::FillPropertyToAttribute(const std::vector<Attributes::AttributeKey> &keyList,
     const Property property, std::shared_ptr<Attributes> values)
 {
-    bool ret = false;
     for (auto &key : keyList) {
-        switch (key) {
-            case Attributes::ATTR_PIN_SUB_TYPE: {
-                ret = values->SetInt32Value(Attributes::ATTR_PIN_SUB_TYPE, property.authSubType);
-                IF_FALSE_LOGE_AND_RETURN_VAL(ret, ResultCode::GENERAL_ERROR);
-                break;
-            }
-            case Attributes::ATTR_FREEZING_TIME: {
-                ret = values->SetInt32Value(Attributes::ATTR_FREEZING_TIME, property.lockoutDuration);
-                IF_FALSE_LOGE_AND_RETURN_VAL(ret, ResultCode::GENERAL_ERROR);
-                break;
-            }
-            case Attributes::ATTR_REMAIN_TIMES: {
-                ret = values->SetInt32Value(Attributes::ATTR_REMAIN_TIMES, property.remainAttempts);
-                IF_FALSE_LOGE_AND_RETURN_VAL(ret, ResultCode::GENERAL_ERROR);
-                break;
-            }
-            case Attributes::ATTR_ENROLL_PROGRESS: {
-                ret = values->SetStringValue(Attributes::ATTR_ENROLL_PROGRESS, property.enrollmentProgress);
-                IF_FALSE_LOGE_AND_RETURN_VAL(ret, ResultCode::GENERAL_ERROR);
-                break;
-            }
-            case Attributes::ATTR_SENSOR_INFO: {
-                ret = values->SetStringValue(Attributes::ATTR_SENSOR_INFO, property.sensorInfo);
-                IF_FALSE_LOGE_AND_RETURN_VAL(ret, ResultCode::GENERAL_ERROR);
-                break;
-            }
-            case Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION: {
-                ret = values->SetInt32Value(Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION,
-                    property.nextFailLockoutDuration);
-                IF_FALSE_LOGE_AND_RETURN_VAL(ret, ResultCode::GENERAL_ERROR);
-                break;
-            }
-            case Attributes::ATTR_CREDENTIAL_LENGTH: {
-                if (property.credentialLength != 0) {
-                    ret = values->SetUint32Value(Attributes::ATTR_CREDENTIAL_LENGTH, property.credentialLength);
-                    IF_FALSE_LOGE_AND_RETURN_VAL(ret, ResultCode::GENERAL_ERROR);
-                }
-                break;
-            }
-            default:
-                IAM_LOGE("key %{public}d is not recognized", key);
-                return ResultCode::GENERAL_ERROR;
+        auto it = propertyFillers_.find(key);
+        if (it == propertyFillers_.end()) {
+            IAM_LOGE("key %{public}d is not recognized", key);
+            return ResultCode::GENERAL_ERROR;
         }
+        auto ret = it->second(values, property);
+        IF_FALSE_LOGE_AND_RETURN_VAL(ret, ResultCode::GENERAL_ERROR);
     }
-
     return ResultCode::SUCCESS;
 }
 

@@ -45,14 +45,15 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_SingleFaceFullsc
 {
     UserAuthService service;
     std::vector<uint8_t> challenge = {1};
-    int32_t userId = 100;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 100;
     const WidgetParamInner widgetParam = {
         .title = "test_title",
         .navigationButtonText = "",
         .windowMode = WindowModeType::FULLSCREEN,
     };
     const AuthParamInner authParam = {
-        .userId = userId,
+        .userId = para.userId,
         .challenge = challenge,
         .authTypes = {AuthType::FACE},
         .authTrustLevel = ATL3,
@@ -67,7 +68,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_SingleFaceFullsc
             validTypes.push_back(static_cast<int32_t>(AuthType::FACE));
             return HDF_SUCCESS;
         });
-    int32_t ret = service.CheckValidSolution(userId, authParam, widgetParam, validTypeList);
+    int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
     EXPECT_EQ(ret, INVALID_PARAMETERS);
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
@@ -76,14 +77,15 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_SingleFingerprin
 {
     UserAuthService service;
     std::vector<uint8_t> challenge = {1};
-    int32_t userId = 100;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 100;
     const WidgetParamInner widgetParam = {
         .title = "test_title",
         .navigationButtonText = "",
         .windowMode = WindowModeType::FULLSCREEN,
     };
     const AuthParamInner authParam = {
-        .userId = userId,
+        .userId = para.userId,
         .challenge = challenge,
         .authTypes = {AuthType::FINGERPRINT},
         .authTrustLevel = ATL3,
@@ -98,7 +100,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_SingleFingerprin
             validTypes.push_back(static_cast<int32_t>(AuthType::FINGERPRINT));
             return HDF_SUCCESS;
         });
-    int32_t ret = service.CheckValidSolution(userId, authParam, widgetParam, validTypeList);
+    int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
     EXPECT_EQ(ret, INVALID_PARAMETERS);
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
@@ -151,72 +153,19 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckPrivatePinEnroll_NoFaceAndFing
     EXPECT_TRUE(service.CheckPrivatePinEnroll(authTypeList, validAuthTypeList));
 }
 
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckSkipLockedBiometricAuth_SingleFaceWithNavBtn_001, TestSize.Level0)
-{
-    UserAuthService service;
-    int32_t userId = 100;
-    AuthParamInner authParam = {
-        .authTypes = {AuthType::FACE},
-        .skipLockedBiometricAuth = false,
-    };
-    WidgetParamInner widgetParam = {
-        .title = "test",
-        .navigationButtonText = "nav_btn",
-        .windowMode = WindowModeType::DIALOG_BOX,
-    };
-    std::vector<AuthType> validType = {AuthType::FACE};
-    int32_t ret = service.CheckSkipLockedBiometricAuth(userId, authParam, widgetParam, validType);
-    EXPECT_EQ(ret, SUCCESS);
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckSkipLockedBiometricAuth_SingleFingerWithNavBtn_001, TestSize.Level0)
-{
-    UserAuthService service;
-    int32_t userId = 100;
-    AuthParamInner authParam = {
-        .authTypes = {AuthType::FINGERPRINT},
-        .skipLockedBiometricAuth = false,
-    };
-    WidgetParamInner widgetParam = {
-        .title = "test",
-        .navigationButtonText = "nav_btn",
-        .windowMode = WindowModeType::DIALOG_BOX,
-    };
-    std::vector<AuthType> validType = {AuthType::FINGERPRINT};
-    int32_t ret = service.CheckSkipLockedBiometricAuth(userId, authParam, widgetParam, validType);
-    EXPECT_EQ(ret, SUCCESS);
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckSkipLockedBiometricAuth_EmptyNavBtnWithAuthTypes_001, TestSize.Level0)
-{
-    UserAuthService service;
-    int32_t userId = 100;
-    AuthParamInner authParam = {
-        .authTypes = {AuthType::FACE},
-        .skipLockedBiometricAuth = false,
-    };
-    WidgetParamInner widgetParam = {
-        .title = "test",
-        .navigationButtonText = "",
-        .windowMode = WindowModeType::DIALOG_BOX,
-    };
-    std::vector<AuthType> validType = {AuthType::FACE};
-    int32_t ret = service.CheckSkipLockedBiometricAuth(userId, authParam, widgetParam, validType);
-    EXPECT_EQ(ret, SUCCESS);
-}
-
 HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_Fullscreen_FaceAndCompanion_001, TestSize.Level0)
 {
     UserAuthService service;
     std::vector<uint8_t> challenge = {1};
-    int32_t userId = 100;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 100;
     const WidgetParamInner widgetParam = {
         .title = "test_title",
         .navigationButtonText = "",
         .windowMode = WindowModeType::FULLSCREEN,
     };
     const AuthParamInner authParam = {
-        .userId = userId,
+        .userId = para.userId,
         .challenge = challenge,
         .authTypes = {AuthType::FACE, AuthType::COMPANION_DEVICE},
         .authTrustLevel = ATL3,
@@ -232,7 +181,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_Fullscreen_FaceA
             validTypes.push_back(static_cast<int32_t>(AuthType::COMPANION_DEVICE));
             return HDF_SUCCESS;
         });
-    int32_t ret = service.CheckValidSolution(userId, authParam, widgetParam, validTypeList);
+    int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
     EXPECT_EQ(ret, INVALID_PARAMETERS);
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
@@ -241,14 +190,15 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_Fullscreen_Finge
 {
     UserAuthService service;
     std::vector<uint8_t> challenge = {1};
-    int32_t userId = 100;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 100;
     const WidgetParamInner widgetParam = {
         .title = "test_title",
         .navigationButtonText = "",
         .windowMode = WindowModeType::FULLSCREEN,
     };
     const AuthParamInner authParam = {
-        .userId = userId,
+        .userId = para.userId,
         .challenge = challenge,
         .authTypes = {AuthType::FINGERPRINT, AuthType::COMPANION_DEVICE},
         .authTrustLevel = ATL3,
@@ -264,7 +214,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_Fullscreen_Finge
             validTypes.push_back(static_cast<int32_t>(AuthType::COMPANION_DEVICE));
             return HDF_SUCCESS;
         });
-    int32_t ret = service.CheckValidSolution(userId, authParam, widgetParam, validTypeList);
+    int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
     EXPECT_EQ(ret, INVALID_PARAMETERS);
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
@@ -285,14 +235,15 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_NavBtnWithPinAnd
 {
     UserAuthService service;
     std::vector<uint8_t> challenge = {1};
-    int32_t userId = 100;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 100;
     const WidgetParamInner widgetParam = {
         .title = "test_title",
         .navigationButtonText = "nav_btn",
         .windowMode = WindowModeType::UNKNOWN_WINDOW_MODE,
     };
     const AuthParamInner authParam = {
-        .userId = userId,
+        .userId = para.userId,
         .challenge = challenge,
         .authTypes = {AuthType::PIN, AuthType::FACE},
         .authTrustLevel = ATL2,
@@ -308,7 +259,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_NavBtnWithPinAnd
             validTypes.push_back(static_cast<int32_t>(AuthType::FACE));
             return HDF_SUCCESS;
         });
-    int32_t ret = service.CheckValidSolution(userId, authParam, widgetParam, validTypeList);
+    int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
     EXPECT_EQ(ret, INVALID_PARAMETERS);
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
@@ -317,14 +268,15 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_NotFullscreenSin
 {
     UserAuthService service;
     std::vector<uint8_t> challenge = {1};
-    int32_t userId = 100;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 100;
     const WidgetParamInner widgetParam = {
         .title = "test_title",
         .navigationButtonText = "",
         .windowMode = WindowModeType::DIALOG_BOX,
     };
     AuthParamInner authParam = {
-        .userId = userId,
+        .userId = para.userId,
         .challenge = challenge,
         .authTypes = {AuthType::FACE, AuthType::FINGERPRINT},
         .authTrustLevel = ATL3,
@@ -341,7 +293,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_NotFullscreenSin
             validTypes.push_back(static_cast<int32_t>(AuthType::FINGERPRINT));
             return HDF_SUCCESS;
         });
-    int32_t ret = service.CheckValidSolution(userId, authParam, widgetParam, validTypeList);
+    int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
     EXPECT_EQ(ret, SUCCESS);
     EXPECT_EQ(validTypeList.size(), 2);
     MockIUserAuthInterface::Holder::GetInstance().Reset();
@@ -365,90 +317,21 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthWidgetType_PinPrivatePinCo
     EXPECT_EQ(ret, INVALID_PARAMETERS);
 }
 
-// 补充CheckSkipLockedBiometricAuth组合14: navBtn非空 + 单类型PIN(不是COMPANION)
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckSkipLockedBiometricAuth_SinglePinNotCompanion_001, TestSize.Level0)
-{
-    UserAuthService service;
-    int32_t userId = 100;
-    AuthParamInner authParam = {};
-    authParam.authTypes = {AuthType::PIN};
-    authParam.skipLockedBiometricAuth = false;  // ✅改为false，避免复杂的GetUserAuthProfile调用
-    WidgetParamInner widgetParam = {};
-    widgetParam.title = "test";
-    widgetParam.navigationButtonText = "nav_btn";
-    std::vector<AuthType> validType = {AuthType::PIN};
-
-    int32_t ret = service.CheckSkipLockedBiometricAuth(userId, authParam, widgetParam, validType);
-    EXPECT_EQ(ret, SUCCESS);
-}
-
-// 补充CheckSkipLockedBiometricAuth组合15: navBtn非空 + authTypeList={COMPANION, FACE}多类型包含COMPANION
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckSkipLockedBiometricAuth_MultiTypesWithCompanion_001, TestSize.Level0)
-{
-    UserAuthService service;
-    int32_t userId = 100;
-    AuthParamInner authParam = {};
-    authParam.authTypes = {AuthType::COMPANION_DEVICE, AuthType::FACE};
-    authParam.skipLockedBiometricAuth = true;
-    WidgetParamInner widgetParam = {};
-    widgetParam.title = "test";
-    widgetParam.navigationButtonText = "nav_btn";
-    std::vector<AuthType> validType = {AuthType::COMPANION_DEVICE, AuthType::FACE};
-
-    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, GetCredential(_, _, _))
-        .WillRepeatedly([](int32_t userId, int32_t authType, std::vector<HdiCredentialInfo> &infos) {
-            HdiCredentialInfo info = {};
-            info.authType = static_cast<HdiAuthType>(authType);
-            info.credentialId = 1;
-            info.executorIndex = 1;
-            info.templateId = 1;
-            infos.push_back(info);
-            return HDF_SUCCESS;
-        });
-    auto resourceNode1 = Common::MakeShared<MockResourceNode>();
-    EXPECT_CALL(*resourceNode1, GetExecutorIndex()).WillRepeatedly(Return(1));
-    auto resourceNode2 = Common::MakeShared<MockResourceNode>();
-    EXPECT_CALL(*resourceNode2, GetExecutorIndex()).WillRepeatedly(Return(2));
-    ResourceNodePool::Instance().Insert(resourceNode1);
-    ResourceNodePool::Instance().Insert(resourceNode2);
-    ON_CALL(*resourceNode1, GetProperty)
-        .WillByDefault(
-            [](const Attributes &condition, Attributes &values) {
-                values.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, -1);
-                values.SetInt32Value(Attributes::ATTR_FREEZING_TIME, 0);
-                return SUCCESS;
-            });
-    ON_CALL(*resourceNode2, GetProperty)
-        .WillByDefault(
-            [](const Attributes &condition, Attributes &values) {
-                values.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, -1);
-                values.SetInt32Value(Attributes::ATTR_FREEZING_TIME, 0);
-                return SUCCESS;
-            });
-
-    int32_t ret = service.CheckSkipLockedBiometricAuth(userId, authParam, widgetParam, validType);
-    EXPECT_EQ(ret, SUCCESS);
-    EXPECT_TRUE(ResourceNodePool::Instance().Delete(1));
-    EXPECT_TRUE(ResourceNodePool::Instance().Delete(2));
-    MockIUserAuthInterface::Holder::GetInstance().Reset();
-}
-
 // 补充CheckValidSolution组合3: navBtn非空 + validType={FINGERPRINT}单类型
 // 业务逻辑：单类型FINGERPRINT属于{FACE,FINGER,COMPANION}，不返回INVALID
 HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_SingleFingerprintWithNavBtn_001, TestSize.Level0)
 {
     UserAuthService service;
     std::vector<uint8_t> challenge = {1};
-    int32_t userId = 100;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 100;
     const WidgetParamInner widgetParam = {
         .title = "test_title",
         .navigationButtonText = "nav_btn",
         .windowMode = WindowModeType::DIALOG_BOX,
     };
     const AuthParamInner authParam = {
-        .userId = userId,
+        .userId = para.userId,
         .challenge = challenge,
         .authTypes = {AuthType::FINGERPRINT},
         .authTrustLevel = ATL3,
@@ -463,7 +346,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_SingleFingerprin
             validTypes.push_back(static_cast<int32_t>(AuthType::FINGERPRINT));
             return HDF_SUCCESS;
         });
-    int32_t ret = service.CheckValidSolution(userId, authParam, widgetParam, validTypeList);
+    int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
     EXPECT_EQ(ret, SUCCESS);
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
@@ -474,14 +357,15 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_FaceCompanionFul
 {
     UserAuthService service;
     std::vector<uint8_t> challenge = {1};
-    int32_t userId = 100;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 100;
     const WidgetParamInner widgetParam = {
         .title = "test_title",
         .navigationButtonText = "nav_btn",
         .windowMode = WindowModeType::FULLSCREEN,
     };
     const AuthParamInner authParam = {
-        .userId = userId,
+        .userId = para.userId,
         .challenge = challenge,
         .authTypes = {AuthType::FACE, AuthType::COMPANION_DEVICE},
         .authTrustLevel = ATL3,
@@ -497,7 +381,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_FaceCompanionFul
             validTypes.push_back(static_cast<int32_t>(AuthType::COMPANION_DEVICE));
             return HDF_SUCCESS;
         });
-    int32_t ret = service.CheckValidSolution(userId, authParam, widgetParam, validTypeList);
+    int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
     EXPECT_EQ(ret, INVALID_PARAMETERS);
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
@@ -508,14 +392,15 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_ThreeTypesFullsc
 {
     UserAuthService service;
     std::vector<uint8_t> challenge = {1};
-    int32_t userId = 100;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 100;
     const WidgetParamInner widgetParam = {
         .title = "test_title",
         .navigationButtonText = "nav_btn",
         .windowMode = WindowModeType::FULLSCREEN,
     };
     const AuthParamInner authParam = {
-        .userId = userId,
+        .userId = para.userId,
         .challenge = challenge,
         .authTypes = {AuthType::FACE, AuthType::FINGERPRINT, AuthType::COMPANION_DEVICE},
         .authTrustLevel = ATL3,
@@ -532,7 +417,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_ThreeTypesFullsc
             validTypes.push_back(static_cast<int32_t>(AuthType::COMPANION_DEVICE));
             return HDF_SUCCESS;
         });
-    int32_t ret = service.CheckValidSolution(userId, authParam, widgetParam, validTypeList);
+    int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
     EXPECT_EQ(ret, INVALID_PARAMETERS);
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
@@ -677,98 +562,20 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthWidgetParam_SizeThreeDiffe
     EXPECT_EQ(ret, SUCCESS);
 }
 
-// 补充CheckSkipLockedBiometricAuth组合1-7: navBtn.empty=true, authTypeList.empty=true
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckSkipLockedBiometricAuth_NavBtnEmptyAuthListEmpty_001, TestSize.Level0)
-{
-    UserAuthService service;
-    int32_t userId = 100;
-    AuthParamInner authParam = {};
-    authParam.skipLockedBiometricAuth = true;
-    WidgetParamInner widgetParam = {};
-    widgetParam.title = "test";
-    widgetParam.navigationButtonText = "";
-    std::vector<AuthType> validType = {};
-    int32_t ret = service.CheckSkipLockedBiometricAuth(userId, authParam, widgetParam, validType);
-    EXPECT_EQ(ret, LOCKED);
-}
-
-// 补充CheckSkipLockedBiometricAuth组合2: navBtn.empty=true, authTypeList有值
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckSkipLockedBiometricAuth_NavBtnEmptyAuthList_001, TestSize.Level0)
-{
-    UserAuthService service;
-    int32_t userId = 100;
-    AuthParamInner authParam = {};
-    authParam.skipLockedBiometricAuth = false;
-    WidgetParamInner widgetParam = {};
-    widgetParam.title = "test";
-    widgetParam.navigationButtonText = "";
-    std::vector<AuthType> validType = {AuthType::PIN};
-    int32_t ret = service.CheckSkipLockedBiometricAuth(userId, authParam, widgetParam, validType);
-    EXPECT_EQ(ret, SUCCESS);
-}
-
-// 补充CheckSkipLockedBiometricAuth组合5: navBtn.empty=true + skipLocked=true + PIN类型
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckSkipLockedBiometricAuth_NavBtnEmptySingleType_001, TestSize.Level0)
-{
-    UserAuthService service;
-    int32_t userId = 100;
-    AuthParamInner authParam = {};
-    authParam.authTypes = {AuthType::PIN};
-    authParam.skipLockedBiometricAuth = false;  // ✅改为false，这样不进入skipLocked逻辑
-    WidgetParamInner widgetParam = {};
-    widgetParam.title = "test";
-    widgetParam.navigationButtonText = "";
-    std::vector<AuthType> validType = {AuthType::PIN};
-
-    int32_t ret = service.CheckSkipLockedBiometricAuth(userId, authParam, widgetParam, validType);
-    EXPECT_EQ(ret, SUCCESS);
-}
-
-// 补充CheckSkipLockedBiometricAuth组合15: navBtn非空 + authTypeList.size>1, 包含COMPANION
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckSkipLockedBiometricAuth_MultiTypesCompanion_001, TestSize.Level0)
-{
-    UserAuthService service;
-    int32_t userId = 100;
-    AuthParamInner authParam = {};
-    authParam.authTypes = {AuthType::COMPANION_DEVICE, AuthType::FINGERPRINT};
-    authParam.skipLockedBiometricAuth = false;  // ✅改为false，避免复杂的GetUserAuthProfile调用
-    WidgetParamInner widgetParam = {};
-    widgetParam.title = "test";
-    widgetParam.navigationButtonText = "nav_btn";
-    std::vector<AuthType> validType = {AuthType::COMPANION_DEVICE, AuthType::FINGERPRINT};
-
-    int32_t ret = service.CheckSkipLockedBiometricAuth(userId, authParam, widgetParam, validType);
-    EXPECT_EQ(ret, SUCCESS);
-}
-
-// 补充CheckSkipLockedBiometricAuth短路场景: navBtn非空 + authTypeList.empty=true (组合9)
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckSkipLockedBiometricAuth_NavBtnNotEmptyEmptyList_001, TestSize.Level0)
-{
-    UserAuthService service;
-    int32_t userId = 100;
-    AuthParamInner authParam = {};
-    authParam.skipLockedBiometricAuth = true;
-    WidgetParamInner widgetParam = {};
-    widgetParam.title = "test";
-    widgetParam.navigationButtonText = "nav_btn";
-    std::vector<AuthType> validType = {};
-    int32_t ret = service.CheckSkipLockedBiometricAuth(userId, authParam, widgetParam, validType);
-    EXPECT_EQ(ret, CANCELED_FROM_WIDGET);
-}
-
 // 补充CheckValidSolution组合15: navBtn.empty=true + validType={FINGERPRINT} + FULLSCREEN
 HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_NavBtnEmptyFingerprintFullscreen_001, TestSize.Level0)
 {
     UserAuthService service;
     std::vector<uint8_t> challenge = {1};
-    int32_t userId = 100;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 100;
     const WidgetParamInner widgetParam = {
         .title = "test_title",
         .navigationButtonText = "",
         .windowMode = WindowModeType::FULLSCREEN,
     };
     const AuthParamInner authParam = {
-        .userId = userId,
+        .userId = para.userId,
         .challenge = challenge,
         .authTypes = {AuthType::FINGERPRINT},
         .authTrustLevel = ATL3,
@@ -783,7 +590,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_NavBtnEmptyFinge
             validTypes.push_back(static_cast<int32_t>(AuthType::FINGERPRINT));
             return HDF_SUCCESS;
         });
-    int32_t ret = service.CheckValidSolution(userId, authParam, widgetParam, validTypeList);
+    int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
     EXPECT_EQ(ret, INVALID_PARAMETERS);
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
@@ -793,14 +600,15 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_NavBtnEmptyCompa
 {
     UserAuthService service;
     std::vector<uint8_t> challenge = {1};
-    int32_t userId = 100;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 100;
     const WidgetParamInner widgetParam = {
         .title = "test_title",
         .navigationButtonText = "",
         .windowMode = WindowModeType::FULLSCREEN,
     };
     const AuthParamInner authParam = {
-        .userId = userId,
+        .userId = para.userId,
         .challenge = challenge,
         .authTypes = {AuthType::COMPANION_DEVICE},
         .authTrustLevel = ATL3,
@@ -815,7 +623,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_NavBtnEmptyCompa
             validTypes.push_back(static_cast<int32_t>(AuthType::COMPANION_DEVICE));
             return HDF_SUCCESS;
         });
-    int32_t ret = service.CheckValidSolution(userId, authParam, widgetParam, validTypeList);
+    int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
     EXPECT_EQ(ret, SUCCESS);
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
@@ -861,66 +669,20 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckPrivatePinEnroll_SizeFour_001,
     EXPECT_EQ(service.CheckPrivatePinEnroll(authTypeList, validAuthTypeList), true);
 }
 
-// 补充CheckSkipLockedBiometricAuth: navBtn非空 + authTypeList包含FACE+FINGERPRINT组合
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckSkipLockedBiometricAuth_NavBtnNotEmptyFaceFinger_001, TestSize.Level0)
-{
-    UserAuthService service;
-    int32_t userId = 100;
-    AuthParamInner authParam = {};
-    authParam.authTypes = {AuthType::FACE, AuthType::FINGERPRINT};
-    authParam.skipLockedBiometricAuth = false;  // ✅改为false，避免复杂的GetUserAuthProfile调用
-    WidgetParamInner widgetParam = {};
-    widgetParam.title = "test";
-    widgetParam.navigationButtonText = "nav_btn";
-    std::vector<AuthType> validType = {AuthType::FACE, AuthType::FINGERPRINT};
-
-    int32_t ret = service.CheckSkipLockedBiometricAuth(userId, authParam, widgetParam, validType);
-    EXPECT_EQ(ret, SUCCESS);
-}
-
-// 补充CheckSkipLockedBiometricAuth: skipLockedBiometricAuth=false的边界场景
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckSkipLockedBiometricAuth_SkipFalse_001, TestSize.Level0)
-{
-    UserAuthService service;
-    int32_t userId = 100;
-    AuthParamInner authParam = {};
-    authParam.skipLockedBiometricAuth = false;
-    WidgetParamInner widgetParam = {};
-    widgetParam.title = "test";
-    widgetParam.navigationButtonText = "nav_btn";
-    std::vector<AuthType> validType = {AuthType::PIN};
-    int32_t ret = service.CheckSkipLockedBiometricAuth(userId, authParam, widgetParam, validType);
-    EXPECT_EQ(ret, SUCCESS);
-}
-
-// 补充CheckSkipLockedBiometricAuth: validType为空的边界场景（skipLockedBiometricAuth=false）
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckSkipLockedBiometricAuth_ValidTypeEmpty_001, TestSize.Level0)
-{
-    UserAuthService service;
-    int32_t userId = 100;
-    AuthParamInner authParam = {};
-    authParam.skipLockedBiometricAuth = false;
-    WidgetParamInner widgetParam = {};
-    widgetParam.title = "test";
-    widgetParam.navigationButtonText = "";
-    std::vector<AuthType> validType = {};
-    int32_t ret = service.CheckSkipLockedBiometricAuth(userId, authParam, widgetParam, validType);
-    EXPECT_EQ(ret, TYPE_NOT_SUPPORT);
-}
-
 // 补充CheckValidSolution: navBtn.empty=true + validType={PIN} (单类型PIN)
 HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_NavBtnEmptySinglePin_001, TestSize.Level0)
 {
     UserAuthService service;
     std::vector<uint8_t> challenge = {1};
-    int32_t userId = 100;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 100;
     const WidgetParamInner widgetParam = {
         .title = "test_title",
         .navigationButtonText = "",
         .windowMode = WindowModeType::DIALOG_BOX,
     };
     const AuthParamInner authParam = {
-        .userId = userId,
+        .userId = para.userId,
         .challenge = challenge,
         .authTypes = {AuthType::PIN},
         .authTrustLevel = ATL3,
@@ -935,7 +697,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_NavBtnEmptySingl
             validTypes.push_back(static_cast<int32_t>(AuthType::PIN));
             return HDF_SUCCESS;
         });
-    int32_t ret = service.CheckValidSolution(userId, authParam, widgetParam, validTypeList);
+    int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
     EXPECT_EQ(ret, SUCCESS);
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
@@ -945,14 +707,15 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_NavBtnEmptyFaceF
 {
     UserAuthService service;
     std::vector<uint8_t> challenge = {1};
-    int32_t userId = 100;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 100;
     const WidgetParamInner widgetParam = {
         .title = "test_title",
         .navigationButtonText = "",
         .windowMode = WindowModeType::DIALOG_BOX,
     };
     const AuthParamInner authParam = {
-        .userId = userId,
+        .userId = para.userId,
         .challenge = challenge,
         .authTypes = {AuthType::FACE, AuthType::FINGERPRINT},
         .authTrustLevel = ATL3,
@@ -968,7 +731,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_NavBtnEmptyFaceF
             validTypes.push_back(static_cast<int32_t>(AuthType::FINGERPRINT));
             return HDF_SUCCESS;
         });
-    int32_t ret = service.CheckValidSolution(userId, authParam, widgetParam, validTypeList);
+    int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
     EXPECT_EQ(ret, SUCCESS);
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
@@ -1073,44 +836,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthWidgetParam_OnlyFaceFinger
     EXPECT_EQ(ret, INVALID_PARAMETERS);
 }
 
-// 覆盖第1314行：authTypeList.size==1 且只有COMPANION_DEVICE (返回CANCELED_FROM_WIDGET)
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckSkipLockedBiometricAuth_OnlyCompanionWithNavBtn_001, TestSize.Level0)
-{
-    UserAuthService service;
-    int32_t userId = 100;
-    AuthParamInner authParam = {
-        .authTypes = {AuthType::COMPANION_DEVICE},
-        .skipLockedBiometricAuth = true,
-    };
-    WidgetParamInner widgetParam = {
-        .title = "test",
-        .navigationButtonText = "nav_btn",
-        .windowMode = WindowModeType::DIALOG_BOX,
-    };
-    std::vector<AuthType> validType = {AuthType::COMPANION_DEVICE};
-    int32_t ret = service.CheckSkipLockedBiometricAuth(userId, authParam, widgetParam, validType);
-    EXPECT_EQ(ret, CANCELED_FROM_WIDGET);
-}
-
-// 覆盖第1314行：authTypeList为空且navigationButtonText非空 (返回CANCELED_FROM_WIDGET)
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckSkipLockedBiometricAuth_EmptyAuthListWithNavBtn_001, TestSize.Level0)
-{
-    UserAuthService service;
-    int32_t userId = 100;
-    AuthParamInner authParam = {
-        .authTypes = {AuthType::FACE},
-        .skipLockedBiometricAuth = true,
-    };
-    WidgetParamInner widgetParam = {
-        .title = "test",
-        .navigationButtonText = "nav_btn",
-        .windowMode = WindowModeType::DIALOG_BOX,
-    };
-    std::vector<AuthType> validType = {};
-    int32_t ret = service.CheckSkipLockedBiometricAuth(userId, authParam, widgetParam, validType);
-    EXPECT_EQ(ret, CANCELED_FROM_WIDGET);
-}
-
 // 覆盖第1366行：hasCompanionDevice=true 但 hasOtherType=false (不进入erase分支)
 HWTEST_F(UserAuthServiceTest, UserAuthServiceFilterCompanionDevice_OnlyCompanion_001, TestSize.Level0)
 {
@@ -1136,14 +861,15 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_NavBtnWithFacePi
 {
     UserAuthService service;
     std::vector<uint8_t> challenge = {1};
-    int32_t userId = 100;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 100;
     const WidgetParamInner widgetParam = {
         .title = "test_title",
         .navigationButtonText = "nav_btn",
         .windowMode = WindowModeType::DIALOG_BOX,
     };
     const AuthParamInner authParam = {
-        .userId = userId,
+        .userId = para.userId,
         .challenge = challenge,
         .authTypes = {AuthType::FACE, AuthType::PIN},
         .authTrustLevel = ATL3,
@@ -1159,7 +885,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_NavBtnWithFacePi
             validTypes.push_back(static_cast<int32_t>(AuthType::PIN));
             return HDF_SUCCESS;
         });
-    int32_t ret = service.CheckValidSolution(userId, authParam, widgetParam, validTypeList);
+    int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
     EXPECT_EQ(ret, INVALID_PARAMETERS);
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
@@ -1169,14 +895,15 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_NavBtnOnlyCompan
 {
     UserAuthService service;
     std::vector<uint8_t> challenge = {1};
-    int32_t userId = 100;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 100;
     const WidgetParamInner widgetParam = {
         .title = "test_title",
         .navigationButtonText = "nav_btn",
         .windowMode = WindowModeType::DIALOG_BOX,
     };
     const AuthParamInner authParam = {
-        .userId = userId,
+        .userId = para.userId,
         .challenge = challenge,
         .authTypes = {AuthType::COMPANION_DEVICE},
         .authTrustLevel = ATL3,
@@ -1191,7 +918,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_NavBtnOnlyCompan
             validTypes.push_back(static_cast<int32_t>(AuthType::COMPANION_DEVICE));
             return HDF_SUCCESS;
         });
-    int32_t ret = service.CheckValidSolution(userId, authParam, widgetParam, validTypeList);
+    int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
     EXPECT_EQ(ret, INVALID_PARAMETERS);
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
@@ -1202,14 +929,15 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_FullscreenWithTh
 {
     UserAuthService service;
     std::vector<uint8_t> challenge = {1};
-    int32_t userId = 100;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 100;
     const WidgetParamInner widgetParam = {
         .title = "test_title",
         .navigationButtonText = "",
         .windowMode = WindowModeType::FULLSCREEN,
     };
     const AuthParamInner authParam = {
-        .userId = userId,
+        .userId = para.userId,
         .challenge = challenge,
         .authTypes = {AuthType::FACE, AuthType::FINGERPRINT, AuthType::COMPANION_DEVICE},
         .authTrustLevel = ATL3,
@@ -1226,7 +954,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_FullscreenWithTh
             validTypes.push_back(static_cast<int32_t>(AuthType::COMPANION_DEVICE));
             return HDF_SUCCESS;
         });
-    int32_t ret = service.CheckValidSolution(userId, authParam, widgetParam, validTypeList);
+    int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
     EXPECT_EQ(ret, INVALID_PARAMETERS);
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
@@ -1236,14 +964,15 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_FullscreenWithPi
 {
     UserAuthService service;
     std::vector<uint8_t> challenge = {1};
-    int32_t userId = 100;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 100;
     const WidgetParamInner widgetParam = {
         .title = "test_title",
         .navigationButtonText = "",
         .windowMode = WindowModeType::FULLSCREEN,
     };
     const AuthParamInner authParam = {
-        .userId = userId,
+        .userId = para.userId,
         .challenge = challenge,
         .authTypes = {AuthType::PIN},
         .authTrustLevel = ATL3,
@@ -1258,7 +987,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_FullscreenWithPi
             validTypes.push_back(static_cast<int32_t>(AuthType::PIN));
             return HDF_SUCCESS;
         });
-    int32_t ret = service.CheckValidSolution(userId, authParam, widgetParam, validTypeList);
+    int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
     EXPECT_EQ(ret, SUCCESS);
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
@@ -1268,14 +997,15 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_FullscreenOnlyCo
 {
     UserAuthService service;
     std::vector<uint8_t> challenge = {1};
-    int32_t userId = 100;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 100;
     const WidgetParamInner widgetParam = {
         .title = "test_title",
         .navigationButtonText = "",
         .windowMode = WindowModeType::FULLSCREEN,
     };
     const AuthParamInner authParam = {
-        .userId = userId,
+        .userId = para.userId,
         .challenge = challenge,
         .authTypes = {AuthType::COMPANION_DEVICE},
         .authTrustLevel = ATL3,
@@ -1290,7 +1020,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_FullscreenOnlyCo
             validTypes.push_back(static_cast<int32_t>(AuthType::COMPANION_DEVICE));
             return HDF_SUCCESS;
         });
-    int32_t ret = service.CheckValidSolution(userId, authParam, widgetParam, validTypeList);
+    int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
     EXPECT_EQ(ret, SUCCESS);
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
@@ -1335,26 +1065,6 @@ HWTEST_F(UserAuthServiceTest,
     EXPECT_EQ(ret, SUCCESS);
 }
 
-// 覆盖第1314行：authTypeList.size>1 (不进入CANCELED_FROM_WIDGET分支)
-HWTEST_F(UserAuthServiceTest,
-    UserAuthServiceCheckSkipLockedBiometricAuth_MultipleAuthTypesWithNavBtn_001, TestSize.Level0)
-{
-    UserAuthService service;
-    int32_t userId = 100;
-    AuthParamInner authParam = {
-        .authTypes = {AuthType::FACE, AuthType::PIN},
-        .skipLockedBiometricAuth = true,
-    };
-    WidgetParamInner widgetParam = {
-        .title = "test",
-        .navigationButtonText = "nav_btn",
-        .windowMode = WindowModeType::DIALOG_BOX,
-    };
-    std::vector<AuthType> validType = {AuthType::FACE, AuthType::PIN};
-    int32_t ret = service.CheckSkipLockedBiometricAuth(userId, authParam, widgetParam, validType);
-    EXPECT_EQ(ret, SUCCESS);
-}
-
 // 覆盖第1366行：hasCompanionDevice=false (不进入erase分支)
 HWTEST_F(UserAuthServiceTest, UserAuthServiceFilterCompanionDevice_NoCompanion_001, TestSize.Level0)
 {
@@ -1369,14 +1079,15 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_NavBtnWithFaceFi
 {
     UserAuthService service;
     std::vector<uint8_t> challenge = {1};
-    int32_t userId = 100;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 100;
     const WidgetParamInner widgetParam = {
         .title = "test_title",
         .navigationButtonText = "nav_btn",
         .windowMode = WindowModeType::DIALOG_BOX,
     };
     const AuthParamInner authParam = {
-        .userId = userId,
+        .userId = para.userId,
         .challenge = challenge,
         .authTypes = {AuthType::FACE, AuthType::FINGERPRINT},
         .authTrustLevel = ATL3,
@@ -1392,7 +1103,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_NavBtnWithFaceFi
             validTypes.push_back(static_cast<int32_t>(AuthType::FINGERPRINT));
             return HDF_SUCCESS;
         });
-    int32_t ret = service.CheckValidSolution(userId, authParam, widgetParam, validTypeList);
+    int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
     EXPECT_EQ(ret, SUCCESS);
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
@@ -1402,14 +1113,15 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_NavBtnEmpty_001,
 {
     UserAuthService service;
     std::vector<uint8_t> challenge = {1};
-    int32_t userId = 100;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 100;
     const WidgetParamInner widgetParam = {
         .title = "test_title",
         .navigationButtonText = "",
         .windowMode = WindowModeType::DIALOG_BOX,
     };
     const AuthParamInner authParam = {
-        .userId = userId,
+        .userId = para.userId,
         .challenge = challenge,
         .authTypes = {AuthType::FACE, AuthType::FINGERPRINT, AuthType::COMPANION_DEVICE},
         .authTrustLevel = ATL3,
@@ -1426,7 +1138,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_NavBtnEmpty_001,
             validTypes.push_back(static_cast<int32_t>(AuthType::COMPANION_DEVICE));
             return HDF_SUCCESS;
         });
-    int32_t ret = service.CheckValidSolution(userId, authParam, widgetParam, validTypeList);
+    int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
     EXPECT_EQ(ret, SUCCESS);
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
@@ -1436,14 +1148,15 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_NonFullscreen_00
 {
     UserAuthService service;
     std::vector<uint8_t> challenge = {1};
-    int32_t userId = 100;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = 100;
     const WidgetParamInner widgetParam = {
         .title = "test_title",
         .navigationButtonText = "",
         .windowMode = WindowModeType::DIALOG_BOX,
     };
     const AuthParamInner authParam = {
-        .userId = userId,
+        .userId = para.userId,
         .challenge = challenge,
         .authTypes = {AuthType::FACE, AuthType::FINGERPRINT, AuthType::COMPANION_DEVICE},
         .authTrustLevel = ATL3,
@@ -1460,7 +1173,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_NonFullscreen_00
             validTypes.push_back(static_cast<int32_t>(AuthType::COMPANION_DEVICE));
             return HDF_SUCCESS;
         });
-    int32_t ret = service.CheckValidSolution(userId, authParam, widgetParam, validTypeList);
+    int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
     EXPECT_EQ(ret, SUCCESS);
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
@@ -1474,6 +1187,322 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceFilterCompanionDevice_EmptyValidTyp
     EXPECT_EQ(validType.size(), (size_t)0);
 }
 
+HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckSkipLockedBiometricAuth001, TestSize.Level0)
+{
+    auto service = Common::MakeShared<UserAuthService>();
+    AuthParamInner authParam = {};
+    WidgetParamInner widgetParam = {};
+    std::vector<AuthType> validType;
+    validType.emplace_back(PIN);
+    authParam.skipLockedBiometricAuth = false;
+    int32_t userId = 110;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = userId;
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).WillRepeatedly(Return(HDF_SUCCESS));
+    auto resourceNode = MockResourceNode::CreateWithExecuteIndex(1, PIN, COLLECTOR);
+    EXPECT_NE(resourceNode, nullptr);
+    EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
+    EXPECT_EQ(service->CheckSkipLockedBiometricAuth(para, authParam, widgetParam, validType), SUCCESS);
+    EXPECT_TRUE(ResourceNodePool::Instance().Delete(1));
+    MockIUserAuthInterface::Holder::GetInstance().Reset();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckSkipLockedBiometricAuth002, TestSize.Level0)
+{
+    auto service = Common::MakeShared<UserAuthService>();
+    AuthParamInner authParam = {};
+    WidgetParamInner widgetParam = {};
+    std::vector<AuthType> validType;
+    authParam.skipLockedBiometricAuth = false;
+    int32_t userId = 110;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = userId;
+    EXPECT_EQ(service->CheckSkipLockedBiometricAuth(para, authParam, widgetParam, validType), LOCKED);
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckSkipLockedBiometricAuth003, TestSize.Level0)
+{
+    auto service = Common::MakeShared<UserAuthService>();
+    AuthParamInner authParam = {};
+    WidgetParamInner widgetParam = {};
+    std::vector<AuthType> validType;
+    validType.emplace_back(PIN);
+    authParam.skipLockedBiometricAuth = true;
+    int32_t userId = 110;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = userId;
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).WillRepeatedly(Return(HDF_SUCCESS));
+    auto resourceNode = MockResourceNode::CreateWithExecuteIndex(1, PIN, COLLECTOR);
+    EXPECT_NE(resourceNode, nullptr);
+    EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
+    EXPECT_EQ(service->CheckSkipLockedBiometricAuth(para, authParam, widgetParam, validType), SUCCESS);
+    EXPECT_TRUE(ResourceNodePool::Instance().Delete(1));
+    MockIUserAuthInterface::Holder::GetInstance().Reset();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckSkipLockedBiometricAuth004, TestSize.Level0)
+{
+    auto service = Common::MakeShared<UserAuthService>();
+    AuthParamInner authParam = {};
+    WidgetParamInner widgetParam = {};
+    std::vector<AuthType> validType;
+    validType.emplace_back(FACE);
+    authParam.skipLockedBiometricAuth = true;
+    widgetParam.navigationButtonText = "cancel";
+    int32_t userId = 110;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = userId;
+    EXPECT_EQ(service->CheckSkipLockedBiometricAuth(para, authParam, widgetParam, validType), CANCELED_FROM_WIDGET);
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckSkipLockedBiometricAuth005, TestSize.Level0)
+{
+    auto service = Common::MakeShared<UserAuthService>();
+    AuthParamInner authParam = {};
+    WidgetParamInner widgetParam = {};
+    std::vector<AuthType> validType;
+    validType.emplace_back(FACE);
+    authParam.skipLockedBiometricAuth = true;
+    widgetParam.navigationButtonText = "";
+    int32_t userId = 110;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = userId;
+    EXPECT_EQ(service->CheckSkipLockedBiometricAuth(para, authParam, widgetParam, validType), LOCKED);
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckSkipLockedBiometricAuth006, TestSize.Level0)
+{
+    auto service = Common::MakeShared<UserAuthService>();
+    AuthParamInner authParam = {};
+    WidgetParamInner widgetParam = {};
+    std::vector<AuthType> validType;
+    validType.emplace_back(PIN);
+    authParam.skipLockedBiometricAuth = true;
+    int32_t userId = 110;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = userId;
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).WillRepeatedly(Return(HDF_FAILURE));
+    EXPECT_EQ(service->CheckSkipLockedBiometricAuth(para, authParam, widgetParam, validType), LOCKED);
+    MockIUserAuthInterface::Holder::GetInstance().Reset();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckSkipLockedBiometricAuth007, TestSize.Level0)
+{
+    auto service = Common::MakeShared<UserAuthService>();
+    AuthParamInner authParam = {};
+    WidgetParamInner widgetParam = {};
+    std::vector<AuthType> validType;
+    validType.emplace_back(FACE);
+    authParam.skipLockedBiometricAuth = true;
+    int32_t userId = 110;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = userId;
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).WillRepeatedly(Return(HDF_SUCCESS));
+    auto resourceNode = Common::MakeShared<MockResourceNode>();
+    EXPECT_NE(resourceNode, nullptr);
+    EXPECT_CALL(*resourceNode, GetExecutorIndex()).WillRepeatedly(Return(1));
+    MockResourceNode *node = static_cast<MockResourceNode *>(resourceNode.get());
+    ON_CALL(*node, GetProperty(_, _))
+        .WillByDefault(
+            [](const Attributes &condition, Attributes &values) {
+                values.SetInt32Value(Attributes::ATTR_CAMERA_STATUS,
+                    static_cast<int32_t>(CameraStatus::CAMERA_AVAILABLE));
+                values.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, 0);
+                values.SetInt32Value(Attributes::ATTR_FREEZING_TIME, 0);
+                return SUCCESS;
+            }
+        );
+    EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
+    EXPECT_EQ(service->CheckSkipLockedBiometricAuth(para, authParam, widgetParam, validType), LOCKED);
+    EXPECT_TRUE(ResourceNodePool::Instance().Delete(1));
+    MockIUserAuthInterface::Holder::GetInstance().Reset();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckSkipLockedBiometricAuth008, TestSize.Level0)
+{
+    auto service = Common::MakeShared<UserAuthService>();
+    AuthParamInner authParam = {};
+    WidgetParamInner widgetParam = {};
+    std::vector<AuthType> validType;
+    validType.emplace_back(FACE);
+    authParam.skipLockedBiometricAuth = true;
+    int32_t userId = 110;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = userId;
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetCredential(_, _, _))
+        .WillRepeatedly(
+            [](int32_t userId, int32_t authType, std::vector<HdiCredentialInfo> &infos) {
+                HdiCredentialInfo tempInfo = {
+                    .credentialId = 1,
+                    .executorIndex = 1,
+                    .templateId = 3,
+                    .authType = static_cast<HdiAuthType>(2),
+                    .executorMatcher = 2,
+                    .executorSensorHint = 3,
+                };
+                infos.push_back(tempInfo);
+                return HDF_SUCCESS;
+            }
+        );
+    auto resourceNode = Common::MakeShared<MockResourceNode>();
+    EXPECT_NE(resourceNode, nullptr);
+    EXPECT_CALL(*resourceNode, GetExecutorIndex()).WillRepeatedly(Return(1));
+    MockResourceNode *node = static_cast<MockResourceNode *>(resourceNode.get());
+    ON_CALL(*node, GetProperty(_, _))
+        .WillByDefault(
+            [](const Attributes &condition, Attributes &values) {
+                values.SetInt32Value(Attributes::ATTR_CAMERA_STATUS,
+                    static_cast<int32_t>(CameraStatus::CAMERA_AVAILABLE));
+                values.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, 5);
+                values.SetInt32Value(Attributes::ATTR_FREEZING_TIME, 0);
+                return SUCCESS;
+            }
+        );
+    EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
+    EXPECT_EQ(service->CheckSkipLockedBiometricAuth(para, authParam, widgetParam, validType), SUCCESS);
+    EXPECT_EQ(validType.size(), 1);
+    EXPECT_EQ(validType[0], FACE);
+    EXPECT_TRUE(ResourceNodePool::Instance().Delete(1));
+    MockIUserAuthInterface::Holder::GetInstance().Reset();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckSkipLockedBiometricAuth009, TestSize.Level0)
+{
+    auto service = Common::MakeShared<UserAuthService>();
+    AuthParamInner authParam = {};
+    WidgetParamInner widgetParam = {};
+    std::vector<AuthType> validType;
+    validType.emplace_back(PIN);
+    validType.emplace_back(FACE);
+    authParam.skipLockedBiometricAuth = true;
+    int32_t userId = 110;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = userId;
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).WillRepeatedly(Return(HDF_SUCCESS));
+    auto pinNode = Common::MakeShared<MockResourceNode>();
+    EXPECT_NE(pinNode, nullptr);
+    EXPECT_CALL(*pinNode, GetExecutorIndex()).WillRepeatedly(Return(1));
+    MockResourceNode *pinResourceNode = static_cast<MockResourceNode *>(pinNode.get());
+    ON_CALL(*pinResourceNode, GetProperty(_, _))
+        .WillByDefault(
+            [](const Attributes &condition, Attributes &values) {
+                values.SetInt32Value(Attributes::ATTR_PIN_SUB_TYPE, 10001);
+                values.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, 5);
+                values.SetInt32Value(Attributes::ATTR_FREEZING_TIME, 0);
+                return SUCCESS;
+            }
+        );
+    EXPECT_TRUE(ResourceNodePool::Instance().Insert(pinNode));
+    auto faceNode = Common::MakeShared<MockResourceNode>();
+    EXPECT_NE(faceNode, nullptr);
+    EXPECT_CALL(*faceNode, GetExecutorIndex()).WillRepeatedly(Return(2));
+    MockResourceNode *faceResourceNode = static_cast<MockResourceNode *>(faceNode.get());
+    ON_CALL(*faceResourceNode, GetProperty(_, _))
+        .WillByDefault(
+            [](const Attributes &condition, Attributes &values) {
+                values.SetInt32Value(Attributes::ATTR_CAMERA_STATUS,
+                    static_cast<int32_t>(CameraStatus::CAMERA_AVAILABLE));
+                values.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, 0);
+                values.SetInt32Value(Attributes::ATTR_FREEZING_TIME, 0);
+                return SUCCESS;
+            }
+        );
+    EXPECT_TRUE(ResourceNodePool::Instance().Insert(faceNode));
+    EXPECT_EQ(service->CheckSkipLockedBiometricAuth(para, authParam, widgetParam, validType), SUCCESS);
+    EXPECT_EQ(validType.size(), 1);
+    EXPECT_EQ(validType[0], PIN);
+    EXPECT_TRUE(ResourceNodePool::Instance().Delete(1));
+    EXPECT_TRUE(ResourceNodePool::Instance().Delete(2));
+    MockIUserAuthInterface::Holder::GetInstance().Reset();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckSkipLockedBiometricAuth010, TestSize.Level0)
+{
+    auto service = Common::MakeShared<UserAuthService>();
+    AuthParamInner authParam = {};
+    WidgetParamInner widgetParam = {};
+    std::vector<AuthType> validType;
+    validType.emplace_back(PRIVATE_PIN);
+    authParam.skipLockedBiometricAuth = true;
+    int32_t userId = 110;
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = userId;
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    EXPECT_NE(mockHdi, nullptr);
+    EXPECT_CALL(*mockHdi, GetCredential(_, _, _)).WillRepeatedly(Return(HDF_SUCCESS));
+    auto resourceNode = Common::MakeShared<MockResourceNode>();
+    EXPECT_NE(resourceNode, nullptr);
+    EXPECT_CALL(*resourceNode, GetExecutorIndex()).WillRepeatedly(Return(1));
+    MockResourceNode *node = static_cast<MockResourceNode *>(resourceNode.get());
+    ON_CALL(*node, GetProperty(_, _))
+        .WillByDefault(
+            [](const Attributes &condition, Attributes &values) {
+                values.SetInt32Value(Attributes::ATTR_PIN_SUB_TYPE, 10001);
+                values.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, 0);
+                values.SetInt32Value(Attributes::ATTR_FREEZING_TIME, 0);
+                return SUCCESS;
+            }
+        );
+    EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
+    EXPECT_EQ(service->CheckSkipLockedBiometricAuth(para, authParam, widgetParam, validType), SUCCESS);
+    EXPECT_EQ(validType.size(), 1);
+    EXPECT_EQ(validType[0], PRIVATE_PIN);
+    EXPECT_TRUE(ResourceNodePool::Instance().Delete(1));
+    MockIUserAuthInterface::Holder::GetInstance().Reset();
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceFilterFaceNotAvailable001, TestSize.Level0)
+{
+    auto service = Common::MakeShared<UserAuthService>();
+    ContextFactory::AuthWidgetContextPara para;
+    std::vector<AuthType> validType;
+    validType.emplace_back(PIN);
+    service->FilterFaceNotAvailable(para, validType);
+    EXPECT_EQ(validType.size(), 1);
+    EXPECT_EQ(validType[0], PIN);
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceFilterFaceNotAvailable002, TestSize.Level0)
+{
+    auto service = Common::MakeShared<UserAuthService>();
+    ContextFactory::AuthWidgetContextPara para;
+    std::vector<AuthType> validType;
+    validType.emplace_back(FACE);
+    validType.emplace_back(PIN);
+    ContextFactory::AuthProfile profile = {};
+    profile.cameraStatus = CameraStatus::CAMERA_AVAILABLE;
+    para.authProfileMap[AuthType::FACE] = profile;
+    service->FilterFaceNotAvailable(para, validType);
+    EXPECT_EQ(validType.size(), 2);
+}
+
+HWTEST_F(UserAuthServiceTest, UserAuthServiceFilterFaceNotAvailable003, TestSize.Level0)
+{
+    auto service = Common::MakeShared<UserAuthService>();
+    ContextFactory::AuthWidgetContextPara para;
+    std::vector<AuthType> validType;
+    validType.emplace_back(FACE);
+    validType.emplace_back(PIN);
+    ContextFactory::AuthProfile profile = {};
+    profile.cameraStatus = CameraStatus::CAMERA_NOT_AVAILABLE;
+    para.authProfileMap[AuthType::FACE] = profile;
+    service->FilterFaceNotAvailable(para, validType);
+    EXPECT_EQ(validType.size(), 1);
+    EXPECT_EQ(validType[0], PIN);
+    EXPECT_EQ(para.authProfileMap.find(AuthType::FACE), para.authProfileMap.end());
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

@@ -43,6 +43,7 @@ public:
         std::string sensorInfo {""};
         int32_t remainTimes {0};
         int32_t freezingTime {0};
+        uint32_t cameraStatus {0};
     };
 
     struct AuthWidgetContextPara {
