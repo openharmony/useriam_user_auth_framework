@@ -553,6 +553,75 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestGetAuthCredentialList, TestSi
     EXPECT_CALL(*mockHdi, GetCredentialById(_, _)).WillOnce(Return(HDF_SUCCESS));
     EXPECT_EQ(AuthWidgetHelper::GetAuthCredentialList(userId, authType, credentialIdList, credentialInfos), true);
 }
+
+HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestGetUserAuthProfile_CompanionDevice_001, TestSize.Level0)
+{
+    int32_t userId = 100;
+    AuthType authType = AuthType::COMPANION_DEVICE;
+    ContextFactory::AuthProfile profile;
+    std::vector<uint64_t> credentialIdList;
+
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    auto fillEmptyCreds = [](std::vector<HdiCredentialInfo> &list) {
+        std::vector<HdiCredentialInfo> infos = {};
+        list.swap(infos);
+    };
+    EXPECT_CALL(*mockHdi, GetCredential(_, static_cast<int32_t>(authType), _))
+        .WillOnce(DoAll(WithArg<2>(fillEmptyCreds), Return(SUCCESS)));
+
+    EXPECT_TRUE(AuthWidgetHelper::GetUserAuthProfile(userId, authType, profile, credentialIdList));
+    EXPECT_EQ(profile.pinSubType, 0);
+    EXPECT_EQ(profile.sensorInfo, "");
+    EXPECT_EQ(profile.remainTimes, 0);
+    EXPECT_EQ(profile.freezingTime, 0);
+    MockIUserAuthInterface::Holder::GetInstance().Reset();
+}
+
+HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestGetUserAuthProfile_CompanionDevice_002, TestSize.Level0)
+{
+    int32_t userId = 100;
+    AuthType authType = AuthType::COMPANION_DEVICE;
+    ContextFactory::AuthProfile profile;
+    std::vector<uint64_t> credentialIdList;
+    credentialIdList.push_back(12345);
+    
+    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
+    HdiCredentialInfo hdiInfo = {
+        .credentialId = 12345,
+        .executorIndex = 1,
+        .templateId = 1,
+        .authType = static_cast<HdiAuthType>(AuthType::COMPANION_DEVICE),
+        .executorMatcher = 1,
+        .executorSensorHint = 1,
+        .authSubType = 0,
+        .validityPeriod = 0
+    };
+    auto fillCredInfo = [&hdiInfo](HdiCredentialInfo &info) {
+        info = hdiInfo;
+    };
+    EXPECT_CALL(*mockHdi, GetCredentialById(_, _))
+        .WillOnce(DoAll(WithArg<1>(fillCredInfo), Return(SUCCESS)));
+
+    auto mockResourceNode = std::make_shared<MockResourceNode>();
+    EXPECT_CALL(*mockResourceNode, GetExecutorIndex()).WillRepeatedly(Return(1));
+    ON_CALL(*mockResourceNode, GetProperty).WillByDefault(
+        [](const Attributes &condition, Attributes &values) {
+            values.SetInt32Value(Attributes::ATTR_REMAIN_TIMES, -1);
+            values.SetInt32Value(Attributes::ATTR_FREEZING_TIME, 0);
+            return SUCCESS;
+        }
+    );
+    ResourceNodePool::Instance().Insert(mockResourceNode);
+
+    EXPECT_TRUE(AuthWidgetHelper::GetUserAuthProfile(userId, authType, profile, credentialIdList));
+    EXPECT_EQ(profile.pinSubType, 0);
+    EXPECT_EQ(profile.sensorInfo, "");
+    EXPECT_EQ(profile.remainTimes, -1);
+    EXPECT_EQ(profile.freezingTime, 0);
+
+    ResourceNodePool::Instance().Delete(1);
+    MockIUserAuthInterface::Holder::GetInstance().Reset();
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

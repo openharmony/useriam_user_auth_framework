@@ -213,6 +213,8 @@ std::shared_ptr<Context> WidgetContext::BuildTask(const std::vector<uint8_t> &ch
     para.skipLockedBiometricAuth = para_.skipLockedBiometricAuth;
     para.isOsAccountVerified = para_.isOsAccountVerified;
     para.credentialIdList = para_.credentialIdList;
+    para.title = para_.widgetParam.title;
+    para.authScene = AuthScene::AUTH_SCENE_WIDGET_AUTH_NO_DISTURB;
     auto context = ContextFactory::CreateSimpleAuthContext(para, widgetCallback, true);
     if (context == nullptr || !ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
@@ -235,13 +237,27 @@ bool WidgetContext::OnStart()
         return false;
     }
     IF_FALSE_LOGE_AND_RETURN_VAL(schedule_ != nullptr, false);
+    isDirectAuth_ = IsSingleCompanionDeviceAuth();
     WidgetClient::Instance().SetWidgetParam(para_.widgetParam);
     WidgetClient::Instance().SetAuthTypeList(para_.authTypeList);
     WidgetClient::Instance().SetWidgetSchedule(GetContextId(), schedule_);
     WidgetClient::Instance().SetChallenge(para_.challenge);
     WidgetClient::Instance().SetCallingBundleName(GetCallingBundleName());
-    schedule_->StartSchedule();
-
+    if (isDirectAuth_) {
+        IAM_LOGI("direct auth mode, skip widget UI, authTypeList size: %{public}zu",
+            para_.authTypeList.size());
+        schedule_->StartAuthList(para_.authTypeList, false, AuthIntent::DEFAULT);
+        if (!schedule_->StartDirectAuth()) {
+            IAM_LOGE("StartDirectAuth failed");
+            return false;
+        }
+    } else {
+        IAM_LOGI("widget auth mode, launch widget UI");
+        if (!schedule_->StartSchedule()) {
+            IAM_LOGE("StartSchedule failed");
+            return false;
+        }
+    }
     IAM_LOGI("WidgetContext start success.");
     return true;
 }
@@ -313,8 +329,7 @@ bool WidgetContext::LaunchWidget()
 void WidgetContext::ExecuteAuthList(const std::set<AuthType> &authTypeList, bool endAfterFirstFail,
     AuthIntent authIntent)
 {
-    IAM_LOGI("execute auth list");
-    // create task, and start it
+    IAM_LOGI("execute auth list, size: %{public}zu", authTypeList.size());
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     for (auto &authType : authTypeList) {
         auto task = BuildTask(para_.challenge, authType, para_.atl, endAfterFirstFail, authIntent);
@@ -439,6 +454,7 @@ void WidgetContext::StopAuthList(const std::vector<AuthType> &authTypeList)
                 return;
             }
             it->task->Stop();
+            IAM_LOGI("stop task, authType: %{public}d", static_cast<int32_t>(authType));
             runTaskInfoList_.erase(it);
         }
     }
@@ -847,6 +863,14 @@ bool WidgetContext::IsNavigationAuth()
         return false;
     }
     return true;
+}
+
+bool WidgetContext::IsSingleCompanionDeviceAuth() const
+{
+    if (para_.authTypeList.size() != 1) {
+        return false;
+    }
+    return para_.authTypeList[0] == AuthType::COMPANION_DEVICE;
 }
 
 void WidgetContext::SendAuthTipInfo(int32_t authType, int32_t tipCode)

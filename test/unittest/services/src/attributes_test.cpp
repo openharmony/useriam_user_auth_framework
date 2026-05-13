@@ -18,6 +18,7 @@
 #include <climits>
 
 #include "attributes.h"
+#include "iam_common_defines.h"
 
 #include "iam_logger.h"
 #include "securec.h"
@@ -918,6 +919,58 @@ HWTEST_F(AttributesTest, AttributesTest03, TestSize.Level0)
     bool returnBool = attribute.SetStringValue(Attributes::ATTR_ROOT, stringValue);
     EXPECT_EQ(returnBool, false);
     IAM_LOGI("AttributesTest03 end\n");
+}
+
+HWTEST_F(AttributesTest, AttributesTestAuthScene_001, TestSize.Level0)
+{
+    IAM_LOGI("AttributesTestAuthScene_001 begin\n");
+    Attributes attrs;
+    int32_t authSceneValue = static_cast<int32_t>(AuthScene::AUTH_SCENE_WIDGET_AUTH_NO_DISTURB);
+    EXPECT_TRUE(attrs.SetInt32Value(Attributes::ATTR_AUTH_SCENE, authSceneValue));
+    
+    int32_t retrievedValue = 0;
+    EXPECT_TRUE(attrs.GetInt32Value(Attributes::ATTR_AUTH_SCENE, retrievedValue));
+    EXPECT_EQ(retrievedValue, authSceneValue);
+    IAM_LOGI("AttributesTestAuthScene_001 end\n");
+}
+
+HWTEST_F(AttributesTest, AttributesTestAuthScene_002, TestSize.Level0)
+{
+    IAM_LOGI("AttributesTestAuthScene_002 begin\n");
+    Attributes attrs;
+    int32_t authSceneValue = static_cast<int32_t>(AuthScene::AUTH_SCENE_DEFAULT);
+    EXPECT_TRUE(attrs.SetInt32Value(Attributes::ATTR_AUTH_SCENE, authSceneValue));
+    
+    int32_t retrievedValue = 0;
+    EXPECT_TRUE(attrs.GetInt32Value(Attributes::ATTR_AUTH_SCENE, retrievedValue));
+    EXPECT_EQ(retrievedValue, authSceneValue);
+    IAM_LOGI("AttributesTestAuthScene_002 end\n");
+}
+
+HWTEST_F(AttributesTest, AttributesTestWidgetTitle_001, TestSize.Level0)
+{
+    IAM_LOGI("AttributesTestWidgetTitle_001 begin\n");
+    Attributes attrs;
+    std::string titleValue = "widget_auth_title";
+    EXPECT_TRUE(attrs.SetStringValue(Attributes::ATTR_WIDGET_TITLE, titleValue));
+    
+    std::string retrievedValue;
+    EXPECT_TRUE(attrs.GetStringValue(Attributes::ATTR_WIDGET_TITLE, retrievedValue));
+    EXPECT_EQ(retrievedValue, titleValue);
+    IAM_LOGI("AttributesTestWidgetTitle_001 end\n");
+}
+
+HWTEST_F(AttributesTest, AttributesTestWidgetTitle_002, TestSize.Level0)
+{
+    IAM_LOGI("AttributesTestWidgetTitle_002 begin\n");
+    Attributes attrs;
+    std::string titleValue = "";
+    EXPECT_TRUE(attrs.SetStringValue(Attributes::ATTR_WIDGET_TITLE, titleValue));
+    
+    std::string retrievedValue;
+    EXPECT_TRUE(attrs.GetStringValue(Attributes::ATTR_WIDGET_TITLE, retrievedValue));
+    EXPECT_EQ(retrievedValue, titleValue);
+    IAM_LOGI("AttributesTestWidgetTitle_002 end\n");
 }
 } // namespace UserAuth
 } // namespace UserIam

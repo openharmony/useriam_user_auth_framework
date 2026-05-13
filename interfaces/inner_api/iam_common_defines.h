@@ -262,6 +262,16 @@ enum AuthIntent : int32_t {
     ABANDONED_PIN_AUTH = 4,
 };
 
+/**
+ * @brief The auth scene.
+ */
+enum AuthScene : int32_t {
+    /**< The auth scene is default. */
+    AUTH_SCENE_DEFAULT = 0,
+    /**< The auth scene is widget auth. */
+    AUTH_SCENE_WIDGET_AUTH_NO_DISTURB = 1,
+};
+
 constexpr uint64_t INVALID_EXECUTOR_INDEX = 0;
 } // namespace UserAuth
 } // namespace UserIam

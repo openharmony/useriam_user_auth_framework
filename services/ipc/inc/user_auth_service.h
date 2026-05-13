@@ -95,7 +95,8 @@ private:
     std::shared_ptr<ContextCallback> GetAuthContextCallback(int32_t apiVersion, const AuthParamInner &authParam,
         const WidgetParamInner &widgetParam, const sptr<IIamCallback> &callback);
     bool CheckAuthTrustLevel(AuthTrustLevel authTrustLevel, int32_t authType);
-    bool CheckSingeFaceOrFinger(const std::vector<AuthType> &authType);
+    bool CheckAuthTypeOnly(const std::vector<AuthType> &checkedTypes, const std::set<AuthType> &onlyContainTypes);
+    bool CheckValidAuthType(const std::vector<AuthType> &validType, const AuthParamInner &authParam);
     bool CheckPrivatePinEnroll(const std::vector<AuthType> &authType, std::vector<AuthType> &validType);
     int32_t CheckAuthWidgetType(const std::vector<AuthType> &authType);
     int32_t CheckCallerPermissionForUserId(const AuthParamInner &authParam);
@@ -163,6 +164,7 @@ private:
     int32_t CheckSkipLockedBiometricAuth(int32_t userId, const AuthParamInner &authParam,
         const WidgetParamInner &widgetParam, std::vector<AuthType> &validType);
     std::vector<AuthType> GetAuthTypesFromCredentialIds(const AuthParamInner &authParam);
+    void FilterCompanionDevice(std::vector<AuthType> &validType);
     static std::mutex mutex_;
     static std::shared_ptr<UserAuthService> instance_;
 };

@@ -25,6 +25,7 @@ namespace UserAuth {
 class MockWidgetScheduleNode final : public WidgetScheduleNode {
 public:
     MOCK_METHOD0(StartSchedule, bool());
+    MOCK_METHOD0(StartDirectAuth, bool());
     MOCK_METHOD0(StopSchedule, bool());
     MOCK_METHOD3(StartAuthList, bool(const std::vector<AuthType> &authTypeList, bool endAfterFirstFail,
         AuthIntent authIntent));
