@@ -17,6 +17,8 @@
 #define FRAMEWORK_EXECUTOR_CALLBACK_H
 
 #include <cstdint>
+#include <functional>
+#include <map>
 #include <mutex>
 #include <string>
 
@@ -68,6 +70,8 @@ private:
     ResultCode FillPropertyToAttribute(const std::vector<Attributes::AttributeKey> &keyList, const Property property,
         std::shared_ptr<Attributes> values);
     const char *GetDescription();
+    static const std::map<Attributes::AttributeKey, std::function<bool(std::shared_ptr<Attributes>, const Property&)>>
+        propertyFillers_;
     std::recursive_mutex mutex_;
     std::shared_ptr<ExecutorMessenger> executorMessenger_ {nullptr};
     std::weak_ptr<Executor> executor_;
