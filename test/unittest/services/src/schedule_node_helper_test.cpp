@@ -201,6 +201,236 @@ HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestWithAdditionalInfo, TestS
     EXPECT_EQ(scheduleNodeList.size(), 1);
     ResourceNodePool::Instance().DeleteAll();
 }
+
+HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestWithTitleAndAuthScene, TestSize.Level0)
+{
+    std::vector<HdiScheduleInfo> scheduleInfoList;
+    HdiScheduleInfo scheduleInfo = {};
+    scheduleInfo.authType = HdiAuthType::FACE;
+    scheduleInfo.executorMatcher = 10;
+    scheduleInfo.executorIndexes.push_back(60);
+    scheduleInfo.executorMessages.push_back({6});
+    scheduleInfo.scheduleId = 20;
+    scheduleInfo.scheduleMode = HdiScheduleMode::AUTH;
+    scheduleInfo.templateIds.push_back(30);
+    scheduleInfoList.push_back(scheduleInfo);
+
+    auto resourceNode = MockResourceNode::CreateWithExecuteIndex(60, FACE, ALL_IN_ONE);
+    EXPECT_NE(resourceNode, nullptr);
+    EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
+
+    auto callback = Common::MakeShared<MockScheduleNodeCallback>();
+    EXPECT_NE(callback, nullptr);
+    std::vector<std::shared_ptr<ScheduleNode>> scheduleNodeList;
+    ScheduleNodeHelper::NodeOptionalPara para = {};
+    para.title = "widget_auth_title";
+    para.authScene = AuthScene::AUTH_SCENE_WIDGET_AUTH_NO_DISTURB;
+    para.authIntent = 0;
+    para.userId = 100;
+
+    EXPECT_TRUE(ScheduleNodeHelper::BuildFromHdi(scheduleInfoList, callback, scheduleNodeList, para));
+    EXPECT_EQ(scheduleNodeList.size(), 1);
+    ResourceNodePool::Instance().DeleteAll();
+}
+
+HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestWithDefaultAuthScene, TestSize.Level0)
+{
+    std::vector<HdiScheduleInfo> scheduleInfoList;
+    HdiScheduleInfo scheduleInfo = {};
+    scheduleInfo.authType = HdiAuthType::PIN;
+    scheduleInfo.executorMatcher = 10;
+    scheduleInfo.executorIndexes.push_back(60);
+    scheduleInfo.executorMessages.push_back({6});
+    scheduleInfo.scheduleId = 20;
+    scheduleInfo.scheduleMode = HdiScheduleMode::AUTH;
+    scheduleInfo.templateIds.push_back(30);
+    scheduleInfoList.push_back(scheduleInfo);
+
+    auto resourceNode = MockResourceNode::CreateWithExecuteIndex(60, PIN, ALL_IN_ONE);
+    EXPECT_NE(resourceNode, nullptr);
+    EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
+
+    auto callback = Common::MakeShared<MockScheduleNodeCallback>();
+    EXPECT_NE(callback, nullptr);
+    std::vector<std::shared_ptr<ScheduleNode>> scheduleNodeList;
+    ScheduleNodeHelper::NodeOptionalPara para = {};
+    para.authScene = AuthScene::AUTH_SCENE_DEFAULT;
+    para.authIntent = 0;
+    para.userId = 100;
+
+    EXPECT_TRUE(ScheduleNodeHelper::BuildFromHdi(scheduleInfoList, callback, scheduleNodeList, para));
+    EXPECT_EQ(scheduleNodeList.size(), 1);
+    ResourceNodePool::Instance().DeleteAll();
+}
+
+HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestEmptyExecutorIndexes_001, TestSize.Level0)
+{
+    HdiScheduleInfo scheduleInfo = {};
+    scheduleInfo.authType = HdiAuthType::FACE;
+    scheduleInfo.executorMatcher = 10;
+    scheduleInfo.scheduleId = 20;
+    scheduleInfo.scheduleMode = HdiScheduleMode::AUTH;
+    scheduleInfo.templateIds.push_back(30);
+
+    auto callback = Common::MakeShared<MockScheduleNodeCallback>();
+    EXPECT_NE(callback, nullptr);
+    std::shared_ptr<ResourceNode> collector;
+    std::shared_ptr<ResourceNode> verifier;
+    std::vector<uint8_t> collectorMessage;
+    std::vector<uint8_t> verifierMessage;
+
+    EXPECT_FALSE(ScheduleNodeHelper::ScheduleInfoToExecutors(scheduleInfo, collector, verifier,
+        collectorMessage, verifierMessage));
+}
+
+HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestMismatchedExecutorMessages_001, TestSize.Level0)
+{
+    HdiScheduleInfo scheduleInfo = {};
+    scheduleInfo.authType = HdiAuthType::FACE;
+    scheduleInfo.executorMatcher = 10;
+    scheduleInfo.executorIndexes.push_back(60);
+    scheduleInfo.executorIndexes.push_back(90);
+    scheduleInfo.executorMessages.push_back({6});
+    scheduleInfo.scheduleId = 20;
+    scheduleInfo.scheduleMode = HdiScheduleMode::AUTH;
+    scheduleInfo.templateIds.push_back(30);
+
+    auto callback = Common::MakeShared<MockScheduleNodeCallback>();
+    EXPECT_NE(callback, nullptr);
+    std::shared_ptr<ResourceNode> collector;
+    std::shared_ptr<ResourceNode> verifier;
+    std::vector<uint8_t> collectorMessage;
+    std::vector<uint8_t> verifierMessage;
+
+    EXPECT_FALSE(ScheduleNodeHelper::ScheduleInfoToExecutors(scheduleInfo, collector, verifier,
+        collectorMessage, verifierMessage));
+}
+
+HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestNullResourceNode_001, TestSize.Level0)
+{
+    HdiScheduleInfo scheduleInfo = {};
+    scheduleInfo.authType = HdiAuthType::FACE;
+    scheduleInfo.executorMatcher = 10;
+    scheduleInfo.executorIndexes.push_back(99999);
+    scheduleInfo.executorMessages.push_back({6});
+    scheduleInfo.scheduleId = 20;
+    scheduleInfo.scheduleMode = HdiScheduleMode::AUTH;
+    scheduleInfo.templateIds.push_back(30);
+
+    auto callback = Common::MakeShared<MockScheduleNodeCallback>();
+    EXPECT_NE(callback, nullptr);
+    std::shared_ptr<ResourceNode> collector;
+    std::shared_ptr<ResourceNode> verifier;
+    std::vector<uint8_t> collectorMessage;
+    std::vector<uint8_t> verifierMessage;
+
+    EXPECT_FALSE(ScheduleNodeHelper::ScheduleInfoToExecutors(scheduleInfo, collector, verifier,
+        collectorMessage, verifierMessage));
+}
+
+HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestMultipleExecutorRoles_001, TestSize.Level0)
+{
+    HdiScheduleInfo scheduleInfo = {};
+    scheduleInfo.authType = HdiAuthType::FACE;
+    scheduleInfo.executorMatcher = 10;
+    scheduleInfo.executorIndexes.push_back(60);
+    scheduleInfo.executorIndexes.push_back(70);
+    scheduleInfo.executorIndexes.push_back(80);
+    scheduleInfo.executorMessages.push_back({6});
+    scheduleInfo.executorMessages.push_back({7});
+    scheduleInfo.executorMessages.push_back({8});
+    scheduleInfo.scheduleId = 20;
+    scheduleInfo.scheduleMode = HdiScheduleMode::AUTH;
+    scheduleInfo.templateIds.push_back(30);
+
+    auto resourceNode1 = MockResourceNode::CreateWithExecuteIndex(60, FACE, COLLECTOR);
+    auto resourceNode2 = MockResourceNode::CreateWithExecuteIndex(70, FACE, VERIFIER);
+    auto resourceNode3 = MockResourceNode::CreateWithExecuteIndex(80, FACE, ALL_IN_ONE);
+
+    EXPECT_NE(resourceNode1, nullptr);
+    EXPECT_NE(resourceNode2, nullptr);
+    EXPECT_NE(resourceNode3, nullptr);
+
+    EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode1));
+    EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode2));
+    EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode3));
+
+    auto callback = Common::MakeShared<MockScheduleNodeCallback>();
+    EXPECT_NE(callback, nullptr);
+    std::shared_ptr<ResourceNode> collector;
+    std::shared_ptr<ResourceNode> verifier;
+    std::vector<uint8_t> collectorMessage;
+    std::vector<uint8_t> verifierMessage;
+
+    EXPECT_TRUE(ScheduleNodeHelper::ScheduleInfoToExecutors(scheduleInfo, collector, verifier,
+        collectorMessage, verifierMessage));
+    EXPECT_NE(collector, nullptr);
+    EXPECT_NE(verifier, nullptr);
+
+    ResourceNodePool::Instance().DeleteAll();
+}
+
+HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestWithOptionalParameters_001, TestSize.Level0)
+{
+    std::vector<HdiScheduleInfo> scheduleInfoList;
+    HdiScheduleInfo scheduleInfo = {};
+    scheduleInfo.authType = HdiAuthType::FACE;
+    scheduleInfo.executorMatcher = 10;
+    scheduleInfo.executorIndexes.push_back(60);
+    scheduleInfo.executorMessages.push_back({6});
+    scheduleInfo.scheduleId = 20;
+    scheduleInfo.scheduleMode = HdiScheduleMode::AUTH;
+    scheduleInfo.templateIds.push_back(30);
+    scheduleInfoList.push_back(scheduleInfo);
+
+    auto resourceNode = MockResourceNode::CreateWithExecuteIndex(60, FACE, ALL_IN_ONE);
+    EXPECT_NE(resourceNode, nullptr);
+    EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
+
+    auto callback = Common::MakeShared<MockScheduleNodeCallback>();
+    EXPECT_NE(callback, nullptr);
+    std::vector<std::shared_ptr<ScheduleNode>> scheduleNodeList;
+    ScheduleNodeHelper::NodeOptionalPara para = {};
+    para.tokenId = 12345;
+    para.pinSubType = PinSubType::PIN_SIX;
+    para.endAfterFirstFail = true;
+    para.collectorTokenId = 67890;
+    para.authIntent = AuthIntent::UNLOCK;
+    para.userId = 200;
+    para.title = "auth_widget_test";
+    para.authScene = AuthScene::AUTH_SCENE_WIDGET_AUTH_NO_DISTURB;
+
+    EXPECT_TRUE(ScheduleNodeHelper::BuildFromHdi(scheduleInfoList, callback, scheduleNodeList, para));
+    EXPECT_EQ(scheduleNodeList.size(), 1);
+    ResourceNodePool::Instance().DeleteAll();
+}
+
+HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestInvalidScheduleMode_001, TestSize.Level0)
+{
+    std::vector<HdiScheduleInfo> scheduleInfoList;
+    HdiScheduleInfo scheduleInfo = {};
+    scheduleInfo.authType = HdiAuthType::FACE;
+    scheduleInfo.executorMatcher = 10;
+    scheduleInfo.executorIndexes.push_back(60);
+    scheduleInfo.executorMessages.push_back({6});
+    scheduleInfo.scheduleId = 20;
+    scheduleInfo.scheduleMode = static_cast<HdiScheduleMode>(999);
+    scheduleInfo.templateIds.push_back(30);
+    scheduleInfoList.push_back(scheduleInfo);
+
+    auto resourceNode = MockResourceNode::CreateWithExecuteIndex(60, FACE, ALL_IN_ONE);
+    EXPECT_NE(resourceNode, nullptr);
+    EXPECT_TRUE(ResourceNodePool::Instance().Insert(resourceNode));
+
+    auto callback = Common::MakeShared<MockScheduleNodeCallback>();
+    EXPECT_NE(callback, nullptr);
+    std::vector<std::shared_ptr<ScheduleNode>> scheduleNodeList;
+    ScheduleNodeHelper::NodeOptionalPara para = {};
+
+    EXPECT_TRUE(ScheduleNodeHelper::BuildFromHdi(scheduleInfoList, callback, scheduleNodeList, para));
+    EXPECT_EQ(scheduleNodeList.size(), 1);
+    ResourceNodePool::Instance().DeleteAll();
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

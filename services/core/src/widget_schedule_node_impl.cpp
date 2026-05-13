@@ -50,6 +50,8 @@ std::shared_ptr<FiniteStateMachine> WidgetScheduleNodeImpl::MakeFiniteStateMachi
     }
     builder->MakeTransition(S_WIDGET_INIT, E_START_WIDGET, S_WIDGET_WAITING,
         [this](FiniteStateMachine &machine, uint32_t event) { OnStartSchedule(machine, event); });
+    builder->MakeTransition(S_WIDGET_INIT, E_START_DIRECT_AUTH, S_WIDGET_AUTH_RUNNING,
+        [this](FiniteStateMachine &machine, uint32_t event) { OnStartDirectAuth(machine, event); });
     builder->MakeTransition(S_WIDGET_WAITING, E_START_AUTH, S_WIDGET_AUTH_RUNNING,
         [this](FiniteStateMachine &machine, uint32_t event) { OnStartAuth(machine, event); });
     builder->MakeTransition(S_WIDGET_WAITING, E_CANCEL_AUTH, S_WIDGET_AUTH_FINISHED,
@@ -110,6 +112,19 @@ bool WidgetScheduleNodeImpl::StartSchedule()
     {
         std::lock_guard<std::mutex> lock(mutex_);
         if (!TryKickMachine(E_START_WIDGET)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool WidgetScheduleNodeImpl::StartDirectAuth()
+{
+    iamHitraceHelper_ = Common::MakeShared<IamHitraceHelper>("widget_direct_auth");
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (!TryKickMachine(E_START_DIRECT_AUTH)) {
+            IAM_LOGE("TryKickMachine E_START_DIRECT_AUTH failed");
             return false;
         }
     }
@@ -212,14 +227,33 @@ void WidgetScheduleNodeImpl::OnStopSchedule(FiniteStateMachine &machine, uint32_
     iamHitraceHelper_ = nullptr;
 }
 
+void WidgetScheduleNodeImpl::OnStartDirectAuth(FiniteStateMachine &machine, uint32_t event)
+{
+    IAM_LOGI("start direct auth (skip widget UI)");
+    auto callback = callback_.lock();
+    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
+    std::set<AuthType> startAuthTypeSet;
+    for (auto authType : startAuthTypeList_) {
+        if (runningAuthTypeSet_.find(authType) == runningAuthTypeSet_.end()) {
+            runningAuthTypeSet_.emplace(authType);
+            startAuthTypeSet.emplace(authType);
+            IAM_LOGI("direct auth type: %{public}d, added to runningAuthTypeSet_", static_cast<int32_t>(authType));
+        }
+    }
+    callback->ExecuteAuthList(startAuthTypeSet, endAfterFirstFail_, authIntent_);
+}
+
 void WidgetScheduleNodeImpl::OnStartAuth(FiniteStateMachine &machine, uint32_t event)
 {
+    IAM_LOGI("OnStartAuth start");
     auto callback = callback_.lock();
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
     std::set<AuthType> startAuthTypeSet;
     for (auto authType : startAuthTypeList_) {
         if (runningAuthTypeSet_.find(authType) == runningAuthTypeSet_.end()) {
             startAuthTypeSet.emplace(authType);
+            runningAuthTypeSet_.emplace(authType);
+            IAM_LOGI("emplace authType %{public}d to runningAuthTypeSet_", static_cast<int32_t>(authType));
         }
     }
     callback->ExecuteAuthList(startAuthTypeSet, endAfterFirstFail_, authIntent_);
@@ -245,9 +279,10 @@ void WidgetScheduleNodeImpl::OnSuccessAuth(FiniteStateMachine &machine, uint32_t
 
 void WidgetScheduleNodeImpl::OnFailAuth(FiniteStateMachine &machine, uint32_t event)
 {
+    IAM_LOGI("OnFailAuth start");
     auto callback = callback_.lock();
     IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
-    runningAuthTypeSet_.erase(successAuthType_);
+    runningAuthTypeSet_.erase(failAuthType_);
     callback->FailAuth(failAuthType_);
 }
 

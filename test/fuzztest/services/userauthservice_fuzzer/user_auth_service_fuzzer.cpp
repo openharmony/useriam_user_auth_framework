@@ -606,17 +606,18 @@ void FuzzCheckAuthWidgetType(Parcel &parcel)
     IAM_LOGI("end");
 }
 
-void FuzzCheckSingeFaceOrFinger(Parcel &parcel)
+void FuzzCheckAuthTypeOnly(Parcel &parcel)
 {
     IAM_LOGI("begin");
     std::vector<AuthType> authType = {PIN, FACE, FINGERPRINT};
-    g_userAuthService.CheckSingeFaceOrFinger(authType);
+    std::set<AuthType> onlyContainTypes = {PIN, FACE, FINGERPRINT};
+    g_userAuthService.CheckAuthTypeOnly(authType, onlyContainTypes);
     authType = {PIN};
-    g_userAuthService.CheckSingeFaceOrFinger(authType);
+    g_userAuthService.CheckAuthTypeOnly(authType, onlyContainTypes);
     authType = {FACE};
-    g_userAuthService.CheckSingeFaceOrFinger(authType);
+    g_userAuthService.CheckAuthTypeOnly(authType, onlyContainTypes);
     authType = {FINGERPRINT};
-    g_userAuthService.CheckSingeFaceOrFinger(authType);
+    g_userAuthService.CheckAuthTypeOnly(authType, onlyContainTypes);
     EnsureTask();
     IAM_LOGI("end");
 }
@@ -892,7 +893,7 @@ FuzzFunc *g_fuzzFuncs[] = {
     FuzzGetAuthContextCallback,
     FuzzInsert2ContextPool,
     FuzzCheckAuthWidgetType,
-    FuzzCheckSingeFaceOrFinger,
+    FuzzCheckAuthTypeOnly,
     FuzzAuthRemoteUser,
     FuzzFillGetPropertyValue,
     FuzzFillGetPropertyKeys,

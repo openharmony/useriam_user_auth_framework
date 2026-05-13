@@ -98,6 +98,8 @@ public:
     virtual std::shared_ptr<Builder> SetAuthIntent(int32_t authIntent) = 0;
     virtual std::shared_ptr<Builder> SetUserId(int32_t userId) = 0;
     virtual std::shared_ptr<Builder> SetAdditionalInfo(const std::string &additionalInfo) = 0;
+    virtual std::shared_ptr<Builder> SetTitle(const std::string &title) = 0;
+    virtual std::shared_ptr<Builder> SetAuthScene(AuthScene authScene) = 0;
     virtual std::shared_ptr<ScheduleNode> Build() = 0;
 };
 } // namespace UserAuth

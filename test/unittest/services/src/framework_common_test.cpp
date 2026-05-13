@@ -163,7 +163,7 @@ HWTEST_F(FrameworkCommonTest, UserAuthHelperCheckUserAuthType_002, TestSize.Leve
     EXPECT_FALSE(UserAuthHelper::CheckUserAuthType(static_cast<int32_t>(AuthType::ALL)));
     EXPECT_FALSE(UserAuthHelper::CheckUserAuthType(static_cast<int32_t>(AuthType::RECOVERY_KEY)));
     EXPECT_FALSE(UserAuthHelper::CheckUserAuthType(static_cast<int32_t>(AuthType::TUI_PIN)));
-    EXPECT_FALSE(UserAuthHelper::CheckUserAuthType(static_cast<int32_t>(AuthType::COMPANION_DEVICE)));
+    EXPECT_TRUE(UserAuthHelper::CheckUserAuthType(static_cast<int32_t>(AuthType::COMPANION_DEVICE)));
     EXPECT_FALSE(UserAuthHelper::CheckUserAuthType(static_cast<int32_t>(AuthType::INVALID_AUTH_TYPE)));
     EXPECT_FALSE(UserAuthHelper::CheckUserAuthType(999));
     EXPECT_FALSE(UserAuthHelper::CheckUserAuthType(-1));

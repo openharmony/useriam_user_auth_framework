@@ -89,6 +89,7 @@ protected:
     virtual bool OnStart();
     virtual void OnResult(int32_t resultCode, const std::shared_ptr<Attributes> &scheduleResultAttr);
     virtual bool OnStop();
+    virtual bool BuildSchedule();
 
 private:
     struct WidgetRotatePara {
@@ -101,7 +102,6 @@ private:
     void SetLatestError(int32_t error) override;
     std::shared_ptr<Context> BuildTask(const std::vector<uint8_t> &challenge,
         AuthType authType, AuthTrustLevel authTrustLevel, bool endAfterFirstFail, AuthIntent authIntent);
-    bool BuildSchedule();
     bool ConnectExtension(const WidgetRotatePara &widgetRotatePara);
     int32_t ConnectExtensionAbility(const AAFwk::Want &want, const std::string commandStr);
     bool DisconnectExtension();
@@ -119,6 +119,7 @@ private:
     void SetSysDialogZOrder(WidgetCmdParameters &widgetCmdParameters);
     bool IsSingleFaceOrFingerPrintAuth();
     bool IsNavigationAuth();
+    bool IsSingleCompanionDeviceAuth() const;
     UserAuthTipCode GetAuthTipCode(int32_t authResult, int32_t freezingTime);
     void ProcAuthResult(int32_t resultCode, AuthType authType, int32_t freezingTime,
         const Attributes &finalResult);
@@ -159,6 +160,7 @@ private:
 
     int32_t latestError_ {ResultCode::GENERAL_ERROR};
     ContextFactory::AuthWidgetContextPara para_ {};
+    bool isDirectAuth_ {false};
     std::shared_ptr<WidgetScheduleNode> schedule_ {nullptr};
     sptr<IModalCallback> modalCallback_ {nullptr};
     std::recursive_mutex mutex_;
