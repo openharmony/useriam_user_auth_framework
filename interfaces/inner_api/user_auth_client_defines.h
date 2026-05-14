@@ -166,6 +166,18 @@ enum GlobalConfigType : int32_t {
     PIN_EXPIRED_PERIOD = 1,
     /** Enable specified authType capability. */
     ENABLE_STATUS = 2,
+    /** Cryptographic algorithm used for PIN processing. */
+    PIN_ALGO_TYPE = 3,
+};
+
+/**
+ * @brief Pin encryption algorithm type.
+ */
+enum PinEncrypAlgoType : uint32_t {
+    /** AES-GCM algorithm */
+    AES_GCM = 0,
+    /** SM4 algorithm */
+    SM4 = 1,
 };
 
 /**
@@ -177,6 +189,11 @@ union GlobalConfigValue {
     int64_t pinExpiredPeriod;
     /** Enable specified authType capability. */
     bool enableStatus;
+    /** Specified algorithms used for PIN processing.
+     * 0: default Scrypt, AES, HKDF
+     * 1: replace AES with SM4, compared to 0;
+     * Others: not support yet. */
+    uint32_t pinAlgoType;
 };
 
 /**
