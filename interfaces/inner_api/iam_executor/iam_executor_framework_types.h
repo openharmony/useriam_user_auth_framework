@@ -132,6 +132,8 @@ struct Property {
     int32_t nextFailLockoutDuration;
     /** credential length. */
     uint32_t credentialLength;
+    /** camera status. */
+    uint32_t cameraStatus;
 };
 
 /**

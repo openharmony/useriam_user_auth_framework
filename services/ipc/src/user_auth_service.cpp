@@ -1286,44 +1286,43 @@ uint64_t UserAuthService::StartWidgetContext(const std::shared_ptr<ContextCallba
     return context->GetContextId();
 }
 
-int32_t UserAuthService::CheckSkipLockedBiometricAuth(int32_t userId, const AuthParamInner &authParam,
-    const WidgetParamInner &widgetParam, std::vector<AuthType> &validType)
+int32_t UserAuthService::CheckSkipLockedBiometricAuth(ContextFactory::AuthWidgetContextPara &para,
+    const AuthParamInner &authParam, const WidgetParamInner &widgetParam, std::vector<AuthType> &validType)
 {
-    if (!authParam.skipLockedBiometricAuth) {
-        if (validType.empty()) {
-            IAM_LOGE("validType size is 0");
-            return TYPE_NOT_SUPPORT;
-        }
-        return SUCCESS;
-    }
-
-    std::vector<AuthType> authTypeList;
-    for (auto &type : validType) {
+    for (auto iter = validType.begin(); iter != validType.end();) {
+        AuthType type = *iter;
         ContextFactory::AuthProfile profile = {};
-        if (!AuthWidgetHelper::GetUserAuthProfile(userId, type, profile, authParam.credentialIdList)) {
+        if (!AuthWidgetHelper::GetUserAuthProfile(para.userId, type, profile, authParam.credentialIdList)) {
             IAM_LOGE("get user auth profile failed");
+            iter = validType.erase(iter);
             continue;
         }
-
-        if (profile.remainTimes != 0 || type == PIN || type == PRIVATE_PIN) {
-            authTypeList.push_back(type);
+        para.authProfileMap[type] = profile;
+        if (type == AuthType::PIN || type == AuthType::PRIVATE_PIN) {
+            WidgetClient::Instance().SetPinSubType(static_cast<PinSubType>(profile.pinSubType));
+        } else if (type == AuthType::FINGERPRINT) {
+            WidgetClient::Instance().SetSensorInfo(profile.sensorInfo);
+        }
+        if (authParam.skipLockedBiometricAuth && profile.remainTimes == 0 && type != AuthType::PIN &&
+            type != AuthType::PRIVATE_PIN) {
+            iter = validType.erase(iter);
+            para.authProfileMap.erase(type);
+        } else {
+            ++iter;
         }
     }
-
     if (!widgetParam.navigationButtonText.empty()) {
-        if (authTypeList.empty() ||
-            ((authTypeList.size() == 1) && CheckAuthTypeOnly(authTypeList, {AuthType::COMPANION_DEVICE}))) {
-            IAM_LOGE("authTypeList size:%{public}zu, return cancel from widget", authTypeList.size());
+        if (validType.empty() ||
+            ((validType.size() == 1) && CheckAuthTypeOnly(validType, {AuthType::COMPANION_DEVICE}))) {
+            IAM_LOGE("validType size:%{public}zu, return cancel from widget", validType.size());
             return CANCELED_FROM_WIDGET;
         }
     }
 
-    if (authTypeList.empty()) {
-        IAM_LOGE("authTypeList is null, return lock");
+    if (validType.empty()) {
+        IAM_LOGE("validType is null, return lock");
         return LOCKED;
     }
-
-    validType = std::move(authTypeList);
     return SUCCESS;
 }
 
@@ -1372,12 +1371,25 @@ void UserAuthService::FilterCompanionDevice(std::vector<AuthType> &validType)
     }
 }
 
-int32_t UserAuthService::CheckValidSolution(int32_t userId, const AuthParamInner &authParam,
-    const WidgetParamInner &widgetParam, std::vector<AuthType> &validType)
+void UserAuthService::FilterFaceNotAvailable(ContextFactory::AuthWidgetContextPara &para,
+    std::vector<AuthType> &validType)
+{
+    if (validType.size() == 1) {
+        return;
+    }
+    auto faceIter = para.authProfileMap.find(AuthType::FACE);
+    if (faceIter != para.authProfileMap.end() && faceIter->second.cameraStatus == CameraStatus::CAMERA_NOT_AVAILABLE) {
+        validType.erase(std::remove(validType.begin(), validType.end(), AuthType::FACE), validType.end());
+        para.authProfileMap.erase(AuthType::FACE);
+    }
+}
+
+int32_t UserAuthService::CheckValidSolution(ContextFactory::AuthWidgetContextPara &para,
+    const AuthParamInner &authParam, const WidgetParamInner &widgetParam, std::vector<AuthType> &validType)
 {
     std::vector<AuthType> authTypes = GetAuthTypesFromCredentialIds(authParam);
     int32_t ret = AuthWidgetHelper::CheckValidSolution(
-        userId, authTypes, authParam.authTrustLevel, validType);
+        para.userId, authTypes, authParam.authTrustLevel, validType);
     if (ret != SUCCESS) {
         IAM_LOGE("CheckValidSolution fail %{public}d", ret);
         return ret;
@@ -1398,13 +1410,13 @@ int32_t UserAuthService::CheckValidSolution(int32_t userId, const AuthParamInner
         IAM_LOGE("check privatePin enroll error");
         return INVALID_PARAMETERS;
     }
-    if (!IpcCommon::IsOsAccountVerified(userId)) {
-        IAM_LOGI("auth userId: %{public}u, biometric authentication has been filtered.", userId);
+    if (!IpcCommon::IsOsAccountVerified(para.userId)) {
+        IAM_LOGI("auth userId: %{public}u, biometric authentication has been filtered.", para.userId);
         validType.erase(std::remove_if(validType.begin(), validType.end(), [](AuthType authType) {
             return authType != AuthType::PIN && authType != AuthType::PRIVATE_PIN;
             }), validType.end());
     }
-    return CheckSkipLockedBiometricAuth(userId, authParam, widgetParam, validType);
+    return CheckSkipLockedBiometricAuth(para, authParam, widgetParam, validType);
 }
 
 int32_t UserAuthService::GetCallerInfo(bool isUserIdSpecified, int32_t userId,
@@ -1463,7 +1475,7 @@ int32_t UserAuthService::StartAuthWidget(AuthParamInner &authParam, WidgetParamI
     IAM_LOGI("start");
     Attributes extraInfo;
     std::vector<AuthType> validType;
-    int32_t checkRet = CheckValidSolution(para.userId, authParam, widgetParam, validType);
+    int32_t checkRet = CheckValidSolution(para, authParam, widgetParam, validType);
     if (checkRet != SUCCESS && checkRet != PIN_EXPIRED) {
         IAM_LOGE("check valid solution failed");
         contextCallback->SetTraceAuthFinishReason("UserAuthService AuthWidget CheckValidSolution fail");
@@ -1472,6 +1484,7 @@ int32_t UserAuthService::StartAuthWidget(AuthParamInner &authParam, WidgetParamI
     }
     ProcessPinExpired(checkRet, authParam, validType, para);
     FilterCompanionDevice(validType);
+    FilterFaceNotAvailable(para, validType);
     ProcessWidgetSessionExclusive();
 
     contextId = StartWidgetContext(contextCallback, authParam, widgetParam, validType, para, modalCallback);

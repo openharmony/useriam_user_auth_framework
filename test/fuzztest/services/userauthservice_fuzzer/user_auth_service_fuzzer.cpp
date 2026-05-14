@@ -546,7 +546,9 @@ void FuzzCheckValidSolution(Parcel &parcel)
     for (const auto &iter : authType) {
         validType.push_back(static_cast<AuthType>(iter));
     }
-    g_userAuthService.CheckValidSolution(userId, authParam, widgetParam, validType);
+    ContextFactory::AuthWidgetContextPara para;
+    para.userId = userId;
+    g_userAuthService.CheckValidSolution(para, authParam, widgetParam, validType);
     EnsureTask();
     IAM_LOGI("end");
 }
