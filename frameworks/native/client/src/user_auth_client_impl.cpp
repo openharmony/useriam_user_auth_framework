@@ -863,6 +863,8 @@ void UserAuthClientImpl::InitIpcGlobalConfigParam(const GlobalConfigParam &globa
         ipcGlobalConfigParam.value.pinExpiredPeriod = globalConfigParam.value.pinExpiredPeriod;
     } else if (globalConfigParam.type == ENABLE_STATUS) {
         ipcGlobalConfigParam.value.enableStatus = globalConfigParam.value.enableStatus;
+    } else if (globalConfigParam.type == PIN_ALGO_TYPE) {
+        ipcGlobalConfigParam.value.pinAlgoType = globalConfigParam.value.pinAlgoType;
     }
     ipcGlobalConfigParam.userIds = globalConfigParam.userIds;
     ipcGlobalConfigParam.authTypes.resize(globalConfigParam.authTypes.size());
