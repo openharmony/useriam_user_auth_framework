@@ -125,8 +125,8 @@ private:
         const std::shared_ptr<ContextCallback> &contextCallback, Attributes &extraInfo);
     int32_t CheckWindowMode(const WidgetParamInner &widgetParam);
     int32_t CheckAuthWidgetParam(const AuthParamInner &authParam, const WidgetParamInner &widgetParam);
-    int32_t CheckValidSolution(int32_t userId, const AuthParamInner &authParam, const WidgetParamInner &widgetParam,
-        std::vector<AuthType> &validType);
+    int32_t CheckValidSolution(ContextFactory::AuthWidgetContextPara &para, const AuthParamInner &authParam,
+        const WidgetParamInner &widgetParam, std::vector<AuthType> &validType);
     int32_t GetCallerInfo(bool isUserIdSpecified, int32_t userId, ContextFactory::AuthWidgetContextPara &para,
         std::shared_ptr<ContextCallback> &contextCallback);
     int32_t CheckCallerPermissionForPrivatePin(const AuthParamInner &authParam);
@@ -161,10 +161,11 @@ private:
     void InitRemoteAuthParam(const IpcRemoteAuthParam &ipcRemoteAuthParam,
         std::optional<RemoteAuthParam> &remoteAuthParam);
     void InitWidgetParam(const IpcWidgetParamInner &ipcWidgetParam, WidgetParamInner &widgetParam);
-    int32_t CheckSkipLockedBiometricAuth(int32_t userId, const AuthParamInner &authParam,
+    int32_t CheckSkipLockedBiometricAuth(ContextFactory::AuthWidgetContextPara &para, const AuthParamInner &authParam,
         const WidgetParamInner &widgetParam, std::vector<AuthType> &validType);
     std::vector<AuthType> GetAuthTypesFromCredentialIds(const AuthParamInner &authParam);
     void FilterCompanionDevice(std::vector<AuthType> &validType);
+    void FilterFaceNotAvailable(ContextFactory::AuthWidgetContextPara &para, std::vector<AuthType> &validType);
     static std::mutex mutex_;
     static std::shared_ptr<UserAuthService> instance_;
 };

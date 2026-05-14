@@ -672,6 +672,7 @@ void FuzzFillPropertyToAttribute(std::shared_ptr<Parcel> parcel)
         Attributes::ATTR_ENROLL_PROGRESS,
         Attributes::ATTR_SENSOR_INFO,
         Attributes::ATTR_NEXT_FAIL_LOCKOUT_DURATION,
+        Attributes::ATTR_CAMERA_STATUS,
         Attributes::ATTR_ROOT
     };
     Property property = {};

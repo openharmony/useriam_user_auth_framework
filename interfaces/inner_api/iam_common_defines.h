@@ -272,6 +272,16 @@ enum AuthScene : int32_t {
     AUTH_SCENE_WIDGET_AUTH_NO_DISTURB = 1,
 };
 
+/**
+ * @brief The Camera status.
+ */
+enum CameraStatus : uint32_t {
+    /**< Camera is available. */
+    CAMERA_AVAILABLE = 0,
+    /**< Camera is not available. */
+    CAMERA_NOT_AVAILABLE = 1,
+};
+
 constexpr uint64_t INVALID_EXECUTOR_INDEX = 0;
 } // namespace UserAuth
 } // namespace UserIam

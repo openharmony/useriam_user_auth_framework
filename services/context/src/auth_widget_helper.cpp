@@ -33,19 +33,6 @@ namespace UserAuth {
 bool AuthWidgetHelper::InitWidgetContextParam(const AuthParamInner &authParam, std::vector<AuthType> &validType,
     const WidgetParamInner &widgetParam, ContextFactory::AuthWidgetContextPara &para)
 {
-    for (auto &authType : validType) {
-        ContextFactory::AuthProfile profile;
-        if (!GetUserAuthProfile(para.userId, authType, profile, authParam.credentialIdList)) {
-            IAM_LOGE("get user auth profile failed");
-            return false;
-        }
-        para.authProfileMap[authType] = profile;
-        if (authType == AuthType::PIN || authType == AuthType::PRIVATE_PIN) {
-            WidgetClient::Instance().SetPinSubType(static_cast<PinSubType>(profile.pinSubType));
-        } else if (authType == AuthType::FINGERPRINT) {
-            WidgetClient::Instance().SetSensorInfo(profile.sensorInfo);
-        }
-    }
     para.challenge = std::move(authParam.challenge);
     para.authTypeList = std::move(validType);
     para.atl = authParam.authTrustLevel;
@@ -97,9 +84,7 @@ bool AuthWidgetHelper::GetUserAuthProfile(int32_t userId, const AuthType &authTy
         IAM_LOGE("user %{public}d has no credential type %{public}d", userId, authType);
         return true;
     }
-
-    uint64_t executorIndex = credentialInfos[0]->GetExecutorIndex();
-    auto resourceNode = ResourceNodePool::Instance().Select(executorIndex).lock();
+    auto resourceNode = ResourceNodePool::Instance().Select(credentialInfos[0]->GetExecutorIndex()).lock();
     if (resourceNode == nullptr) {
         IAM_LOGE("resourceNode is nullptr");
         return false;
@@ -107,21 +92,17 @@ bool AuthWidgetHelper::GetUserAuthProfile(int32_t userId, const AuthType &authTy
     std::vector<uint64_t> templateIds;
     templateIds.reserve(credentialInfos.size());
     for (auto &info : credentialInfos) {
-        if (info == nullptr) {
-            IAM_LOGE("info is null");
-            continue;
+        if (info != nullptr) {
+            templateIds.push_back(info->GetTemplateId());
         }
-        templateIds.push_back(info->GetTemplateId());
     }
-    std::vector<uint32_t> uint32Keys = {
-        Attributes::ATTR_REMAIN_TIMES,
-        Attributes::ATTR_FREEZING_TIME
-    };
+    std::vector<uint32_t> uint32Keys = {Attributes::ATTR_REMAIN_TIMES, Attributes::ATTR_FREEZING_TIME};
     if (authType == AuthType::PIN || authType == AuthType::PRIVATE_PIN) {
         uint32Keys.push_back(Attributes::ATTR_PIN_SUB_TYPE);
-    }
-    if (authType == AuthType::FINGERPRINT) {
+    } else if (authType == AuthType::FINGERPRINT) {
         uint32Keys.push_back(Attributes::ATTR_SENSOR_INFO);
+    } else if (authType == AuthType::FACE) {
+        uint32Keys.push_back(Attributes::ATTR_CAMERA_STATUS);
     }
     Attributes attr;
     attr.SetInt32Value(Attributes::ATTR_AUTH_TYPE, authType);
@@ -156,6 +137,10 @@ bool AuthWidgetHelper::ParseAttributes(const Attributes &values, const AuthType 
     }
     if (!values.GetInt32Value(Attributes::ATTR_FREEZING_TIME, profile.freezingTime)) {
         IAM_LOGE("get ATTR_FREEZING_TIME failed");
+        return false;
+    }
+    if (authType == AuthType::FACE && !values.GetUint32Value(Attributes::ATTR_CAMERA_STATUS, profile.cameraStatus)) {
+        IAM_LOGE("get ATTR_CAMERA_STATUS failed");
         return false;
     }
     return true;
