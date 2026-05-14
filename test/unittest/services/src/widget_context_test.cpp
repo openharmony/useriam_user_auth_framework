@@ -1509,6 +1509,153 @@ HWTEST_F(WidgetContextTest, WidgetContextTestDirectAuthWithEmptyList_001, TestSi
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask([]() {});
 }
+
+HWTEST_F(WidgetContextTest, WidgetContextTestProcAuthResult_SingleCompanionDevice_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList = {AuthType::COMPANION_DEVICE};
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+
+    auto testableContext = Common::MakeShared<TestableWidgetContext>(contextId, para,
+        Common::MakeShared<MockContextCallback>(), nullptr);
+    auto mockSchedule = Common::MakeShared<MockWidgetScheduleNode>();
+    testableContext->SetSchedule(mockSchedule);
+
+    EXPECT_CALL(*mockSchedule, FailAuth(AuthType::COMPANION_DEVICE)).WillOnce(Return(true));
+
+    Attributes finalResult;
+    testableContext->ProcAuthResult(ResultCode::FAIL, AuthType::COMPANION_DEVICE, 0, finalResult);
+
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestProcAuthResult_SingleCompanionDevice_002, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList = {AuthType::COMPANION_DEVICE};
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+
+    auto testableContext = Common::MakeShared<TestableWidgetContext>(contextId, para,
+        Common::MakeShared<MockContextCallback>(), nullptr);
+    auto mockSchedule = Common::MakeShared<MockWidgetScheduleNode>();
+    testableContext->SetSchedule(mockSchedule);
+
+    EXPECT_CALL(*mockSchedule, FailAuth(AuthType::COMPANION_DEVICE)).WillOnce(Return(true));
+
+    Attributes finalResult;
+    testableContext->ProcAuthResult(ResultCode::LOCKED, AuthType::COMPANION_DEVICE, 60, finalResult);
+
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestProcAuthResult_SingleCompanionDevice_003, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList = {AuthType::COMPANION_DEVICE};
+    auto widgetContext = CreateWidgetContext(contextId, para);
+    EXPECT_NE(widgetContext, nullptr);
+
+    auto testableContext = Common::MakeShared<TestableWidgetContext>(contextId, para,
+        Common::MakeShared<MockContextCallback>(), nullptr);
+    auto mockSchedule = Common::MakeShared<MockWidgetScheduleNode>();
+    testableContext->SetSchedule(mockSchedule);
+
+    EXPECT_CALL(*mockSchedule, FailAuth(AuthType::COMPANION_DEVICE)).WillOnce(Return(true));
+
+    Attributes finalResult;
+    testableContext->ProcAuthResult(ResultCode::TIMEOUT, AuthType::COMPANION_DEVICE, 0, finalResult);
+
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestProcAuthTipInfo_SingleCompanionDevice_001, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList = {AuthType::COMPANION_DEVICE};
+
+    auto mockCallback = Common::MakeShared<MockContextCallback>();
+    auto testableContext = Common::MakeShared<TestableWidgetContext>(contextId, para, mockCallback, nullptr);
+    auto mockSchedule = Common::MakeShared<MockWidgetScheduleNode>();
+    testableContext->SetSchedule(mockSchedule);
+
+    std::vector<uint8_t> extraInfo;
+    EXPECT_CALL(*mockCallback, ParseAuthTipInfo(_, _, _, _))
+        .WillOnce(Invoke([](int32_t, const std::vector<uint8_t> &, int32_t &authResult, int32_t &freezingTime) {
+            authResult = ResultCode::FAIL;
+            freezingTime = 0;
+            return ResultCode::SUCCESS;
+        }));
+
+    EXPECT_CALL(*mockSchedule, FailAuth(AuthType::COMPANION_DEVICE)).WillOnce(Return(true));
+
+    testableContext->ProcAuthTipInfo(USER_AUTH_TIP_SINGLE_AUTH_RESULT, AuthType::COMPANION_DEVICE, extraInfo);
+
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestProcAuthTipInfo_SingleCompanionDevice_002, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList = {AuthType::COMPANION_DEVICE};
+
+    auto mockCallback = Common::MakeShared<MockContextCallback>();
+    auto testableContext = Common::MakeShared<TestableWidgetContext>(contextId, para, mockCallback, nullptr);
+    auto mockSchedule = Common::MakeShared<MockWidgetScheduleNode>();
+    testableContext->SetSchedule(mockSchedule);
+
+    std::vector<uint8_t> extraInfo;
+    EXPECT_CALL(*mockCallback, ParseAuthTipInfo(_, _, _, _))
+        .WillOnce(Invoke([](int32_t, const std::vector<uint8_t> &, int32_t &authResult, int32_t &freezingTime) {
+            authResult = ResultCode::LOCKED;
+            freezingTime = 60;
+            return ResultCode::SUCCESS;
+        }));
+
+    EXPECT_CALL(*mockSchedule, FailAuth(AuthType::COMPANION_DEVICE)).WillOnce(Return(true));
+
+    testableContext->ProcAuthTipInfo(USER_AUTH_TIP_SINGLE_AUTH_RESULT, AuthType::COMPANION_DEVICE, extraInfo);
+
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetContextTest, WidgetContextTestProcAuthTipInfo_SingleCompanionDevice_003, TestSize.Level0)
+{
+    uint64_t contextId = 1;
+    ContextFactory::AuthWidgetContextPara para;
+    para.authTypeList = {AuthType::COMPANION_DEVICE};
+
+    auto mockCallback = Common::MakeShared<MockContextCallback>();
+    auto testableContext = Common::MakeShared<TestableWidgetContext>(contextId, para, mockCallback, nullptr);
+    auto mockSchedule = Common::MakeShared<MockWidgetScheduleNode>();
+    testableContext->SetSchedule(mockSchedule);
+
+    std::vector<uint8_t> extraInfo;
+    EXPECT_CALL(*mockCallback, ParseAuthTipInfo(_, _, _, _))
+        .WillOnce(Invoke([](int32_t, const std::vector<uint8_t> &, int32_t &authResult, int32_t &freezingTime) {
+            authResult = ResultCode::TIMEOUT;
+            freezingTime = 0;
+            return ResultCode::SUCCESS;
+        }));
+
+    EXPECT_CALL(*mockSchedule, FailAuth(AuthType::COMPANION_DEVICE)).WillOnce(Return(true));
+
+    testableContext->ProcAuthTipInfo(USER_AUTH_TIP_SINGLE_AUTH_RESULT, AuthType::COMPANION_DEVICE, extraInfo);
+
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

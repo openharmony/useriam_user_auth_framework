@@ -1071,8 +1071,8 @@ int32_t UserAuthService::CheckAuthWidgetType(const std::vector<AuthType> &authTy
         IAM_LOGE("pin and private pin not support");
         return INVALID_PARAMETERS;
     }
-    if (hasCompanionDevice && (hasPin || hasPrivatePin)) {
-        IAM_LOGE("CompanionDevice cannot combine with PIN/PrivatePin");
+    if (hasCompanionDevice && (authType.size() != 1)) {
+        IAM_LOGE("CompanionDevice cannot combine with other auth type");
         return INVALID_PARAMETERS;
     }
     return SUCCESS;
@@ -1099,23 +1099,16 @@ bool UserAuthService::CheckPrivatePinEnroll(const std::vector<AuthType> &authTyp
         return true;
     }
     const size_t sizeTwo = 2;
-    const size_t sizeThree = 3;
     bool hasFace = false;
     bool hasFinger = false;
-    bool hasCompanionDevice = false;
     for (const auto &iter : validType) {
         if (iter == AuthType::FACE) {
             hasFace = true;
         } else if (iter == AuthType::FINGERPRINT) {
             hasFinger = true;
-        } else if (iter == AuthType::COMPANION_DEVICE) {
-            hasCompanionDevice = true;
         }
     }
     if (validType.size() == sizeTwo && hasFace && hasFinger) {
-        return false;
-    }
-    if (validType.size() == sizeThree && hasFace && hasFinger && hasCompanionDevice) {
         return false;
     }
     return true;
@@ -1175,16 +1168,9 @@ int32_t UserAuthService::CheckAuthWidgetParam(const AuthParamInner &authParam, c
 {
     if (widgetParam.navigationButtonText.empty()) {
         static const size_t authTypeTwo = 2;
-        static const size_t authTypeThree = 3;
         if ((authParam.authTypes.size() == authTypeTwo) &&
             CheckAuthTypeOnly(authParam.authTypes, {AuthType::FACE, AuthType::FINGERPRINT})) {
             IAM_LOGE("only face+finger not support");
-            return INVALID_PARAMETERS;
-        }
-        if ((authParam.authTypes.size() == authTypeThree) &&
-            CheckAuthTypeOnly(
-                authParam.authTypes, {AuthType::FACE, AuthType::FINGERPRINT, AuthType::COMPANION_DEVICE})) {
-            IAM_LOGE("only face+finger+companiondevice not support");
             return INVALID_PARAMETERS;
         }
     }
@@ -1312,8 +1298,7 @@ int32_t UserAuthService::CheckSkipLockedBiometricAuth(ContextFactory::AuthWidget
         }
     }
     if (!widgetParam.navigationButtonText.empty()) {
-        if (validType.empty() ||
-            ((validType.size() == 1) && CheckAuthTypeOnly(validType, {AuthType::COMPANION_DEVICE}))) {
+        if (validType.empty()) {
             IAM_LOGE("validType size:%{public}zu, return cancel from widget", validType.size());
             return CANCELED_FROM_WIDGET;
         }
@@ -1349,28 +1334,6 @@ std::vector<AuthType> UserAuthService::GetAuthTypesFromCredentialIds(const AuthP
     return authTypeList;
 }
 
-void UserAuthService::FilterCompanionDevice(std::vector<AuthType> &validType)
-{
-    bool hasCompanionDevice = false;
-    bool hasOtherType = false;
-
-    for (const auto &type : validType) {
-        if (type == AuthType::COMPANION_DEVICE) {
-            hasCompanionDevice = true;
-        } else {
-            hasOtherType = true;
-        }
-    }
-
-    if (hasCompanionDevice && hasOtherType) {
-        IAM_LOGI("Filter COMPANION_DEVICE from validType, has other auth types");
-        validType.erase(std::remove_if(validType.begin(), validType.end(),
-            [](AuthType authType) {
-                return authType == AuthType::COMPANION_DEVICE;
-            }), validType.end());
-    }
-}
-
 void UserAuthService::FilterFaceNotAvailable(ContextFactory::AuthWidgetContextPara &para,
     std::vector<AuthType> &validType)
 {
@@ -1395,14 +1358,12 @@ int32_t UserAuthService::CheckValidSolution(ContextFactory::AuthWidgetContextPar
         return ret;
     }
     if (!widgetParam.navigationButtonText.empty() &&
-        (!CheckAuthTypeOnly(validType, {AuthType::FACE, AuthType::FINGERPRINT, AuthType::COMPANION_DEVICE}) ||
-            CheckAuthTypeOnly(validType, {AuthType::COMPANION_DEVICE}))) {
+        !CheckAuthTypeOnly(validType, {AuthType::FACE, AuthType::FINGERPRINT})) {
         IAM_LOGE("navigationButtonText check fail, validType.size:%{public}zu", validType.size());
         return INVALID_PARAMETERS;
     }
     if (widgetParam.windowMode == FULLSCREEN &&
-        (CheckAuthTypeOnly(validType, {AuthType::FACE, AuthType::FINGERPRINT, AuthType::COMPANION_DEVICE}) &&
-            !CheckAuthTypeOnly(validType, {AuthType::COMPANION_DEVICE}))) {
+        (CheckAuthTypeOnly(validType, {AuthType::FACE, AuthType::FINGERPRINT}))) {
         IAM_LOGE("Single fingerprint or single face does not support full screen");
         return INVALID_PARAMETERS;
     }
@@ -1483,7 +1444,6 @@ int32_t UserAuthService::StartAuthWidget(AuthParamInner &authParam, WidgetParamI
         return checkRet;
     }
     ProcessPinExpired(checkRet, authParam, validType, para);
-    FilterCompanionDevice(validType);
     FilterFaceNotAvailable(para, validType);
     ProcessWidgetSessionExclusive();
 
