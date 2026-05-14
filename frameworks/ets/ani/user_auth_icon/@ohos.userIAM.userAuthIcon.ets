@@ -242,7 +242,7 @@ export struct UserAuthIcon {
     this.info('end handle click event.');
   }
 
-  build() {
+  build(): void {
     Row() {
       Column() {
         SymbolGlyph($r(this.imageSource))
