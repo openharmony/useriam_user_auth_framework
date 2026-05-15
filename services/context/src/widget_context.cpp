@@ -929,6 +929,10 @@ void WidgetContext::ProcAuthResult(int32_t resultCode, AuthType authType, int32_
         if (resultCode != ResultCode::CANCELED) {
             SendAuthTipInfo(authType, GetAuthTipCode(resultCode, freezingTime));
         }
+        if (IsSingleCompanionDeviceAuth()) {
+            schedule_->FailAuth(authType);
+            return;
+        }
         if (para_.skipLockedBiometricAuth && freezingTime > 0) {
             if (IsSingleFaceOrFingerPrintAuth()) {
                 schedule_->FailAuth(authType);
@@ -958,6 +962,10 @@ void WidgetContext::ProcAuthTipInfo(int32_t tip, AuthType authType, const std::v
     }
     if (resultCode != ResultCode::CANCELED) {
         SendAuthTipInfo(authType, GetAuthTipCode(resultCode, freezingTime));
+    }
+    if (IsSingleCompanionDeviceAuth()) {
+        schedule_->FailAuth(authType);
+        return;
     }
     if (para_.skipLockedBiometricAuth && freezingTime > 0) {
         if (IsSingleFaceOrFingerPrintAuth()) {
