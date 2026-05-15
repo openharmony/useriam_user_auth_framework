@@ -810,34 +810,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthPermissionAndParam_Utf8Nav
     IpcCommon::DeleteAllPermission();
 }
 
-HWTEST_F(UserAuthServiceTest, UserAuthServiceFilterCompanionDevice_001, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<AuthType> validType = {AuthType::COMPANION_DEVICE, AuthType::PIN};
-    service.FilterCompanionDevice(validType);
-    EXPECT_EQ(validType.size(), 1);
-    EXPECT_EQ(validType[0], AuthType::PIN);
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceFilterCompanionDevice_002, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<AuthType> validType = {AuthType::COMPANION_DEVICE};
-    service.FilterCompanionDevice(validType);
-    EXPECT_EQ(validType.size(), 1);
-    EXPECT_EQ(validType[0], AuthType::COMPANION_DEVICE);
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceFilterCompanionDevice_004, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<AuthType> validType = {AuthType::PIN, AuthType::FACE};
-    service.FilterCompanionDevice(validType);
-    EXPECT_EQ(validType.size(), 2);
-    EXPECT_EQ(validType[0], AuthType::PIN);
-    EXPECT_EQ(validType[1], AuthType::FACE);
-}
-
 HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthWidgetType_CompanionDevice_001, TestSize.Level0)
 {
     UserAuthService service;
@@ -854,20 +826,12 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthWidgetType_CompanionDevice
     EXPECT_EQ(ret, INVALID_PARAMETERS);
 }
 
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthWidgetType_CompanionDevice_004, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<AuthType> authTypeList = {AuthType::COMPANION_DEVICE, AuthType::FACE};
-    int32_t ret = service.CheckAuthWidgetType(authTypeList);
-    EXPECT_EQ(ret, SUCCESS);
-}
-
 HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthWidgetType_CompanionDevice_006, TestSize.Level0)
 {
     UserAuthService service;
     std::vector<AuthType> authTypeList = {AuthType::COMPANION_DEVICE, AuthType::FACE, AuthType::FINGERPRINT};
     int32_t ret = service.CheckAuthWidgetType(authTypeList);
-    EXPECT_EQ(ret, SUCCESS);
+    EXPECT_EQ(ret, INVALID_PARAMETERS);
 }
 
 HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckPrivatePinEnroll_CompanionDevice_001, TestSize.Level0)
@@ -881,20 +845,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckPrivatePinEnroll_CompanionDevi
     validAuthTypeList.push_back(AuthType::FINGERPRINT);
     validAuthTypeList.push_back(AuthType::FACE);
     validAuthTypeList.push_back(AuthType::COMPANION_DEVICE);
-    EXPECT_EQ(service.CheckPrivatePinEnroll(authTypeList, validAuthTypeList), false);
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckPrivatePinEnroll_CompanionDevice_002, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<AuthType> authTypeList;
-    authTypeList.push_back(AuthType::FINGERPRINT);
-    authTypeList.push_back(AuthType::FACE);
-    authTypeList.push_back(AuthType::PRIVATE_PIN);
-    std::vector<AuthType> validAuthTypeList;
-    validAuthTypeList.push_back(AuthType::FINGERPRINT);
-    validAuthTypeList.push_back(AuthType::COMPANION_DEVICE);
-    validAuthTypeList.push_back(AuthType::PIN);
     EXPECT_EQ(service.CheckPrivatePinEnroll(authTypeList, validAuthTypeList), true);
 }
 
@@ -906,18 +856,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthWidgetParam_CompanionDevic
     WidgetParamInner widgetParam = {};
     widgetParam.title = "test_title";
     widgetParam.navigationButtonText = "";
-    int32_t ret = service.CheckAuthWidgetParam(authParam, widgetParam);
-    EXPECT_EQ(ret, INVALID_PARAMETERS);
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthWidgetParam_CompanionDevice_002, TestSize.Level0)
-{
-    UserAuthService service;
-    AuthParamInner authParam = {};
-    authParam.authTypes = {AuthType::FACE, AuthType::FINGERPRINT, AuthType::COMPANION_DEVICE};
-    WidgetParamInner widgetParam = {};
-    widgetParam.title = "test_title";
-    widgetParam.navigationButtonText = "nav_btn";
     int32_t ret = service.CheckAuthWidgetParam(authParam, widgetParam);
     EXPECT_EQ(ret, SUCCESS);
 }
@@ -1063,48 +1001,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_CompanionDevice_
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
 
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_CompanionDevice_005, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<uint8_t> challenge = {1};
-    ContextFactory::AuthWidgetContextPara para;
-    para.userId = 100;
-    const WidgetParamInner widgetParam = {
-        .title = "test_title",
-        .navigationButtonText = "nav_btn",
-        .windowMode = WindowModeType::FULLSCREEN,
-    };
-    const AuthParamInner authParam = {
-        .userId = para.userId,
-        .challenge = challenge,
-        .authTypes = {AuthType::FACE, AuthType::FINGERPRINT, AuthType::COMPANION_DEVICE},
-        .authTrustLevel = ATL3,
-        .isUserIdSpecified = true,
-    };
-    std::vector<AuthType> validTypeList;
-    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _))
-        .WillOnce([](int32_t userId, const std::vector<int32_t> &authTypes,
-            uint32_t authTrustLevel, std::vector<int32_t> &validTypes) {
-            validTypes.push_back(static_cast<int32_t>(AuthType::FACE));
-            validTypes.push_back(static_cast<int32_t>(AuthType::FINGERPRINT));
-            validTypes.push_back(static_cast<int32_t>(AuthType::COMPANION_DEVICE));
-            return HDF_SUCCESS;
-        });
-    int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
-    EXPECT_EQ(ret, INVALID_PARAMETERS);
-    MockIUserAuthInterface::Holder::GetInstance().Reset();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthWidgetType_CompanionDevice_003, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<AuthType> authTypeList = {AuthType::COMPANION_DEVICE, AuthType::PRIVATE_PIN};
-    int32_t ret = service.CheckAuthWidgetType(authTypeList);
-    EXPECT_EQ(ret, INVALID_PARAMETERS);
-}
-
 HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckPrivatePinEnroll_CompanionDevice_003, TestSize.Level0)
 {
     UserAuthService service;
@@ -1115,34 +1011,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckPrivatePinEnroll_CompanionDevi
     std::vector<AuthType> validAuthTypeList;
     validAuthTypeList.push_back(AuthType::FINGERPRINT);
     validAuthTypeList.push_back(AuthType::FACE);
-    validAuthTypeList.push_back(AuthType::PIN);
-    EXPECT_EQ(service.CheckPrivatePinEnroll(authTypeList, validAuthTypeList), true);
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckPrivatePinEnroll_CompanionDevice_004, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<AuthType> authTypeList;
-    authTypeList.push_back(AuthType::FINGERPRINT);
-    authTypeList.push_back(AuthType::FACE);
-    authTypeList.push_back(AuthType::PRIVATE_PIN);
-    std::vector<AuthType> validAuthTypeList;
-    validAuthTypeList.push_back(AuthType::FINGERPRINT);
-    validAuthTypeList.push_back(AuthType::COMPANION_DEVICE);
-    validAuthTypeList.push_back(AuthType::PIN);
-    EXPECT_EQ(service.CheckPrivatePinEnroll(authTypeList, validAuthTypeList), true);
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckPrivatePinEnroll_CompanionDevice_005, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<AuthType> authTypeList;
-    authTypeList.push_back(AuthType::FINGERPRINT);
-    authTypeList.push_back(AuthType::FACE);
-    authTypeList.push_back(AuthType::PRIVATE_PIN);
-    std::vector<AuthType> validAuthTypeList;
-    validAuthTypeList.push_back(AuthType::FACE);
-    validAuthTypeList.push_back(AuthType::COMPANION_DEVICE);
     validAuthTypeList.push_back(AuthType::PIN);
     EXPECT_EQ(service.CheckPrivatePinEnroll(authTypeList, validAuthTypeList), true);
 }
@@ -1193,26 +1061,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthWidgetParam_CompanionDevic
     widgetParam.navigationButtonText = "";
     int32_t ret = service.CheckAuthWidgetParam(authParam, widgetParam);
     EXPECT_EQ(ret, SUCCESS);
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthWidgetParam_CompanionDevice_008, TestSize.Level0)
-{
-    UserAuthService service;
-    AuthParamInner authParam = {};
-    authParam.authTypes = {AuthType::FACE, AuthType::FINGERPRINT, AuthType::COMPANION_DEVICE};
-    WidgetParamInner widgetParam = {};
-    widgetParam.title = "test_title";
-    widgetParam.navigationButtonText = "nav_btn";
-    int32_t ret = service.CheckAuthWidgetParam(authParam, widgetParam);
-    EXPECT_EQ(ret, SUCCESS);
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceFilterCompanionDevice_003, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<AuthType> validType = {};
-    service.FilterCompanionDevice(validType);
-    EXPECT_EQ(validType.size(), 0);
 }
 
 HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_CompanionDevice_006, TestSize.Level0)
@@ -1345,95 +1193,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_CompanionDevice_
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
 
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthWidgetType_CompanionDevice_007, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<AuthType> authTypeList = {AuthType::COMPANION_DEVICE, AuthType::FINGERPRINT};
-    int32_t ret = service.CheckAuthWidgetType(authTypeList);
-    EXPECT_EQ(ret, SUCCESS);
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthWidgetType_CompanionDevice_008, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<AuthType> authTypeList = {AuthType::COMPANION_DEVICE, AuthType::PIN, AuthType::FACE};
-    int32_t ret = service.CheckAuthWidgetType(authTypeList);
-    EXPECT_EQ(ret, INVALID_PARAMETERS);
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthWidgetType_CompanionDevice_009, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<AuthType> authTypeList = {AuthType::COMPANION_DEVICE, AuthType::FINGERPRINT, AuthType::PIN};
-    int32_t ret = service.CheckAuthWidgetType(authTypeList);
-    EXPECT_EQ(ret, INVALID_PARAMETERS);
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_CompanionDevice_010, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<uint8_t> challenge = {1};
-    ContextFactory::AuthWidgetContextPara para;
-    para.userId = 100;
-    const WidgetParamInner widgetParam = {
-        .title = "test_title",
-        .navigationButtonText = "nav_btn",
-        .windowMode = WindowModeType::UNKNOWN_WINDOW_MODE,
-    };
-    const AuthParamInner authParam = {
-        .userId = para.userId,
-        .challenge = challenge,
-        .authTypes = {AuthType::PIN},
-        .authTrustLevel = ATL3,
-        .isUserIdSpecified = true,
-    };
-    std::vector<AuthType> validTypeList;
-    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _))
-        .WillOnce([](int32_t userId, const std::vector<int32_t> &authTypes,
-            uint32_t authTrustLevel, std::vector<int32_t> &validTypes) {
-            validTypes.push_back(static_cast<int32_t>(AuthType::PIN));
-            return HDF_SUCCESS;
-        });
-    int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
-    EXPECT_EQ(ret, INVALID_PARAMETERS);
-    MockIUserAuthInterface::Holder::GetInstance().Reset();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_CompanionDevice_011, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<uint8_t> challenge = {1};
-    ContextFactory::AuthWidgetContextPara para;
-    para.userId = 100;
-    const WidgetParamInner widgetParam = {
-        .title = "test_title",
-        .navigationButtonText = "nav_btn",
-        .windowMode = WindowModeType::UNKNOWN_WINDOW_MODE,
-    };
-    const AuthParamInner authParam = {
-        .userId = para.userId,
-        .challenge = challenge,
-        .authTypes = {AuthType::PIN, AuthType::FACE},
-        .authTrustLevel = ATL3,
-        .isUserIdSpecified = true,
-    };
-    std::vector<AuthType> validTypeList;
-    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _))
-        .WillOnce([](int32_t userId, const std::vector<int32_t> &authTypes,
-            uint32_t authTrustLevel, std::vector<int32_t> &validTypes) {
-            validTypes.push_back(static_cast<int32_t>(AuthType::PIN));
-            validTypes.push_back(static_cast<int32_t>(AuthType::FACE));
-            return HDF_SUCCESS;
-        });
-    int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
-    EXPECT_EQ(ret, INVALID_PARAMETERS);
-    MockIUserAuthInterface::Holder::GetInstance().Reset();
-}
-
 HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_CompanionDevice_012, TestSize.Level0)
 {
     UserAuthService service;
@@ -1500,112 +1259,12 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_CompanionDevice_
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
 
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_CompanionDevice_014, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<uint8_t> challenge = {1};
-    ContextFactory::AuthWidgetContextPara para;
-    para.userId = 100;
-    const WidgetParamInner widgetParam = {
-        .title = "test_title",
-        .navigationButtonText = "nav_btn",
-        .windowMode = WindowModeType::FULLSCREEN,
-    };
-    const AuthParamInner authParam = {
-        .userId = para.userId,
-        .challenge = challenge,
-        .authTypes = {AuthType::FACE, AuthType::FINGERPRINT, AuthType::COMPANION_DEVICE},
-        .authTrustLevel = ATL3,
-        .isUserIdSpecified = true,
-    };
-    std::vector<AuthType> validTypeList;
-    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _))
-        .WillOnce([](int32_t userId, const std::vector<int32_t> &authTypes,
-            uint32_t authTrustLevel, std::vector<int32_t> &validTypes) {
-            validTypes.push_back(static_cast<int32_t>(AuthType::FACE));
-            validTypes.push_back(static_cast<int32_t>(AuthType::FINGERPRINT));
-            validTypes.push_back(static_cast<int32_t>(AuthType::COMPANION_DEVICE));
-            return HDF_SUCCESS;
-        });
-    int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
-    EXPECT_EQ(ret, INVALID_PARAMETERS);
-    MockIUserAuthInterface::Holder::GetInstance().Reset();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_InvalidTypeWithNavBtn_001, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<uint8_t> challenge = {1};
-    ContextFactory::AuthWidgetContextPara para;
-    para.userId = 100;
-    const WidgetParamInner widgetParam = {
-        .title = "test_title",
-        .navigationButtonText = "nav_btn",
-        .windowMode = WindowModeType::UNKNOWN_WINDOW_MODE,
-    };
-    const AuthParamInner authParam = {
-        .userId = para.userId,
-        .challenge = challenge,
-        .authTypes = {AuthType::PIN, AuthType::FACE},
-        .authTrustLevel = ATL3,
-        .isUserIdSpecified = true,
-    };
-    std::vector<AuthType> validTypeList;
-    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _))
-        .WillOnce([](int32_t userId, const std::vector<int32_t> &authTypes,
-            uint32_t authTrustLevel, std::vector<int32_t> &validTypes) {
-            validTypes.push_back(static_cast<int32_t>(AuthType::PIN));
-            validTypes.push_back(static_cast<int32_t>(AuthType::FACE));
-            return HDF_SUCCESS;
-        });
-    int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
-    EXPECT_EQ(ret, INVALID_PARAMETERS);
-    MockIUserAuthInterface::Holder::GetInstance().Reset();
-}
-
 HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckAuthWidgetType_CompanionDevice_PrivatePin_001, TestSize.Level0)
 {
     UserAuthService service;
     std::vector<AuthType> authTypeList = {AuthType::COMPANION_DEVICE, AuthType::PRIVATE_PIN};
     int32_t ret = service.CheckAuthWidgetType(authTypeList);
     EXPECT_EQ(ret, INVALID_PARAMETERS);
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_NavBtnPartial_001, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<uint8_t> challenge = {1};
-    ContextFactory::AuthWidgetContextPara para;
-    para.userId = 100;
-    const WidgetParamInner widgetParam = {
-        .title = "test_title",
-        .navigationButtonText = "nav_btn",
-        .windowMode = WindowModeType::UNKNOWN_WINDOW_MODE,
-    };
-    const AuthParamInner authParam = {
-        .userId = para.userId,
-        .challenge = challenge,
-        .authTypes = {AuthType::FACE, AuthType::COMPANION_DEVICE},
-        .authTrustLevel = ATL3,
-        .isUserIdSpecified = true,
-    };
-    std::vector<AuthType> validTypeList;
-    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _))
-        .WillOnce([](int32_t userId, const std::vector<int32_t> &authTypes,
-            uint32_t authTrustLevel, std::vector<int32_t> &validTypes) {
-            validTypes.push_back(static_cast<int32_t>(AuthType::FACE));
-            validTypes.push_back(static_cast<int32_t>(AuthType::COMPANION_DEVICE));
-            return HDF_SUCCESS;
-        });
-    int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
-    EXPECT_EQ(ret, SUCCESS);
-    MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
 
 HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_Fullscreen_CompanionDevice_001, TestSize.Level0)
@@ -1637,40 +1296,6 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_Fullscreen_Compa
         });
     int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
     EXPECT_EQ(ret, SUCCESS);
-    MockIUserAuthInterface::Holder::GetInstance().Reset();
-}
-
-HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_Fullscreen_Mixed_001, TestSize.Level0)
-{
-    UserAuthService service;
-    std::vector<uint8_t> challenge = {1};
-    ContextFactory::AuthWidgetContextPara para;
-    para.userId = 100;
-    const WidgetParamInner widgetParam = {
-        .title = "test_title",
-        .navigationButtonText = "",
-        .windowMode = WindowModeType::FULLSCREEN,
-    };
-    const AuthParamInner authParam = {
-        .userId = para.userId,
-        .challenge = challenge,
-        .authTypes = {AuthType::FACE, AuthType::FINGERPRINT, AuthType::COMPANION_DEVICE},
-        .authTrustLevel = ATL3,
-        .isUserIdSpecified = true,
-    };
-    std::vector<AuthType> validTypeList;
-    auto mockHdi = MockIUserAuthInterface::Holder::GetInstance().Get();
-    EXPECT_NE(mockHdi, nullptr);
-    EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _))
-        .WillOnce([](int32_t userId, const std::vector<int32_t> &authTypes,
-            uint32_t authTrustLevel, std::vector<int32_t> &validTypes) {
-            validTypes.push_back(static_cast<int32_t>(AuthType::FACE));
-            validTypes.push_back(static_cast<int32_t>(AuthType::FINGERPRINT));
-            validTypes.push_back(static_cast<int32_t>(AuthType::COMPANION_DEVICE));
-            return HDF_SUCCESS;
-        });
-    int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
-    EXPECT_EQ(ret, INVALID_PARAMETERS);
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
 
