@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-#include "../iam_common_defines.h"
+#include "iam_common_defines.h"
 
 namespace OHOS {
 namespace UserIam {
