@@ -201,9 +201,9 @@ void WidgetContext::SendAuthTipInfo(int32_t authType, int32_t tipCode)
 
 void WidgetContext::SendAuthResultInfo(int32_t resultCode, WidgetAuthResultInfo &authResult)
 {
-        IAM_LOGD("start.");
-
+    IAM_LOGD("start.");
 }
+
 void WidgetContext::ClearSchedule()
 {
     IAM_LOGD("start.");

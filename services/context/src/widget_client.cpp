@@ -465,7 +465,7 @@ void WidgetClient::WidgetCompleteAuth(const WidgetNotice &notice, std::vector<Au
     };
 
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    if(notice.widgetContextId != widgetContextId_) {
+    if (notice.widgetContextId != widgetContextId_) {
         IAM_LOGI("widgetContextId_:%{public}hx", static_cast<uint16_t>(widgetContextId_));
         return;
     }
