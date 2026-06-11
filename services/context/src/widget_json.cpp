@@ -34,6 +34,8 @@ const std::string AUTH_TYPE_FINGER_PRINT = "fingerprint";
 const std::string AUTH_TYPE_ALL = "all";
 const std::string AUTH_TYPE_PRIVATE_PIN = "privatePin";
 const std::string AUTH_TYPE_COMPANION_DEVICE = "companionDevice";
+const std::string AUTH_TYPE_ENTERPRISE_ACCOUNT = "enterpriseAccount";
+const uint32_t ENTERPRISE_ACCOUNT_AUTH_TYPE = 1024;
 
 const std::string WINDOW_MODE_DIALOG = "DIALOG_BOX";
 const std::string WINDOW_MODE_FULLSCREEN = "FULLSCREEN";
@@ -267,6 +269,8 @@ AuthType Str2AuthType(const std::string &strAuthType)
         authType = AuthType::PRIVATE_PIN;
     } else if (strAuthType.compare(AUTH_TYPE_COMPANION_DEVICE) == 0) {
         authType = AuthType::COMPANION_DEVICE;
+    } else if (strAuthType.compare(AUTH_TYPE_ENTERPRISE_ACCOUNT) == 0) {
+        authType = static_cast<AuthType>(ENTERPRISE_ACCOUNT_AUTH_TYPE);
     } else {
         IAM_LOGE("strAuthType: %{public}s", strAuthType.c_str());
     }
@@ -275,37 +279,24 @@ AuthType Str2AuthType(const std::string &strAuthType)
 
 std::string AuthType2Str(const AuthType &authType)
 {
-    std::string strAuthType = "";
-    switch (authType) {
-        case AuthType::ALL: {
-            strAuthType = AUTH_TYPE_ALL;
-            break;
-        }
-        case AuthType::PIN: {
-            strAuthType = AUTH_TYPE_PIN;
-            break;
-        }
-        case AuthType::FACE: {
-            strAuthType = AUTH_TYPE_FACE;
-            break;
-        }
-        case AuthType::FINGERPRINT: {
-            strAuthType = AUTH_TYPE_FINGER_PRINT;
-            break;
-        }
-        case AuthType::PRIVATE_PIN: {
-            strAuthType = AUTH_TYPE_PRIVATE_PIN;
-            break;
-        }
-        case AuthType::COMPANION_DEVICE: {
-            strAuthType = AUTH_TYPE_COMPANION_DEVICE;
-            break;
-        }
-        default: {
-            IAM_LOGE("authType: %{public}u", authType);
-        }
+    if (authType == AuthType::ALL) {
+        return AUTH_TYPE_ALL;
+    } else if (authType == AuthType::PIN) {
+        return AUTH_TYPE_PIN;
+    } else if (authType == AuthType::FACE) {
+        return AUTH_TYPE_FACE;
+    } else if (authType == AuthType::FINGERPRINT) {
+        return AUTH_TYPE_FINGER_PRINT;
+    } else if (authType == AuthType::PRIVATE_PIN) {
+        return AUTH_TYPE_PRIVATE_PIN;
+    } else if (authType == AuthType::COMPANION_DEVICE) {
+        return AUTH_TYPE_COMPANION_DEVICE;
+    } else if (authType == ENTERPRISE_ACCOUNT_AUTH_TYPE) {
+        return AUTH_TYPE_ENTERPRISE_ACCOUNT;
+    } else {
+        IAM_LOGE("authType: %{public}u", authType);
+        return "";
     }
-    return strAuthType;
 }
 
 std::string WinModeType2Str(const WindowModeType &winModeType)

@@ -84,6 +84,7 @@ public:
     void AuthTipInfo(int32_t tipInfo, int32_t authType, const Attributes &extraInfo);
     void ClearSchedule() override;
     void SendAuthTipInfo(int32_t authType, int32_t tipInfo) override;
+    void SendAuthResultInfo(int32_t resultCode, WidgetAuthResultInfo &authResult) override;
 
 private:
     struct WidgetRotatePara {

@@ -28,6 +28,15 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+struct WidgetAuthResultInfo {
+    std::vector<uint8_t> token {};
+    AuthType authType {0};
+    uint64_t credentialDigest;
+    uint16_t credentialCount;
+    int64_t pinExpiredInfo;
+    int32_t resultUserId;
+};
+
 class WidgetScheduleNodeCallback {
 public:
     virtual ~WidgetScheduleNodeCallback() = default;
@@ -44,6 +53,7 @@ public:
         AuthType &rotateAuthType) = 0;
     virtual void AuthWidgetReloadInit() = 0;
     virtual void SendAuthTipInfo(int32_t authType, int32_t tipInfo) = 0;
+    virtual void SendAuthResultInfo(int32_t resultCode, WidgetAuthResultInfo &authResult) = 0;
     virtual void ClearSchedule() = 0;
 };
 } // namespace UserAuth
