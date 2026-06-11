@@ -225,7 +225,6 @@ std::shared_ptr<Context> WidgetContext::BuildTask(const std::vector<uint8_t> &ch
     }
     widgetCallback->SetTraceAuthContextId(context->GetContextId());
     widgetCallback->SetCleaner(ContextHelper::Cleaner(context));
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
     return context;
 }
 
@@ -889,24 +888,26 @@ void WidgetContext::SendAuthTipInfo(int32_t authType, int32_t tipCode)
     callerCallback_->OnAcquireInfo(ALL_IN_ONE, authType, attr.Serialize());
 }
 
-void WidgetContext::SendAuthResultInfo(int32_t resultCode, WidgetAuthResultInfo &authResult)
+void WidgetContext::SendAuthResultInfo(int32_t resultCode, int32_t authType, const std::vector<uint8_t> &token)
 {
     if (resultCode != ResultCode::SUCCESS) {
-        End(static_cast<ResultCode>(resultCode));
-        return;
+        return End(static_cast<ResultCode>(resultCode));
     }
-    authResultInfo_ = std::move(authResult);
+    authResultInfo_.token = std::move(token);
+    authResultInfo_.authType = static_cast<AuthType>(authType);
+    authResultInfo_.resultUserId = para_.userId;
+    HdiEnrolledState enrolledState = {};
     auto hdi = HdiWrapper::GetHdiInstance();
     if (hdi != nullptr) {
-        HdiEnrolledState hdiEnrolledState = {};
-        resultCode = hdi->GetEnrolledState(authResult.resultUserId, authResult.authType, hdiEnrolledState);
+        resultCode = hdi->GetEnrolledState(authResultInfo_.resultUserId, authType, enrolledState);
         if (resultCode != SUCCESS) {
             IAM_LOGE("GetEnrolledState fail, %{public}d", resultCode);
-        } else {
-            authResultInfo_.credentialCount = hdiEnrolledState.credentialCount;
-            authResultInfo_.credentialDigest = hdiEnrolledState.credentialDigest & UINT16_MAX;
+            return End(static_cast<ResultCode>(resultCode));
         }
     }
+    callerCallback_->SetTraceAuthType(authType);
+    authResultInfo_.credentialCount = enrolledState.credentialCount;
+    authResultInfo_.credentialDigest = enrolledState.credentialDigest & UINT16_MAX;
     End(static_cast<ResultCode>(resultCode));
 }
 

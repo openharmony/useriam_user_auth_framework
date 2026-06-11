@@ -84,7 +84,7 @@ public:
     void AuthTipInfo(int32_t tipInfo, int32_t authType, const Attributes &extraInfo);
     void ClearSchedule() override;
     void SendAuthTipInfo(int32_t authType, int32_t tipInfo) override;
-    void SendAuthResultInfo(int32_t resultCode, WidgetAuthResultInfo &authResult) override;
+    void SendAuthResultInfo(int32_t resultCode, int32_t authType, const std::vector<uint8_t> &token) override;
 
 protected:
     virtual bool OnStart();
@@ -137,6 +137,15 @@ private:
         AuthType authType {0};
         std::shared_ptr<Context> task {nullptr};
     };
+
+    struct WidgetAuthResultInfo {
+    std::vector<uint8_t> token {};
+    AuthType authType {0};
+    uint64_t credentialDigest;
+    uint16_t credentialCount;
+    int64_t pinExpiredInfo;
+    int32_t resultUserId;
+};
 
     struct ResultInfo {
         int32_t resultCode;

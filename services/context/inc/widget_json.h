@@ -51,7 +51,6 @@ struct WidgetNotice {
     AuthIntent authIntent {AuthIntent::DEFAULT};
     int32_t tipCode {0};
     int32_t resultCode;
-    int32_t resultUserId;
     std::vector<uint8_t> authToken {};
 };
 void to_json(nlohmann::json &jsonNotice, const WidgetNotice &notice);

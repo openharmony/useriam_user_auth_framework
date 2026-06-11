@@ -51,7 +51,7 @@ public:
         AuthType &rotateAuthType) override;
     void SetCallback(std::shared_ptr<WidgetScheduleNodeCallback> callback) override;
     void SendAuthTipInfo(const std::vector<AuthType> &authTypeList, int32_t tipCode) override;
-    void SendAuthResultInfo(int32_t resultCode, WidgetAuthResultInfo &authResult) override;
+    void SendAuthResultInfo(int32_t resultCode, int32_t authType, const std::vector<uint8_t> &token) override;
     bool ClearSchedule() override;
 
 protected:
@@ -62,6 +62,7 @@ protected:
     void OnStopAuthList(FiniteStateMachine &machine, uint32_t event);
     void OnSuccessAuth(FiniteStateMachine &machine, uint32_t event);
     void OnNaviPinAuth(FiniteStateMachine &machine, uint32_t event);
+    void OnSendAuthResult(FiniteStateMachine &machine, uint32_t event);
     void OnWidgetParaInvalid(FiniteStateMachine &machine, uint32_t event);
     void OnWidgetReload(FiniteStateMachine &machine, uint32_t event);
     void OnWidgetReloadInit(FiniteStateMachine &machine, uint32_t event);
@@ -89,6 +90,8 @@ private:
     uint32_t alreadyLoad_ {0};
     AuthType rotateAuthType_ {0};
     AuthIntent authIntent_ {AuthIntent::DEFAULT};
+    int32_t resultCode_ {-1};
+    std::vector<uint8_t> authToken_;
 };
 } // namespace UserAuth
 } // namespace UserIam
