@@ -27,32 +27,31 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 namespace {
-auto g_Builder =
-    ScheduleNode::Builder::New(Common::MakeShared<DummyResourceNode>(), Common::MakeShared<DummyResourceNode>());
-
 std::shared_ptr<ScheduleNode> GetScheduleNode(Parcel &parcel)
 {
     IAM_LOGI("start");
-    static std::shared_ptr<ScheduleNode> g_ScheduleNode;
-    if (g_ScheduleNode != nullptr) {
-        return g_ScheduleNode;
-    }
-    if (g_Builder == nullptr) {
+    auto authType = static_cast<AuthType>(parcel.ReadInt32());
+    auto executorRole = static_cast<ExecutorRole>(parcel.ReadInt32());
+    auto esl = static_cast<ExecutorSecureLevel>(parcel.ReadInt32());
+    auto builder =
+        ScheduleNode::Builder::New(
+            Common::MakeShared<DummyResourceNode>(authType, executorRole, esl),
+            Common::MakeShared<DummyResourceNode>(authType, executorRole, esl));
+    if (builder == nullptr) {
         return nullptr;
     }
-    g_Builder->SetScheduleId(parcel.ReadUint64());
-    g_Builder->SetAccessTokenId(parcel.ReadUint32());
-    g_Builder->SetPinSubType(static_cast<PinSubType>(parcel.ReadInt32()));
-    g_Builder->SetAuthType(static_cast<AuthType>(parcel.ReadInt32()));
-    g_Builder->SetExecutorMatcher(parcel.ReadUint32());
+    builder->SetScheduleId(parcel.ReadUint64());
+    builder->SetAccessTokenId(parcel.ReadUint32());
+    builder->SetPinSubType(static_cast<PinSubType>(parcel.ReadInt32()));
+    builder->SetAuthType(static_cast<AuthType>(parcel.ReadInt32()));
+    builder->SetExecutorMatcher(parcel.ReadUint32());
     std::vector<uint64_t> templateIdList;
     Common::FillFuzzUint64Vector(parcel, templateIdList);
-    g_Builder->SetTemplateIdList(templateIdList);
+    builder->SetTemplateIdList(templateIdList);
     std::string additionalInfo = parcel.ReadString();
-    g_Builder->SetAdditionalInfo(additionalInfo);
+    builder->SetAdditionalInfo(additionalInfo);
 
-    g_ScheduleNode = g_Builder->Build();
-    return g_ScheduleNode;
+    return builder->Build();
 }
 
 void FuzzScheduleNodeGetScheduleId(Parcel &parcel)

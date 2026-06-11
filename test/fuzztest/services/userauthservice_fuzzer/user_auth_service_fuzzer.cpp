@@ -1035,6 +1035,7 @@ FuzzFunc *g_fuzzFuncs[] = {
 
 void UserAuthFuzzTest(const uint8_t *data, size_t size)
 {
+    IpcCommon::ResetAllState();
     Parcel parcel;
     parcel.WriteBuffer(data, size);
     parcel.RewindRead(0);
