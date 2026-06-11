@@ -106,8 +106,8 @@ ResultCode WidgetClient::OnNotice(NoticeType type, const std::string &eventData)
 
 void WidgetClient::ProcessNotice(const WidgetNotice &notice, std::vector<AuthType> &authTypeList)
 {
-    HILOG_COMM_INFO("widget client, event:%{public}s, authTypeSize: %{public}zu",
-        notice.event.c_str(), authTypeList.size());
+    HILOG_COMM_INFO("widget client, event:%{public}s, authTypeSize: %{public}zu, tokenSize: %{public}zu",
+        notice.event.c_str(), authTypeList.size(), notice.authToken.size());
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (notice.event == NOTICE_EVENT_AUTH_READY) {
         schedule_->StartAuthList(authTypeList, notice.endAfterFirstFail, notice.authIntent);
@@ -455,15 +455,6 @@ void WidgetClient::WidgetCompleteAuth(const WidgetNotice &notice, std::vector<Au
         return;
     }
 
-    WidgetAuthResultInfo authResult = {
-        .token = std::move(notice.authToken),
-        .authType = authTypeList[0],
-        .credentialDigest = 0,
-        .credentialCount = 0,
-        .pinExpiredInfo = 0,
-        .resultUserId = notice.resultUserId,
-    };
-
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (notice.widgetContextId != widgetContextId_) {
         IAM_LOGI("widgetContextId_:%{public}hx", static_cast<uint16_t>(widgetContextId_));
@@ -474,7 +465,8 @@ void WidgetClient::WidgetCompleteAuth(const WidgetNotice &notice, std::vector<Au
         IAM_LOGE("schedule is null");
         return;
     }
-    schedule->SendAuthResultInfo(notice.resultCode, authResult);
+    std::vector<uint8_t> authToken = notice.authToken;
+    schedule->SendAuthResultInfo(notice.resultCode, authTypeList[0], authToken);
 }
 } // namespace UserAuth
 } // namespace UserIam

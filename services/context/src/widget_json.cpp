@@ -57,6 +57,8 @@ const std::string JSON_AUTH_PAYLOAD = "payload";
 const std::string JSON_AUTH_END_AFTER_FIRST_FAIL = "endAfterFirstFail";
 const std::string JSON_AUTH_INTENT = "authIntent";
 const std::string JSON_AUTH_TIP_CODE = "tipCode";
+const std::string JSON_AUTH_TOKEN = "authToken";
+const std::string JSON_RESULT_CODE = "resultCode";
 const std::string JSON_ORIENTATION = "orientation";
 const std::string JSON_NEED_ROTATE = "needRotate";
 const std::string JSON_ALREADY_LOAD = "alreadyLoad";
@@ -270,7 +272,7 @@ AuthType Str2AuthType(const std::string &strAuthType)
     } else if (strAuthType.compare(AUTH_TYPE_COMPANION_DEVICE) == 0) {
         authType = AuthType::COMPANION_DEVICE;
     } else if (strAuthType.compare(AUTH_TYPE_ENTERPRISE_ACCOUNT) == 0) {
-        authType = static_cast<AuthType>(ENTERPRISE_ACCOUNT_AUTH_TYPE);
+        authType = AuthType::PIN;
     } else {
         IAM_LOGE("strAuthType: %{public}s", strAuthType.c_str());
     }
@@ -432,6 +434,17 @@ void from_json(const nlohmann::json &jsonNotice, WidgetNotice &notice)
     }
     if (isNumberItem(jsonNotice[JSON_AUTH_PAYLOAD], JSON_AUTH_TIP_CODE)) {
         jsonNotice[JSON_AUTH_PAYLOAD].at(JSON_AUTH_TIP_CODE).get_to(notice.tipCode);
+    }
+    if (jsonNotice.find(JSON_AUTH_TOKEN) != jsonNotice.end()) {
+        if (jsonNotice[JSON_AUTH_TOKEN].is_object()) {
+            for (auto &item : jsonNotice[JSON_AUTH_TOKEN].items()) {
+                notice.authToken.push_back(jsonNotice[JSON_AUTH_TOKEN].at(item.key()).get<uint8_t>());
+            }
+            
+        }
+    }
+    if (isNumberItem(jsonNotice, JSON_RESULT_CODE)) {
+        jsonNotice.at(JSON_RESULT_CODE).get_to(notice.resultCode);
     }
 }
 
