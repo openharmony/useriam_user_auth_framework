@@ -1897,7 +1897,7 @@ HWTEST_F(WidgetContextTest, WidgetContextTestProcAuthTipInfo_NavigationAuth_Navi
 
     WidgetAuthResultInfo authResult = {};
     testableContext->SendAuthResultInfo(ResultCode::GENERAL_ERROR, authResult);
-    testableContext->SendAuthResultInfo(ResultCode::GENERAL_ERROR, authResult);
+    testableContext->SendAuthResultInfo(ResultCode::SUCCESS, authResult);
 }
 } // namespace UserAuth
 } // namespace UserIam

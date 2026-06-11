@@ -143,19 +143,19 @@ HWTEST_F(WidgetJsonTest, WidgetJsonAuthType2Str_004, TestSize.Level0)
     EXPECT_EQ(type, "face");
 }
 
-HWTEST_F(WidgetJsonTest, WidgetJsonAuthType2Str_002, TestSize.Level0)
+HWTEST_F(WidgetJsonTest, WidgetJsonAuthType2Str_005, TestSize.Level0)
 {
     std::string type = AuthType2Str(FINGERPRINT);
     EXPECT_EQ(type, "fingerprint");
 }
 
-HWTEST_F(WidgetJsonTest, WidgetJsonAuthType2Str_002, TestSize.Level0)
+HWTEST_F(WidgetJsonTest, WidgetJsonAuthType2Str_006, TestSize.Level0)
 {
     std::string type = AuthType2Str(ALL);
     EXPECT_EQ(type, "all");
 }
 
-HWTEST_F(WidgetJsonTest, WidgetJsonAuthType2Str_002, TestSize.Level0)
+HWTEST_F(WidgetJsonTest, WidgetJsonAuthType2Str_007, TestSize.Level0)
 {
     const int32_t enterpriseAccount = 1024;
     std::string type = AuthType2Str(static_cast<AuthType>(enterpriseAccount));
