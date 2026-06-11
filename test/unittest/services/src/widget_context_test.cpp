@@ -1894,6 +1894,10 @@ HWTEST_F(WidgetContextTest, WidgetContextTestProcAuthTipInfo_NavigationAuth_Navi
 
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask([]() {});
+
+    WidgetAuthResultInfo authResult = {};
+    testableContext->SendAuthResultInfo(ResultCode::GENERAL_ERROR, authResult);
+    testableContext->SendAuthResultInfo(ResultCode::GENERAL_ERROR, authResult);
 }
 } // namespace UserAuth
 } // namespace UserIam

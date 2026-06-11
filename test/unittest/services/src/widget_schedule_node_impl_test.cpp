@@ -583,6 +583,17 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImpl_OnStartDirectAuthDup
     handler->EnsureTask([]() {});
 }
 
+HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImpl_SendAuthResultInfo_001, TestSize.Level0)
+{
+    auto schedule = std::make_shared<WidgetScheduleNodeImplTest>();
+    WidgetAuthResultInfo authResult = {};
+    schedule->SendAuthResultInfo(0, authResult);
+
+    auto callback = std::make_shared<MockWidgetScheduleNodeCallback>();
+    schedule->SetCallback(callback);
+    schedule->SetAuthResultInfo(0, authResult);
+    EXPECT_CALL(*callback, SendAuthResultInfo(_, _)).Times(0);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
