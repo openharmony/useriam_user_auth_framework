@@ -339,6 +339,14 @@ void WidgetScheduleNodeImpl::SendAuthTipInfo(const std::vector<AuthType> &authTy
         callback->SendAuthTipInfo(authType, tipCode);
     }
 }
+
+void WidgetScheduleNodeImpl::SendAuthResultInfo(int32_t resultCode, WidgetAuthResultInfo &authResult)
+{
+    IAM_LOGI("send auth result from widget");
+    auto callback = callback_.lock();
+    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
+    callback->SendAuthResultInfo(resultCode, authResult);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

@@ -51,6 +51,7 @@ public:
         AuthType &rotateAuthType) override;
     void SetCallback(std::shared_ptr<WidgetScheduleNodeCallback> callback) override;
     void SendAuthTipInfo(const std::vector<AuthType> &authTypeList, int32_t tipCode) override;
+    void SendAuthResultInfo(int32_t resultCode, WidgetAuthResultInfo &authResult) override;
     bool ClearSchedule() override;
 
 protected:

@@ -86,8 +86,8 @@ bool AuthWidgetHelper::GetUserAuthProfile(int32_t userId, const AuthType &authTy
     }
     auto resourceNode = ResourceNodePool::Instance().Select(credentialInfos[0]->GetExecutorIndex()).lock();
     if (resourceNode == nullptr) {
-        IAM_LOGE("resourceNode is nullptr");
-        return false;
+        IAM_LOGE("resourceNode of authType:%{public}d not regist", authType);
+        return true;
     }
     std::vector<uint64_t> templateIds;
     templateIds.reserve(credentialInfos.size());

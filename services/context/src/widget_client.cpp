@@ -141,6 +141,8 @@ void WidgetClient::ProcessNotice(const WidgetNotice &notice, std::vector<AuthTyp
         ClearSchedule(notice.widgetContextId);
     } else if (notice.event == NOTICE_EVENT_AUTH_SEND_TIP) {
         schedule_->SendAuthTipInfo(authTypeList, notice.tipCode);
+    } else if (notice.event == NOTICE_EVENT_COMPLETE_AUTH) {
+        WidgetCompleteAuth(notice, authTypeList);
     }
 }
 
@@ -349,7 +351,8 @@ bool WidgetClient::IsValidNoticeType(const WidgetNotice &notice)
         notice.event != NOTICE_EVENT_AUTH_WIDGET_LOADED &&
         notice.event != NOTICE_EVENT_AUTH_WIDGET_RELEASED &&
         notice.event != NOTICE_EVENT_PROCESS_TERMINATE &&
-        notice.event != NOTICE_EVENT_AUTH_SEND_TIP) {
+        notice.event != NOTICE_EVENT_AUTH_SEND_TIP &&
+        notice.event != NOTICE_EVENT_COMPLETE_AUTH) {
         return false;
     }
     return true;
@@ -442,6 +445,35 @@ void WidgetClient::WidgetRelease(uint64_t contextId, std::vector<AuthType> &auth
         }
         loadedAuthTypeList_.clear();
     }
+}
+
+void WidgetClient::WidgetCompleteAuth(const WidgetNotice &notice, std::vector<AuthType> &authTypeList)
+{
+    IAM_LOGI("start, contextId:%{public}hx", static_cast<uint16_t>(notice.widgetContextId));
+    if (authTypeList.size() != 1) {
+        IAM_LOGE("bad authTypeList:%{public}zu", authTypeList.size());
+        return;
+    }
+
+    WidgetAuthResultInfo authResult = {
+        .token = std::move(notice.authToken),
+        .authType = authTypeList[0],
+        .credentialDigest = 0,
+        .credentialCount = 0,
+        .pinExpiredInfo = 0,
+        .resultUserId = notice.resultUserId,
+    };
+
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    if(notice.widgetContextId != widgetContextId_) {
+        IAM_LOGI("widgetContextId_:%{public}hx", static_cast<uint16_t>(widgetContextId_));
+        return;
+    }
+    auto schedule = GetScheduleNode(notice.widgetContextId);
+    if (schedule == nullptr) {
+        return;
+    }
+    schedule->SendAuthResultInfo(notice.resultCode, authResult);
 }
 } // namespace UserAuth
 } // namespace UserIam

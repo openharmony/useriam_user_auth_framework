@@ -889,6 +889,24 @@ void WidgetContext::SendAuthTipInfo(int32_t authType, int32_t tipCode)
     callerCallback_->OnAcquireInfo(ALL_IN_ONE, authType, attr.Serialize());
 }
 
+void WidgetContext::SendAuthResultInfo(int32_t resultCode, WidgetAuthResultInfo &authResult)
+{
+    if (resultCode != ResultCode::SUCCESS) {
+        End(static_cast<ResultCode>(resultCode));
+        return;
+    }
+    auto hdi = HdiWrapper::GetHdiInstance();
+    if (hdi != nullptr) {
+        HdiEnrolledState hdiEnrolledState = {};
+        int32_t result = hdi->GetEnrolledState(authResult.resultUserId, authResult.authType, hdiEnrolledState);
+        if (result == SUCCESS) {
+            authResult.credentialCount = hdiEnrolledState.credentialCount;
+            authResult.credentialDigest = hdiEnrolledState.credentialDigest & UINT16_MAX;
+        }
+    }
+    End(static_cast<ResultCode>(resultCode));
+}
+
 UserAuthTipCode WidgetContext::GetAuthTipCode(int32_t authResult, int32_t freezingTime)
 {
     UserAuthTipCode tipCode = TIP_CODE_FAIL;
