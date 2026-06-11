@@ -71,7 +71,7 @@ void TemplateCacheManagerFuzzTest(const uint8_t *data, size_t size)
     Parcel parcel;
     parcel.WriteBuffer(data, size);
     parcel.RewindRead(0);
-    uint32_t index = parcel.ReadUint32() % (sizeof(g_fuzzFuncs)) / sizeof(FuzzFunc *);
+    uint32_t index = parcel.ReadUint32() % (sizeof(g_fuzzFuncs) / sizeof(FuzzFunc *));
     auto fuzzFunc = g_fuzzFuncs[index];
     fuzzFunc(parcel);
     return;
