@@ -895,13 +895,16 @@ void WidgetContext::SendAuthResultInfo(int32_t resultCode, WidgetAuthResultInfo 
         End(static_cast<ResultCode>(resultCode));
         return;
     }
+    authResultInfo_ = std::move(authResult);
     auto hdi = HdiWrapper::GetHdiInstance();
     if (hdi != nullptr) {
         HdiEnrolledState hdiEnrolledState = {};
-        int32_t result = hdi->GetEnrolledState(authResult.resultUserId, authResult.authType, hdiEnrolledState);
-        if (result == SUCCESS) {
-            authResult.credentialCount = hdiEnrolledState.credentialCount;
-            authResult.credentialDigest = hdiEnrolledState.credentialDigest & UINT16_MAX;
+        resultCode = hdi->GetEnrolledState(authResult.resultUserId, authResult.authType, hdiEnrolledState);
+        if (resultCode != SUCCESS) {
+            IAM_LOGE("GetEnrolledState fail, %{public}d", resultCode);
+        } else {
+            authResultInfo_.credentialCount = hdiEnrolledState.credentialCount;
+            authResultInfo_.credentialDigest = hdiEnrolledState.credentialDigest & UINT16_MAX;
         }
     }
     End(static_cast<ResultCode>(resultCode));
