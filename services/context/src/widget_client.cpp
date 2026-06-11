@@ -471,6 +471,7 @@ void WidgetClient::WidgetCompleteAuth(const WidgetNotice &notice, std::vector<Au
     }
     auto schedule = GetScheduleNode(notice.widgetContextId);
     if (schedule == nullptr) {
+        IAM_LOGE("schedule is null");
         return;
     }
     schedule->SendAuthResultInfo(notice.resultCode, authResult);
