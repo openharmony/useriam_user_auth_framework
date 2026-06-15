@@ -1895,9 +1895,9 @@ HWTEST_F(WidgetContextTest, WidgetContextTestProcAuthTipInfo_NavigationAuth_Navi
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask([]() {});
 
-    WidgetAuthResultInfo authResult = {};
-    testableContext->SendAuthResultInfo(ResultCode::GENERAL_ERROR, authResult);
-    testableContext->SendAuthResultInfo(ResultCode::SUCCESS, authResult);
+    std::vector<uint8_t> token = {};
+    testableContext->SendAuthResultInfo(ResultCode::GENERAL_ERROR, PIN, token);
+    testableContext->SendAuthResultInfo(ResultCode::SUCCESS, PIN, token);
 }
 } // namespace UserAuth
 } // namespace UserIam

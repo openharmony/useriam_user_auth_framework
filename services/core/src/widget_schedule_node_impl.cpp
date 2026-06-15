@@ -353,13 +353,13 @@ void WidgetScheduleNodeImpl::SendAuthTipInfo(const std::vector<AuthType> &authTy
     }
 }
 
-void WidgetScheduleNodeImpl::SendAuthResultInfo(int32_t resultCode, WidgetAuthResultInfo &authResult)
+void WidgetScheduleNodeImpl::SendAuthResultInfo(int32_t resultCode, int32_t authType, const std::vector<uint8_t> &token)
 {
     IAM_LOGI("send auth result from widget");
     std::lock_guard<std::mutex> lock(mutex_);
     resultCode_ = resultCode;
     authToken_ = std::move(token);
-    if (resultCode_ == SUCCESS) {
+    if (resultCode == SUCCESS) {
         successAuthType_ = static_cast<AuthType>(authType);
     } else {
         failAuthType_ = static_cast<AuthType>(authType);

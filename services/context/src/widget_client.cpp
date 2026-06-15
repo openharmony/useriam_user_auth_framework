@@ -455,10 +455,12 @@ void WidgetClient::WidgetCompleteAuth(const WidgetNotice &notice, std::vector<Au
         return;
     }
 
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    if (notice.widgetContextId != widgetContextId_) {
-        IAM_LOGI("widgetContextId_:%{public}hx", static_cast<uint16_t>(widgetContextId_));
-        return;
+    {
+        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        if (notice.widgetContextId != widgetContextId_) {
+            IAM_LOGI("widgetContextId_:%{public}hx", static_cast<uint16_t>(widgetContextId_));
+            return;
+        }
     }
     auto schedule = GetScheduleNode(notice.widgetContextId);
     if (schedule == nullptr) {

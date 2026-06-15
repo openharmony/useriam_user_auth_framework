@@ -896,15 +896,19 @@ void WidgetContext::SendAuthResultInfo(int32_t resultCode, int32_t authType, con
     authResultInfo_.token = std::move(token);
     authResultInfo_.authType = static_cast<AuthType>(authType);
     authResultInfo_.resultUserId = para_.userId;
+
     HdiEnrolledState enrolledState = {};
     auto hdi = HdiWrapper::GetHdiInstance();
     if (hdi != nullptr) {
-        resultCode = hdi->GetEnrolledState(authResultInfo_.resultUserId, authType, enrolledState);
-        if (resultCode != SUCCESS) {
-            IAM_LOGE("GetEnrolledState fail, %{public}d", resultCode);
-            return End(static_cast<ResultCode>(resultCode));
-        }
+        IAM_LOGE("bad hdi");
+        return End(ResultCode::GENERAL_ERROR);
     }
+    resultCode = hdi->GetEnrolledState(authResultInfo_.resultUserId, authType, enrolledState);
+    if (resultCode != SUCCESS) {
+        IAM_LOGE("GetEnrolledState fail, %{public}d", resultCode);
+        return End(static_cast<ResultCode>(resultCode));
+    }
+
     callerCallback_->SetTraceAuthType(authType);
     authResultInfo_.credentialCount = enrolledState.credentialCount;
     authResultInfo_.credentialDigest = enrolledState.credentialDigest & UINT16_MAX;

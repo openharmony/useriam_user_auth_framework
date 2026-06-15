@@ -586,13 +586,13 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImpl_OnStartDirectAuthDup
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImpl_SendAuthResultInfo_001, TestSize.Level0)
 {
     auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
-    WidgetAuthResultInfo authResult = {};
-    schedule->SendAuthResultInfo(0, authResult);
+    std::vector<uint8_t> token = {};
+    schedule->SendAuthResultInfo(0, PIN, token);
 
     auto callback = std::make_shared<MockWidgetScheduleNodeCallback>();
     schedule->SetCallback(callback);
-    schedule->SendAuthResultInfo(0, authResult);
-    EXPECT_CALL(*callback, SendAuthResultInfo(_, _)).Times(0);
+    schedule->SendAuthResultInfo(0, PIN, token);
+    EXPECT_CALL(*callback, SendAuthResultInfo(_, _, _)).Times(0);
 }
 } // namespace UserAuth
 } // namespace UserIam
