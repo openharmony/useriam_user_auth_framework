@@ -45,9 +45,8 @@ WidgetScheduleNodeImpl::WidgetScheduleNodeImpl()
 std::shared_ptr<FiniteStateMachine> WidgetScheduleNodeImpl::MakeFiniteStateMachine()
 {
     auto builder = FiniteStateMachine::Builder::New("widget_schedule", S_WIDGET_INIT);
-    if (builder == nullptr) {
-        return nullptr;
-    }
+    IF_FALSE_LOGE_AND_RETURN_VAL(build != nullptr, nullptr);
+
     builder->MakeTransition(S_WIDGET_INIT, E_START_WIDGET, S_WIDGET_WAITING,
         [this](FiniteStateMachine &machine, uint32_t event) { OnStartSchedule(machine, event); });
     builder->MakeTransition(S_WIDGET_INIT, E_START_DIRECT_AUTH, S_WIDGET_AUTH_RUNNING,
