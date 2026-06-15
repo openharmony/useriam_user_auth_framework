@@ -55,7 +55,7 @@ const std::string JSON_AUTH_EVENT = "event";
 const std::string JSON_AUTH_VERSION = "version";
 const std::string JSON_AUTH_PAYLOAD = "payload";
 const std::string JSON_AUTH_END_AFTER_FIRST_FAIL = "endAfterFirstFail";
-const std::string JSON_AUTH_INTENT = "authIntent";
+const std::string JSON_AUTH_PURPOSE = "authIntent";
 const std::string JSON_AUTH_TIP_CODE = "tipCode";
 const std::string JSON_AUTH_TOKEN = "authToken";
 const std::string JSON_RESULT_CODE = "resultCode";
@@ -372,7 +372,7 @@ void to_json(nlohmann::json &jsonNotice, const WidgetNotice &notice)
 {
     auto type = nlohmann::json({{JSON_AUTH_TYPE, notice.typeList},
         {JSON_AUTH_END_AFTER_FIRST_FAIL, notice.endAfterFirstFail},
-        {JSON_AUTH_INTENT, notice.authIntent},
+        {JSON_AUTH_PURPOSE, notice.authIntent},
         {JSON_AUTH_TIP_CODE, notice.tipCode}});
     jsonNotice = nlohmann::json({{JSON_WIDGET_CTX_ID, notice.widgetContextId},
         {JSON_AUTH_EVENT, notice.event},
@@ -389,6 +389,34 @@ bool isNumberItem(const nlohmann::json &jsonNotice, const std::string &item)
         return true;
     }
     return false;
+}
+
+static void getPayloadFromJson(const nlohmann::json &jsonNotice, WidgetNotice &notice)
+{
+    if (jsonNotice.find(JSON_AUTH_PAYLOAD) == jsonNotice.end()) {
+        return;
+    }
+    if (jsonNotice[JSON_AUTH_PAYLOAD].find(JSON_AUTH_TYPE) != jsonNotice[JSON_AUTH_PAYLOAD].end() &&
+        jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].is_array()) {
+        for (size_t index = 0; index < jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].size(); index++) {
+            if (!jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].at(index).is_string()) {
+                notice.typeList.clear();
+                break;
+            }
+            notice.typeList.emplace_back(jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].at(index).get<std::string>());
+        }
+    }
+    if ((jsonNotice[JSON_AUTH_PAYLOAD].find(JSON_AUTH_END_AFTER_FIRST_FAIL) !=
+            jsonNotice[JSON_AUTH_PAYLOAD].end()) &&
+        jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_END_AFTER_FIRST_FAIL].is_boolean()) {
+        jsonNotice[JSON_AUTH_PAYLOAD].at(JSON_AUTH_END_AFTER_FIRST_FAIL).get_to(notice.endAfterFirstFail);
+    }
+    if (isNumberItem(jsonNotice[JSON_AUTH_PAYLOAD], JSON_AUTH_PURPOSE)) {
+        jsonNotice[JSON_AUTH_PAYLOAD].at(JSON_AUTH_PURPOSE).get_to(notice.authIntent);
+    }
+    if (isNumberItem(jsonNotice[JSON_AUTH_PAYLOAD], JSON_AUTH_TIP_CODE)) {
+        jsonNotice[JSON_AUTH_PAYLOAD].at(JSON_AUTH_TIP_CODE).get_to(notice.tipCode);
+    }
 }
 
 void from_json(const nlohmann::json &jsonNotice, WidgetNotice &notice)
@@ -411,30 +439,6 @@ void from_json(const nlohmann::json &jsonNotice, WidgetNotice &notice)
     if (jsonNotice.find(JSON_AUTH_VERSION) != jsonNotice.end() && jsonNotice[JSON_AUTH_VERSION].is_string()) {
         jsonNotice.at(JSON_AUTH_VERSION).get_to(notice.version);
     }
-    if (jsonNotice.find(JSON_AUTH_PAYLOAD) == jsonNotice.end()) {
-        return;
-    }
-    if (jsonNotice[JSON_AUTH_PAYLOAD].find(JSON_AUTH_TYPE) != jsonNotice[JSON_AUTH_PAYLOAD].end() &&
-        jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].is_array()) {
-        for (size_t index = 0; index < jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].size(); index++) {
-            if (!jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].at(index).is_string()) {
-                notice.typeList.clear();
-                break;
-            }
-            notice.typeList.emplace_back(jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].at(index).get<std::string>());
-        }
-    }
-    if ((jsonNotice[JSON_AUTH_PAYLOAD].find(JSON_AUTH_END_AFTER_FIRST_FAIL) !=
-            jsonNotice[JSON_AUTH_PAYLOAD].end()) &&
-        jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_END_AFTER_FIRST_FAIL].is_boolean()) {
-        jsonNotice[JSON_AUTH_PAYLOAD].at(JSON_AUTH_END_AFTER_FIRST_FAIL).get_to(notice.endAfterFirstFail);
-    }
-    if (isNumberItem(jsonNotice[JSON_AUTH_PAYLOAD], JSON_AUTH_INTENT)) {
-        jsonNotice[JSON_AUTH_PAYLOAD].at(JSON_AUTH_INTENT).get_to(notice.authIntent);
-    }
-    if (isNumberItem(jsonNotice[JSON_AUTH_PAYLOAD], JSON_AUTH_TIP_CODE)) {
-        jsonNotice[JSON_AUTH_PAYLOAD].at(JSON_AUTH_TIP_CODE).get_to(notice.tipCode);
-    }
     if (jsonNotice.find(JSON_AUTH_TOKEN) != jsonNotice.end() && jsonNotice[JSON_AUTH_TOKEN].is_object()) {
         for (auto &item : jsonNotice[JSON_AUTH_TOKEN].items()) {
             notice.authToken.push_back(jsonNotice[JSON_AUTH_TOKEN].at(item.key()).get<uint8_t>());
@@ -443,6 +447,7 @@ void from_json(const nlohmann::json &jsonNotice, WidgetNotice &notice)
     if (isNumberItem(jsonNotice, JSON_RESULT_CODE)) {
         jsonNotice.at(JSON_RESULT_CODE).get_to(notice.resultCode);
     }
+    getPayloadFromJson(jsonNotice, notice);
 }
 
 std::string GetConfigRealPath()
