@@ -467,8 +467,7 @@ void WidgetClient::WidgetCompleteAuth(const WidgetNotice &notice, std::vector<Au
         IAM_LOGE("schedule is null");
         return;
     }
-    std::vector<uint8_t> authToken = notice.authToken;
-    schedule->SendAuthResultInfo(notice.resultCode, authTypeList[0], authToken);
+    schedule->SendAuthResultInfo(notice.resultCode, authTypeList[0], notice.authToken);
 }
 } // namespace UserAuth
 } // namespace UserIam
