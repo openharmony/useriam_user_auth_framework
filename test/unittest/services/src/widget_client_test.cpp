@@ -649,7 +649,7 @@ HWTEST_F(WidgetClientTest, WidgetClientTestCompleteAuth_001, TestSize.Level0)
     
     WidgetClient widgetClient = {};
     auto mockScheduleNode = Common::MakeShared<MockWidgetScheduleNode>();
-    EXPECT_CALL(*mockScheduleNode, SendAuthResultInfo(_, _)).Times(0);
+    EXPECT_CALL(*mockScheduleNode, SendAuthResultInfo(_, _, _)).Times(0);
     uint64_t contextId = 1;
     std::shared_ptr<WidgetScheduleNode> baseNode = mockScheduleNode;
     widgetClient.InsertScheduleNode(contextId, baseNode);
@@ -665,7 +665,7 @@ HWTEST_F(WidgetClientTest, WidgetClientTestCompleteAuth_002, TestSize.Level0)
     
     WidgetClient widgetClient = {};
     auto mockScheduleNode = Common::MakeShared<MockWidgetScheduleNode>();
-    EXPECT_CALL(*mockScheduleNode, SendAuthResultInfo(_, _)).Times(0);
+    EXPECT_CALL(*mockScheduleNode, SendAuthResultInfo(_, _, _)).Times(0);
     uint64_t contextId = 1;
     std::shared_ptr<WidgetScheduleNode> baseNode = mockScheduleNode;
     widgetClient.InsertScheduleNode(contextId, baseNode);
@@ -681,7 +681,7 @@ HWTEST_F(WidgetClientTest, WidgetClientTestCompleteAuth_003, TestSize.Level0)
     
     WidgetClient widgetClient = {};
     auto mockScheduleNode = Common::MakeShared<MockWidgetScheduleNode>();
-    EXPECT_CALL(*mockScheduleNode, SendAuthResultInfo(_, _)).Times(0);
+    EXPECT_CALL(*mockScheduleNode, SendAuthResultInfo(_, _, _)).Times(0);
 
     widgetClient.WidgetCompleteAuth(notice, authTypeList);
 }

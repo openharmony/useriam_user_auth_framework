@@ -139,13 +139,13 @@ private:
     };
 
     struct WidgetAuthResultInfo {
-    std::vector<uint8_t> token {};
-    AuthType authType {0};
-    uint64_t credentialDigest;
-    uint16_t credentialCount;
-    int64_t pinExpiredInfo;
-    int32_t resultUserId;
-};
+        std::vector<uint8_t> token {};
+        AuthType authType {0};
+        uint64_t credentialDigest;
+        uint16_t credentialCount;
+        int64_t pinExpiredInfo;
+        int32_t resultUserId;
+    };
 
     struct ResultInfo {
         int32_t resultCode;

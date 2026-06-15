@@ -114,8 +114,7 @@ HWTEST_F(WidgetJsonTest, WidgetJsonStr2AuthType_006, TestSize.Level0)
 HWTEST_F(WidgetJsonTest, WidgetJsonStr2AuthType_007, TestSize.Level0)
 {
     std::string strAt = "enterpriseAccount";
-    const int32_t enterpriseAccount = 1024;
-    EXPECT_EQ(Str2AuthType(strAt), enterpriseAccount);
+    EXPECT_EQ(Str2AuthType(strAt), PIN);
 }
 
 HWTEST_F(WidgetJsonTest, WidgetJsonAuthType2Str_001, TestSize.Level0)

@@ -435,12 +435,9 @@ void from_json(const nlohmann::json &jsonNotice, WidgetNotice &notice)
     if (isNumberItem(jsonNotice[JSON_AUTH_PAYLOAD], JSON_AUTH_TIP_CODE)) {
         jsonNotice[JSON_AUTH_PAYLOAD].at(JSON_AUTH_TIP_CODE).get_to(notice.tipCode);
     }
-    if (jsonNotice.find(JSON_AUTH_TOKEN) != jsonNotice.end()) {
-        if (jsonNotice[JSON_AUTH_TOKEN].is_object()) {
-            for (auto &item : jsonNotice[JSON_AUTH_TOKEN].items()) {
-                notice.authToken.push_back(jsonNotice[JSON_AUTH_TOKEN].at(item.key()).get<uint8_t>());
-            }
-            
+    if (jsonNotice.find(JSON_AUTH_TOKEN) != jsonNotice.end() && jsonNotice[JSON_AUTH_TOKEN].is_object()) {
+        for (auto &item : jsonNotice[JSON_AUTH_TOKEN].items()) {
+            notice.authToken.push_back(jsonNotice[JSON_AUTH_TOKEN].at(item.key()).get<uint8_t>());
         }
     }
     if (isNumberItem(jsonNotice, JSON_RESULT_CODE)) {

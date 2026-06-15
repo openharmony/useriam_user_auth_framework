@@ -199,7 +199,7 @@ void WidgetContext::SendAuthTipInfo(int32_t authType, int32_t tipCode)
     IAM_LOGD("start.");
 }
 
-void WidgetContext::SendAuthResultInfo(int32_t resultCode, WidgetAuthResultInfo &authResult)
+void WidgetContext::SendAuthResultInfo(int32_t resultCode, int32_t authType, const std::vector<uint8_t> &token)
 {
     IAM_LOGD("start.");
 }
