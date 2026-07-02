@@ -32,6 +32,9 @@ namespace UserAuth {
 RemoteAuthCallback::RemoteAuthCallback(const userAuth::IRemoteAuthCallback &callback)
 {
     callback_ = Common::MakeShared<userAuth::IRemoteAuthCallback>(callback);
+    if (callback_ == nullptr) {
+        IAM_LOGE("callback is null");
+    }
 }
 
 RemoteAuthCallback::~RemoteAuthCallback()
@@ -62,44 +65,12 @@ bool RemoteAuthCallback::DoRemoteAuthResult(const std::vector<uint8_t> &challeng
     }
     taihe::array<uint8_t> challengeArray =
         taihe::array<uint8_t>(taihe::copy_data_t{}, challenge.data(), challenge.size());
-    std::vector<uint8_t> token = {};
-    int32_t authType = 0;
-    EnrolledState enrolledState = {};
-
-    if (!extraInfo.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, token)) {
-        IAM_LOGE("ATTR_SIGNATURE is null");
-        return false;
-    }
-    if (!extraInfo.GetInt32Value(Attributes::ATTR_AUTH_TYPE, authType)) {
-        IAM_LOGE("ATTR_AUTH_TYPE is null");
-        return false;
-    }
-    if (!extraInfo.GetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, enrolledState.credentialDigest)) {
-        IAM_LOGE("ATTR_CREDENTIAL_DIGEST is null");
-        return false;
-    }
-    if (!extraInfo.GetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT, enrolledState.credentialCount)) {
-        IAM_LOGE("ATTR_CREDENTIAL_COUNT is null");
-        return false;
-    }
-
     userAuth::UserAuthResult userAuthResult = {};
-    userAuthResult.result = resultCode;
-    if (!token.empty()) {
-        userAuthResult.token = taihe::optional<taihe::array<uint8_t>>(
-            std::in_place_t{}, taihe::copy_data_t{}, token.data(), token.size());
+    UserAuthResultCode ret = UserAuthParamUtils::GetUserAuthResult(resultCode, extraInfo, userAuthResult);
+    if (ret != UserAuthResultCode::SUCCESS) {
+        IAM_LOGE("GetUserAuthResult failed %{public}d", ret);
+        return false;
     }
-    if (UserAuthHelper::CheckUserAuthType(authType)) {
-        userAuth::UserAuthType authTypeAni(userAuth::UserAuthType::key_t::PIN);
-        if (!UserAuthAniHelper::ConvertUserAuthType(authType, authTypeAni)) {
-            IAM_LOGE("Set authType error. authType: %{public}d", authType);
-            return false;
-        }
-        userAuthResult.authType = taihe::optional<userAuth::UserAuthType>::make(authTypeAni);
-    }
-    userAuth::EnrolledState enrolledStateAni = {enrolledState.credentialDigest, enrolledState.credentialCount};
-    userAuthResult.enrolledState = taihe::optional<userAuth::EnrolledState>::make(enrolledStateAni);
-
     callback_->onRemoteAuthResult(challengeArray, userAuthResult);
     return true;
 }
@@ -114,8 +85,7 @@ void RemoteAuthCallback::OnGetRemoteAuthWidgetParam(const std::vector<uint8_t> &
     }
 
     userAuth::WidgetParam widgetParam = {};
-    bool ret = DoGetRemoteAuthWidgetParam(challenge, widgetParam);
-    if (!ret) {
+    if (!DoGetRemoteAuthWidgetParam(challenge, widgetParam)) {
         IAM_LOGE("DoGetRemoteAuthWidgetParam failed");
         return;
     }
@@ -123,14 +93,18 @@ void RemoteAuthCallback::OnGetRemoteAuthWidgetParam(const std::vector<uint8_t> &
     std::shared_ptr<AbilityRuntime::Context> context = nullptr;
     sptr<OHOS::Rosen::Window> window = nullptr;
     std::shared_ptr<UserAuthModalCallback> modalCallback = nullptr;
-    WidgetParamNapi widgetParamNapi = {};
-    UserAuthParamUtils::InitWidgetParam(widgetParam, widgetParamNapi, context, window);
-    if (window != nullptr) {
+    SetWidgetParamClientCallback::WidgetParamExt widgetParamExt = {};
+    UserAuthParamUtils::InitWidgetParam(widgetParam, widgetParamExt, context, window);
+    if (context == nullptr && window != nullptr) {
         modalCallback = Common::MakeShared<UserAuthModalCallback>(window);
     } else {
         modalCallback = Common::MakeShared<UserAuthModalCallback>(context);
     }
-    callback->OnSetRemoteAuthWidgetParam(widgetParamNapi, modalCallback);
+    int32_t ret = callback->OnSetRemoteAuthWidgetParam(widgetParamExt, modalCallback);
+    if (ret != ResultCode::SUCCESS) {
+        IAM_LOGE("OnSetRemoteAuthWidgetParam failed %{public}d", ret);
+        return;
+    }
 }
 
 void RemoteAuthCallback::OnRemoteAuthResult(const std::vector<uint8_t> &challenge, int32_t resultCode,

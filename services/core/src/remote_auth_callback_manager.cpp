@@ -14,12 +14,13 @@
  */
 
 #include "remote_auth_callback_manager.h"
-#include <algorithm>
+
 #include <mutex>
 
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
+#include "ipc_common.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 #define LOG_FILE_ID LOG_FILE_REMOTE_AUTH_CALLBACK_MANAGER
@@ -39,48 +40,63 @@ RemoteAuthCallbackManager &RemoteAuthCallbackManager::GetInstance()
 }
 
 int32_t RemoteAuthCallbackManager::AddRemoteAuthCallback(uint32_t tokenId,
-    const sptr<IRemoteAuthCallback> &remoteAuthCallback, std::string &callerName)
+    const sptr<IRemoteAuthCallback> &remoteAuthCallback)
 {
-    IAM_LOGI("start");
-    std::lock_guard<std::recursive_mutex> guard(mutex_);
-    int32_t result = AddDeathRecipient(this, remoteAuthCallback);
-    if (result != SUCCESS) {
-        IAM_LOGE("AddDeathRecipient fail");
-        return result;
+    std::lock_guard<std::mutex> guard(mutex_);
+    if (callbackMap_.find(tokenId) != callbackMap_.end()) {
+        IAM_LOGE("remoteAuthCallback is already register, do not repeat");
+        return GENERAL_ERROR;
     }
-    if (remoteAuthCallback != nullptr && remoteAuthCallback->AsObject() != nullptr) {
-        remoteObjectTokenIdMap_[remoteAuthCallback->AsObject()] = tokenId;
+
+    if (remoteAuthCallback == nullptr) {
+        IAM_LOGE("remoteAuthCallback is nullptr");
+        return GENERAL_ERROR;
     }
-    callbacks_[tokenId] = std::make_pair(remoteAuthCallback, callerName);
+
+    callbackMap_.emplace(tokenId, remoteAuthCallback);
+
+    sptr<IRemoteObject::DeathRecipient> dr(new (std::nothrow) RemoteAuthCallbackDeathRecipient(tokenId));
+    if (dr == nullptr || remoteAuthCallback->AsObject() == nullptr) {
+        IAM_LOGE("dr or inputer's object is nullptr");
+    } else {
+        remoteDeathMap_.emplace(tokenId, dr);
+        if (!remoteAuthCallback->AsObject()->AddDeathRecipient(dr)) {
+            IAM_LOGE("add death recipient fail");
+        }
+    }
+    IAM_LOGI("end");
     return SUCCESS;
 }
 
-int32_t RemoteAuthCallbackManager::DelRemoteAuthCallback(uint32_t tokenId)
+void RemoteAuthCallbackManager::DelRemoteAuthCallback(uint32_t tokenId)
 {
-    IAM_LOGI("start");
-    std::lock_guard<std::recursive_mutex> guard(mutex_);
-    auto iter = callbacks_.find(tokenId);
-    if (iter != callbacks_.end()) {
-        int32_t result = RemoveDeathRecipient(iter->second.first);
-        if (result != SUCCESS) {
-            IAM_LOGE("RemoveDeathRecipient fail");
-            return result;
+    std::lock_guard<std::mutex> guard(mutex_);
+    if (callbackMap_.find(tokenId) != callbackMap_.end()) {
+        if (remoteDeathMap_.find(tokenId) != remoteDeathMap_.end()) {
+            auto remoteAuthCallback = callbackMap_[tokenId];
+            if (remoteAuthCallback == nullptr || remoteAuthCallback->AsObject() == nullptr) {
+                IAM_LOGE("remoteAuthCallback is nullptr");
+            } else if (!remoteAuthCallback->AsObject()->RemoveDeathRecipient(remoteDeathMap_[tokenId])) {
+                IAM_LOGE("remove death recipient fail");
+            }
+            remoteDeathMap_.erase(tokenId);
         }
-        if (iter->second.first != nullptr && iter->second.first->AsObject() != nullptr) {
-            remoteObjectTokenIdMap_.erase(iter->second.first->AsObject());
-        }
-        callbacks_.erase(iter);
+        callbackMap_.erase(tokenId);
+        IAM_LOGE("callbackMap_ erase success");
     }
-    return SUCCESS;
+    IAM_LOGI("end");
 }
 
 sptr<IRemoteAuthCallback> RemoteAuthCallbackManager::GetRemoteAuthCallback(uint32_t tokenId)
 {
+    std::lock_guard<std::mutex> guard(mutex_);
     IAM_LOGI("start");
-    std::lock_guard<std::recursive_mutex> guard(mutex_);
-    auto iter = callbacks_.find(tokenId);
-    if (iter != callbacks_.end()) {
-        return iter->second.first;
+    auto remoteAuthCallback = callbackMap_.find(tokenId);
+    if (remoteAuthCallback != callbackMap_.end()) {
+        IAM_LOGI("find remoteAuthCallback");
+        return remoteAuthCallback->second;
+    } else {
+        IAM_LOGE("remoteAuthCallback is not found");
     }
     return nullptr;
 }
@@ -88,126 +104,28 @@ sptr<IRemoteAuthCallback> RemoteAuthCallbackManager::GetRemoteAuthCallback(uint3
 std::string RemoteAuthCallbackManager::GetRemoteAuthCallerName(uint32_t tokenId)
 {
     IAM_LOGI("start");
-    std::lock_guard<std::recursive_mutex> guard(mutex_);
-    auto iter = callbacks_.find(tokenId);
-    if (iter != callbacks_.end()) {
-        return iter->second.second;
+    std::string callerName;
+    int32_t callerType;
+    if ((!IpcCommon::GetCallerNameByTokenId(tokenId, callerName, callerType))) {
+        IAM_LOGE("get caller name fail");
+        return "";
     }
-    return "";
+    return callerName;
 }
 
-int32_t RemoteAuthCallbackManager::AddDeathRecipient(RemoteAuthCallbackManager *manager,
-    const sptr<IRemoteAuthCallback> &callback)
+RemoteAuthCallbackManager::RemoteAuthCallbackDeathRecipient::RemoteAuthCallbackDeathRecipient(uint32_t tokenId)
+    : tokenId_(tokenId)
 {
-    IAM_LOGI("start");
-    IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, GENERAL_ERROR);
-
-    auto obj = callback->AsObject();
-    if (obj == nullptr) {
-        IAM_LOGE("remote object is nullptr");
-        return GENERAL_ERROR;
-    }
-
-    auto iter = std::find_if(callbackDeathRecipientMap_.begin(), callbackDeathRecipientMap_.end(),
-        FinderMap(obj));
-    if (iter != callbackDeathRecipientMap_.end()) {
-        IAM_LOGE("deathRecipient is already registed");
-        return SUCCESS;
-    }
-
-    if (obj->IsProxyObject()) {
-        sptr<DeathRecipient> dr(new (std::nothrow) RemoteAuthCallbackDeathRecipient(manager));
-        if ((dr == nullptr) || (!obj->AddDeathRecipient(dr))) {
-            IAM_LOGE("AddDeathRecipient failed");
-            return GENERAL_ERROR;
-        }
-        callbackDeathRecipientMap_.emplace(callback, dr);
-    } else {
-        callbackDeathRecipientMap_.emplace(callback, nullptr);
-    }
-
-    IAM_LOGI("AddDeathRecipient success, callbackSize:%{public}zu", callbackDeathRecipientMap_.size());
-    return SUCCESS;
 }
-
-int32_t RemoteAuthCallbackManager::RemoveDeathRecipient(const sptr<IRemoteAuthCallback> &callback)
-{
-    IAM_LOGI("start");
-    IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, GENERAL_ERROR);
-
-    auto obj = callback->AsObject();
-    if (obj == nullptr) {
-        IAM_LOGE("remote object is nullptr");
-        return GENERAL_ERROR;
-    }
-
-    auto iter = std::find_if(callbackDeathRecipientMap_.begin(), callbackDeathRecipientMap_.end(),
-        FinderMap(obj));
-    if (iter == callbackDeathRecipientMap_.end()) {
-        IAM_LOGE("deathRecipient is not registed");
-        return SUCCESS;
-    }
-
-    sptr<DeathRecipient> deathRecipient = iter->second;
-    if (deathRecipient != nullptr) {
-        obj->RemoveDeathRecipient(deathRecipient);
-    }
-
-    callbackDeathRecipientMap_.erase(iter);
-    IAM_LOGI("RemoveDeathRecipient success, callbackSize:%{public}zu", callbackDeathRecipientMap_.size());
-    return SUCCESS;
-}
-
-std::map<sptr<IRemoteAuthCallback>, sptr<DeathRecipient>> RemoteAuthCallbackManager::GetCallbackDeathRecipientMap()
-{
-    IAM_LOGI("start");
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    return callbackDeathRecipientMap_;
-}
-
-RemoteAuthCallbackManager::RemoteAuthCallbackDeathRecipient::RemoteAuthCallbackDeathRecipient(
-    RemoteAuthCallbackManager *manager)
-    : remoteAuthCallbckManager_(manager) {}
 
 void RemoteAuthCallbackManager::RemoteAuthCallbackDeathRecipient::OnRemoteDied(const wptr<IRemoteObject> &remote)
 {
     IAM_LOGI("start");
-    if (remote == nullptr || remoteAuthCallbckManager_ == nullptr) {
-        IAM_LOGE("remote or manager is nullptr");
+    if (remote == nullptr) {
+        IAM_LOGE("remote is nullptr");
         return;
     }
-
-    auto deathRecipientMap = remoteAuthCallbckManager_->GetCallbackDeathRecipientMap();
-    for (auto &iter : deathRecipientMap) {
-        if (iter.first != nullptr && remote == iter.first->AsObject()) {
-            int32_t result = remoteAuthCallbckManager_->DelRemoteAuthCallbackOnRemoteDied(iter.first);
-            if (result != SUCCESS) {
-                IAM_LOGE("DelRemoteAuthCallbackOnRemoteDied fail");
-                return;
-            }
-        }
-    }
-}
-
-int32_t RemoteAuthCallbackManager::DelRemoteAuthCallbackOnRemoteDied(const sptr<IRemoteAuthCallback> &callback)
-{
-    IAM_LOGI("start");
-    std::lock_guard<std::recursive_mutex> guard(mutex_);
-    if (callback == nullptr || callback->AsObject() == nullptr) {
-        IAM_LOGE("callback or remote object is nullptr");
-        return GENERAL_ERROR;
-    }
-    auto iter = remoteObjectTokenIdMap_.find(callback->AsObject());
-    if (iter == remoteObjectTokenIdMap_.end()) {
-        IAM_LOGE("tokenId not found");
-        return GENERAL_ERROR;
-    }
-    uint32_t tokenId = iter->second;
-    RemoveDeathRecipient(callback);
-    remoteObjectTokenIdMap_.erase(iter);
-    callbacks_.erase(tokenId);
-    IAM_LOGI("DelRemoteAuthCallbackOnRemoteDied success, tokenId:%{public}u", tokenId);
-    return SUCCESS;
+    RemoteAuthCallbackManager::GetInstance().DelRemoteAuthCallback(tokenId_);
 }
 } // namespace UserAuth
 } // namespace UserIam

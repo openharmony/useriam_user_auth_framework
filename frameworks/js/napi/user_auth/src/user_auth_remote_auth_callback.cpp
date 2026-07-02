@@ -43,7 +43,8 @@ struct CallbackHolder {
 };
 
 std::shared_ptr<CallbackHolder> CreateParamCallbackHolder(const std::vector<uint8_t> &challenge,
-    const std::shared_ptr<SetWidgetParamClientCallback> &callback)
+    const std::shared_ptr<SetWidgetParamClientCallback> &setCallback,
+    const std::shared_ptr<RemoteAuthCallback> &callback)
 {
     std::shared_ptr<CallbackHolder> holder = Common::MakeShared<CallbackHolder>();
     if (holder == nullptr) {
@@ -51,19 +52,21 @@ std::shared_ptr<CallbackHolder> CreateParamCallbackHolder(const std::vector<uint
         return nullptr;
     }
 
+    holder->callback = callback;
+    holder->setCallback = setCallback;
     holder->challenge = challenge;
-    holder->setCallback = callback;
     return holder;
 }
 
 std::shared_ptr<CallbackHolder> CreateResultCallbackHolder(const std::vector<uint8_t> &challenge,
-    int32_t result, const Attributes &extraInfo)
+    int32_t result, const Attributes &extraInfo, const std::shared_ptr<RemoteAuthCallback> &callback)
 {
     std::shared_ptr<CallbackHolder> holder = Common::MakeShared<CallbackHolder>();
     if (holder == nullptr) {
         IAM_LOGE("holder is null");
         return nullptr;
     }
+    holder->callback = callback;
     holder->challenge = challenge;
     holder->result = result;
     if (!extraInfo.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, holder->token)) {
@@ -143,19 +146,15 @@ void RemoteAuthCallback::OnGetRemoteAuthWidgetParam(const std::vector<uint8_t> &
         IAM_LOGE("napi_get_uv_event_loop fail");
         return;
     }
-    std::shared_ptr<CallbackHolder> holder = CreateParamCallbackHolder(challenge, callback);
-    if (holder == nullptr) {
+    std::shared_ptr<CallbackHolder> holder =
+        CreateParamCallbackHolder(challenge, callback, shared_from_this());
+    if (holder == nullptr || holder->callback == nullptr || holder->setCallback == nullptr) {
         IAM_LOGE("CreateParamCallbackHolder fail");
         return;
     }
-    holder->callback = shared_from_this();
     holder->env = env_;
     auto task = [holder] () {
         IAM_LOGI("start");
-        if (holder == nullptr || holder->callback == nullptr || holder->setCallback == nullptr) {
-            IAM_LOGE("holder is invalid");
-            return;
-        }
         napi_handle_scope scope = nullptr;
         napi_open_handle_scope(holder->env, &scope);
         if (scope == nullptr) {
@@ -169,15 +168,19 @@ void RemoteAuthCallback::OnGetRemoteAuthWidgetParam(const std::vector<uint8_t> &
             napi_close_handle_scope(holder->env, scope);
             return;
         }
-        WidgetParamNapi widgetParam = {};
+        SetWidgetParamClientCallback::WidgetParamExt widgetParamExt = {};
         std::shared_ptr<UserAuthModalCallback> modalCallback = nullptr;
-        ret = holder->callback->ConvertRemoteAuthWidgetParam(holder->env, widgetParamValue, widgetParam, modalCallback);
+        ret = holder->callback->ConvertRemoteAuthWidgetParam(holder->env, widgetParamValue, widgetParamExt,
+            modalCallback);
         if (ret != napi_ok) {
             IAM_LOGE("ConvertRemoteAuthWidgetParam fail %{public}d", ret);
             napi_close_handle_scope(holder->env, scope);
             return;
         }
-        holder->setCallback->OnSetRemoteAuthWidgetParam(widgetParam, modalCallback);
+        int32_t retCode = holder->setCallback->OnSetRemoteAuthWidgetParam(widgetParamExt, modalCallback);
+        if (retCode != SUCCESS) {
+            IAM_LOGE("OnSetRemoteAuthWidgetParam fail %{public}d", retCode);
+        }
         napi_close_handle_scope(holder->env, scope);
     };
     if (napi_status::napi_ok != napi_send_event(env_, task, napi_eprio_immediate,
@@ -197,7 +200,12 @@ napi_status RemoteAuthCallback::DoRemoteAuthResult(const std::vector<uint8_t> &c
 
     napi_value params[ARGS_TWO];
     std::vector<uint8_t> challengeCopy = challenge;
-    params[PARAM0] = UserAuthNapiHelper::Uint8VectorToNapiUint8Array(env_, challengeCopy);
+    napi_value eventInfo = UserAuthNapiHelper::Uint8VectorToNapiUint8Array(env_, challengeCopy);
+    if (eventInfo == nullptr) {
+        IAM_LOGE("Uint8VectorToNapiUint8Array failed");
+        return napi_invalid_arg;
+    }
+    params[PARAM0] = eventInfo;
 
     napi_status ret = napi_create_object(env_, &params[PARAM1]);
     if (ret != napi_ok) {
@@ -205,33 +213,11 @@ napi_status RemoteAuthCallback::DoRemoteAuthResult(const std::vector<uint8_t> &c
         return ret;
     }
 
-    ret = UserAuthNapiHelper::SetInt32Property(env_, params[PARAM1], "result", result);
+    ResultInfo resultInfo = { result, token, authType, enrolledState };
+    ret = UserAuthNapiHelper::SetResultInfoProperty(env_, params[PARAM1], resultInfo);
     if (ret != napi_ok) {
-        IAM_LOGE("napi_create_int32 failed %{public}d", ret);
+        IAM_LOGE("SetResultInfoProperty failed %{public}d", ret);
         return ret;
-    }
-
-    if (!token.empty()) {
-        ret = UserAuthNapiHelper::SetUint8ArrayProperty(env_, params[PARAM1], "token", token);
-        if (ret != napi_ok) {
-            IAM_LOGE("SetUint8ArrayProperty failed %{public}d", ret);
-            return ret;
-        }
-    }
-
-    if (UserAuthNapiHelper::CheckAuthType(authType)) {
-        ret = UserAuthNapiHelper::SetInt32Property(env_, params[PARAM1], "authType", authType);
-        if (ret != napi_ok) {
-            IAM_LOGE("napi_create_int32 failed %{public}d", ret);
-            return ret;
-        }
-    }
-    if (UserAuthResultCode(result) == UserAuthResultCode::SUCCESS || !token.empty()) {
-        ret = UserAuthNapiHelper::SetEnrolledStateProperty(env_, params[PARAM1], "enrolledState", enrolledState);
-        if (ret != napi_ok) {
-            IAM_LOGE("SetEnrolledStateProperty failed %{public}d", ret);
-            return ret;
-        }
     }
 
     return UserAuthNapiHelper::CallVoidNapiFunc(env_, resultCallback->Get(), ARGS_TWO, params);
@@ -247,19 +233,15 @@ void RemoteAuthCallback::OnRemoteAuthResult(const std::vector<uint8_t> &challeng
         IAM_LOGE("napi_get_uv_event_loop fail");
         return;
     }
-    std::shared_ptr<CallbackHolder> holder = CreateResultCallbackHolder(challenge, result, extraInfo);
-    if (holder == nullptr) {
+    std::shared_ptr<CallbackHolder> holder =
+        CreateResultCallbackHolder(challenge, result, extraInfo, shared_from_this());
+    if (holder == nullptr || holder->callback == nullptr) {
         IAM_LOGE("CreateResultCallbackHolder fail");
         return;
     }
-    holder->callback = shared_from_this();
     holder->env = env_;
     auto task = [holder] () {
         IAM_LOGI("start");
-        if (holder == nullptr || holder->callback == nullptr) {
-            IAM_LOGE("holder is invalid");
-            return;
-        }
         napi_handle_scope scope = nullptr;
         napi_open_handle_scope(holder->env, &scope);
         if (scope == nullptr) {
@@ -282,16 +264,16 @@ void RemoteAuthCallback::OnRemoteAuthResult(const std::vector<uint8_t> &challeng
 }
 
 napi_status RemoteAuthCallback::ConvertRemoteAuthWidgetParam(napi_env env, napi_value value,
-    WidgetParamNapi &widgetParam, std::shared_ptr<UserAuthModalCallback> &modalCallback)
+    SetWidgetParamClientCallback::WidgetParamExt &widgetParamExt, std::shared_ptr<UserAuthModalCallback> &modalCallback)
 {
     std::shared_ptr<AbilityRuntime::Context> context = nullptr;
     sptr<OHOS::Rosen::Window> window = nullptr;
-    UserAuthResultCode errCode = UserAuthParamUtils::InitWidgetParam(env, value, widgetParam, context, window);
+    UserAuthResultCode errCode = UserAuthParamUtils::InitWidgetParam(env, value, widgetParamExt, context, window);
     if (errCode != UserAuthResultCode::SUCCESS) {
         IAM_LOGE("WidgetParam type error, errorCode: %{public}d", errCode);
         return napi_invalid_arg;
     }
-    if (window != nullptr) {
+    if (context == nullptr && window != nullptr) {
         IAM_LOGI("widget type is window");
         modalCallback = Common::MakeShared<UserAuthModalCallback>(window);
     } else {

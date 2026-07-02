@@ -322,6 +322,11 @@ int32_t IpcCommon::GetDirectCallerType(IPCObjectStub &stub)
 bool IpcCommon::GetCallerName(IPCObjectStub &stub, std::string &callerName, int32_t &callerType)
 {
     uint32_t tokenId = GetAccessTokenId(stub);
+    return GetCallerNameByTokenId(tokenId, callerName, callerType);
+}
+
+bool IpcCommon::GetCallerNameByTokenId(uint32_t tokenId, std::string &callerName, int32_t &callerType)
+{
     using namespace Security::AccessToken;
     callerType = AccessTokenKit::GetTokenTypeFlag(tokenId);
     if (callerType == Security::AccessToken::TOKEN_HAP) {

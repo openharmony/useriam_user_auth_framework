@@ -90,7 +90,8 @@ UserAuthNapiClientImpl &UserAuthNapiClientImpl::Instance()
 }
 
 uint64_t UserAuthNapiClientImpl::BeginWidgetAuth(int32_t apiVersion, const AuthParamInner &authParam,
-    const WidgetParamNapi &widgetParam, const std::shared_ptr<AuthenticationCallback> &callback,
+    const SetWidgetParamClientCallback::WidgetParamExt &widgetParamExt,
+    const std::shared_ptr<AuthenticationCallback> &callback,
     const std::shared_ptr<UserAuthModalClientCallback> &modalCallback)
 {
     IAM_LOGI("start, apiVersion: %{public}d authTypeSize: %{public}zu authTrustLevel: %{public}u userId:%{public}d",
@@ -107,10 +108,10 @@ uint64_t UserAuthNapiClientImpl::BeginWidgetAuth(int32_t apiVersion, const AuthP
         .credentialIdList = authParam.credentialIdList,
     };
     WidgetParamInner widgetParamInner = {
-        .title = widgetParam.title,
-        .navigationButtonText = widgetParam.navigationButtonText,
-        .windowMode = widgetParam.windowMode,
-        .hasContext = widgetParam.hasContext,
+        .title = widgetParamExt.title,
+        .navigationButtonText = widgetParamExt.navigationButtonText,
+        .windowMode = widgetParamExt.windowMode,
+        .hasContext = widgetParamExt.hasContext,
     };
     IAM_LOGI("has context: %{public}d", widgetParamInner.hasContext);
     return BeginWidgetAuthInner(apiVersion, authParamInner, widgetParamInner, callback, modalCallback);

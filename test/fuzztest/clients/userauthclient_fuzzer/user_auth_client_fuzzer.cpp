@@ -338,7 +338,7 @@ void FuzzNapiBeginWidgetAuth(Parcel &parcel)
     IAM_LOGI("start");
     int32_t apiVersion = parcel.ReadInt32();
     AuthParamInner authParam;
-    WidgetParamNapi widgetParam;
+    SetWidgetParamClientCallback::WidgetParamExt widgetParamExt;
     Common::FillFuzzUint8Vector(parcel, authParam.challenge);
     std::vector<int32_t> atList;
     parcel.ReadInt32Vector(&atList);
@@ -346,12 +346,12 @@ void FuzzNapiBeginWidgetAuth(Parcel &parcel)
         authParam.authTypes.push_back(static_cast<AuthType>(at));
     }
     authParam.authTrustLevel = static_cast<AuthTrustLevel>(parcel.ReadInt32());
-    widgetParam.title = parcel.ReadString();
-    widgetParam.navigationButtonText = parcel.ReadString();
-    widgetParam.windowMode = static_cast<WindowModeType>(parcel.ReadInt32());
+    widgetParamExt.title = parcel.ReadString();
+    widgetParamExt.navigationButtonText = parcel.ReadString();
+    widgetParamExt.windowMode = static_cast<WindowModeType>(parcel.ReadInt32());
     auto callback = Common::MakeShared<DummyAuthenticationCallback>();
     std::shared_ptr<UserAuthModalInnerCallback> modalCallback = Common::MakeShared<UserAuthModalInnerCallback>();
-    UserAuthNapiClientImpl::Instance().BeginWidgetAuth(apiVersion, authParam, widgetParam, callback, modalCallback);
+    UserAuthNapiClientImpl::Instance().BeginWidgetAuth(apiVersion, authParam, widgetParamExt, callback, modalCallback);
     uint64_t contextId = parcel.ReadUint64();
     int32_t cancelReason = parcel.ReadInt32();
     UserAuthNapiClientImpl::Instance().CancelAuthentication(contextId, cancelReason);

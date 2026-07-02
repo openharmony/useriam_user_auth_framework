@@ -20,12 +20,13 @@
 
 #include "nocopyable.h"
 
+#include "iuser_auth.h"
+#include "set_widget_param_callback.h"
 #include "user_auth_client_callback.h"
 #include "user_auth_client_defines.h"
-#include "iuser_auth.h"
+#include "user_auth_common_defines.h"
 #include "user_auth_modal_client_callback.h"
 #include "user_auth_types.h"
-#include "user_auth_common_defines.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -33,7 +34,8 @@ namespace UserAuth {
 class UserAuthNapiClientImpl final : public NoCopyable {
 public:
     static UserAuthNapiClientImpl &Instance();
-    uint64_t BeginWidgetAuth(int32_t apiVersion, const AuthParamInner &authParam, const WidgetParamNapi &widgetParam,
+    uint64_t BeginWidgetAuth(int32_t apiVersion, const AuthParamInner &authParam,
+        const SetWidgetParamClientCallback::WidgetParamExt &widgetParamExt,
         const std::shared_ptr<AuthenticationCallback> &callback,
         const std::shared_ptr<UserAuthModalClientCallback> &modalCallback);
     int32_t CancelAuthentication(uint64_t contextId, int32_t cancelReason);
