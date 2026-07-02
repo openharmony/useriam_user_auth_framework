@@ -28,10 +28,23 @@ namespace UserIam {
 namespace UserAuth {
 class SetWidgetParamClientCallback {
 public:
+    /**
+    * @brief Auth widget parameter.
+    */
+    struct WidgetParamExt {
+        /** Title of widget. */
+        std::string title;
+        /** The description text of navigation button. */
+        std::string navigationButtonText;
+        /** Full screen or not. */
+        WindowModeType windowMode;
+        /** Default has't context. */
+        bool hasContext {false};
+    };
     explicit SetWidgetParamClientCallback(const sptr<ISetWidgetParamCallback> &callback);
     ~SetWidgetParamClientCallback() = default;
 
-    int32_t OnSetRemoteAuthWidgetParam(WidgetParamNapi &widgetParam,
+    int32_t OnSetRemoteAuthWidgetParam(WidgetParamExt &widgetParamExt,
         const std::shared_ptr<UserAuthModalClientCallback> &modalCallback);
 
 private:

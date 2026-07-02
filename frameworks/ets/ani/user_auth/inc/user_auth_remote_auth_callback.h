@@ -23,8 +23,9 @@
 #include "ohos.userIAM.userAuth.userAuth.proj.hpp"
 
 #include "auth_common.h"
-#include "user_auth_napi_client_impl.h"
+#include "remote_auth_client_callback.h"
 #include "set_widget_param_callback.h"
+#include "user_auth_napi_client_impl.h"
 #include "user_auth_modal_inner_callback.h"
 #include "user_auth_common_defines.h"
 

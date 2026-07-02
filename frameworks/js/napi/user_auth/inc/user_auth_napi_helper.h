@@ -29,6 +29,13 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+struct ResultInfo {
+    int32_t result;
+    std::vector<uint8_t> token;
+    int32_t authType;
+    EnrolledState enrolledState;
+};
+
 class UserAuthNapiHelper {
 public:
     static bool CheckAuthType(int32_t authType);
@@ -53,7 +60,8 @@ public:
     static napi_status SetUint32Property(napi_env env, napi_value obj, const char *name, uint32_t value);
     static napi_status SetUint8ArrayProperty(napi_env env,
         napi_value obj, const char *name, const std::vector<uint8_t> &value);
-    static napi_status SetEnrolledStateProperty(napi_env env, napi_value obj, const char *name, EnrolledState &value);
+    static napi_status SetEnrolledStateProperty(napi_env env, napi_value obj,
+        const char *name, const EnrolledState &value);
     static napi_status CallVoidNapiFunc(napi_env env, napi_ref funcRef, size_t argc, const napi_value *argv);
     static napi_status CallNapiFuncWithResult(napi_env env, napi_ref funcRef, size_t argc,
         const napi_value *argv, napi_value *result);
@@ -67,6 +75,7 @@ public:
         napi_env env, napi_value object, const std::string &name, const std::string &value);
     static bool GetInt32Array(napi_env env, napi_value obj, std::vector<uint32_t> vec);
     static bool ConvertSizeToUint32(size_t in, uint32_t &out);
+    static napi_status SetResultInfoProperty(napi_env env, napi_value obj, const ResultInfo &resultInfo);
 private:
     UserAuthNapiHelper() = default;
     ~UserAuthNapiHelper() = default;

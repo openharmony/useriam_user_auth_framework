@@ -26,6 +26,7 @@
 #include "napi/native_api.h"
 #include "auth_common.h"
 #include "auth_instance_v9.h"
+#include "set_widget_param_callback.h"
 #include "user_auth_callback_v10.h"
 #include "user_auth_modal_callback.h"
 #include "user_auth_napi_client_impl.h"
@@ -53,7 +54,7 @@ private:
     UserAuthResultCode ClearTipCallback(napi_env env, size_t argc, napi_value *value);
 
     AuthParamInner authParam_ = {};
-    WidgetParamNapi widgetParam_ = {};
+    SetWidgetParamClientCallback::WidgetParamExt widgetParamExt_ = {};
 
     uint64_t contextId_ = 0;
     bool isAuthStarted_ = false;

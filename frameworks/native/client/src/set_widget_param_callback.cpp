@@ -30,7 +30,7 @@ SetWidgetParamClientCallback::SetWidgetParamClientCallback(const sptr<ISetWidget
 {
 }
 
-int32_t SetWidgetParamClientCallback::OnSetRemoteAuthWidgetParam(WidgetParamNapi &widgetParam,
+int32_t SetWidgetParamClientCallback::OnSetRemoteAuthWidgetParam(WidgetParamExt &widgetParamExt,
     const std::shared_ptr<UserAuthModalClientCallback> &modalCallback)
 {
     IAM_LOGI("start");
@@ -46,10 +46,10 @@ int32_t SetWidgetParamClientCallback::OnSetRemoteAuthWidgetParam(WidgetParamNapi
     }
 
     IpcWidgetParamInner ipcWidgetParamInner = {};
-    ipcWidgetParamInner.title = widgetParam.title;
-    ipcWidgetParamInner.navigationButtonText = widgetParam.navigationButtonText;
-    ipcWidgetParamInner.windowMode = static_cast<int32_t>(widgetParam.windowMode);
-    ipcWidgetParamInner.hasContext = widgetParam.hasContext;
+    ipcWidgetParamInner.title = widgetParamExt.title;
+    ipcWidgetParamInner.navigationButtonText = widgetParamExt.navigationButtonText;
+    ipcWidgetParamInner.windowMode = static_cast<int32_t>(widgetParamExt.windowMode);
+    ipcWidgetParamInner.hasContext = widgetParamExt.hasContext;
 
     sptr<IModalCallback> wrapperModal(new (std::nothrow) ModalCallbackService(modalCallback));
     if (wrapperModal == nullptr) {

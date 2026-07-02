@@ -74,7 +74,6 @@ static constexpr uint32_t TERMINATE_TIMER_LEN_MS = 3000;
 #else
 static constexpr uint32_t TERMINATE_TIMER_LEN_MS = 1000;
 #endif
-static constexpr uint32_t REMOTE_AUTH_TIMER_LEN_MS = 10000;
 
 WidgetContext::WidgetContext(uint64_t contextId, const ContextFactory::AuthWidgetContextPara &para,
     std::shared_ptr<ContextCallback> callback, const sptr<IModalCallback> &modalCallback,
@@ -1056,46 +1055,6 @@ void WidgetContext::ClearSchedule()
         static_cast<uint16_t>(contextId_), result ? "succ" : "fail");
 }
 
-void WidgetContext::StartRemoteAuthTimer()
-{
-    IAM_LOGI("start");
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    if (remoteAuthTimerId_ != 0) {
-        IAM_LOGI("remoteAuthTimer is already start");
-        return;
-    }
-    IAM_LOGI("remoteAuthTimer start, context ****%{public}hx", static_cast<uint16_t>(contextId_));
-    remoteAuthTimerId_ = RelativeTimer::GetInstance().Register(
-        [weakSelf = weak_from_this()] {
-            auto self = weakSelf.lock();
-            if (self == nullptr) {
-                IAM_LOGE("remoteAuthTimer, context is released");
-                return;
-            }
-            self->OnRemoteAuthTimerTimeOut();
-        },
-        REMOTE_AUTH_TIMER_LEN_MS);
-}
-
-void WidgetContext::StopRemoteAuthTimer()
-{
-    IAM_LOGI("start");
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
-    if (remoteAuthTimerId_ == 0) {
-        IAM_LOGI("remoteAuthTimer is already stop");
-        return;
-    }
-
-    RelativeTimer::GetInstance().Unregister(remoteAuthTimerId_);
-    remoteAuthTimerId_ = 0;
-}
-
-void WidgetContext::OnRemoteAuthTimerTimeOut()
-{
-    IAM_LOGE("start");
-    OnStop();
-}
-
 bool WidgetContext::GetRemoteAuthParam()
 {
     IAM_LOGI("start");
@@ -1110,7 +1069,6 @@ bool WidgetContext::GetRemoteAuthParam()
         return false;
     }
     remoteAuthCallback_->OnGetRemoteAuthWidgetParam(para_.challenge, setResultCallback);
-    StartRemoteAuthTimer();
     return true;
 }
 
@@ -1118,7 +1076,6 @@ void WidgetContext::SetRemoteAuthParam(const WidgetParamInner &widgetParam, cons
 {
     IAM_LOGI("start");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    StopRemoteAuthTimer();
     para_.widgetParam = widgetParam;
     modalCallback_ = modalCallback;
     if (!schedule_->StartSchedule()) {

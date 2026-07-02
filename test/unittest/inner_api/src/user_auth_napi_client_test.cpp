@@ -46,12 +46,12 @@ HWTEST_F(UserAuthNapiClientTest, UserAuthNapiClientBeginWidgetAuth001, TestSize.
 {
     static const int32_t apiVersion = 0;
     AuthParamInner authParam;
-    WidgetParamNapi widgetParam;
+    SetWidgetParamClientCallback::WidgetParamExt widgetParamExt;
     std::shared_ptr<MockAuthenticationCallback> testCallback = nullptr;
     testCallback = Common::MakeShared<MockAuthenticationCallback>();
     std::shared_ptr<UserAuthModalInnerCallback> testModalCallback = Common::MakeShared<UserAuthModalInnerCallback>();
     uint64_t widgetAuth = UserAuthNapiClientImpl::Instance().BeginWidgetAuth(apiVersion, authParam,
-        widgetParam, testCallback, testModalCallback);
+        widgetParamExt, testCallback, testModalCallback);
     EXPECT_EQ(widgetAuth, 0);
 }
 
@@ -94,11 +94,11 @@ HWTEST_F(UserAuthNapiClientTest, UserAuthNapiClientBeginWidgetAuth002, TestSize.
     AuthParamInner testAuthParam = {};
     testAuthParam.challenge = {0};
     testAuthParam.authTypes = {ALL};
-    WidgetParamNapi testWidgetParam = {};
-    testWidgetParam.title = "title";
+    SetWidgetParamClientCallback::WidgetParamExt widgetParamExt = {};
+    widgetParamExt.title = "title";
     std::shared_ptr<UserAuthModalInnerCallback> testModalCallback = Common::MakeShared<UserAuthModalInnerCallback>();
     uint64_t widgetAuth = UserAuthNapiClientImpl::Instance().BeginWidgetAuth(testVersion, testAuthParam,
-        testWidgetParam, testCallback, testModalCallback);
+        widgetParamExt, testCallback, testModalCallback);
     EXPECT_EQ(widgetAuth, testContextId);
     dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
@@ -109,12 +109,12 @@ HWTEST_F(UserAuthNapiClientTest, UserAuthNapiClientBeginWidgetAuth003, TestSize.
     static const int32_t apiVersion = 0;
     AuthParamInner authParam;
     authParam.userId = 101;
-    WidgetParamNapi widgetParam;
+    SetWidgetParamClientCallback::WidgetParamExt widgetParamExt;
     std::shared_ptr<MockAuthenticationCallback> testCallback = nullptr;
     testCallback = Common::MakeShared<MockAuthenticationCallback>();
     std::shared_ptr<UserAuthModalInnerCallback> testModalCallback = Common::MakeShared<UserAuthModalInnerCallback>();
     uint64_t widgetAuth = UserAuthNapiClientImpl::Instance().BeginWidgetAuth(apiVersion, authParam,
-        widgetParam, testCallback, testModalCallback);
+        widgetParamExt, testCallback, testModalCallback);
     EXPECT_EQ(widgetAuth, 0);
 }
 
@@ -158,11 +158,11 @@ HWTEST_F(UserAuthNapiClientTest, UserAuthNapiClientBeginWidgetAuth004, TestSize.
     AuthParamInner testAuthParam = {};
     testAuthParam.challenge = {0};
     testAuthParam.authTypes = {ALL};
-    WidgetParamNapi testWidgetParam = {};
-    testWidgetParam.title = "title";
+    SetWidgetParamClientCallback::WidgetParamExt widgetParamExt = {};
+    widgetParamExt.title = "title";
     std::shared_ptr<UserAuthModalInnerCallback> testModalCallback = Common::MakeShared<UserAuthModalInnerCallback>();
     uint64_t widgetAuth = UserAuthNapiClientImpl::Instance().BeginWidgetAuth(testVersion, testAuthParam,
-        testWidgetParam, testCallback, testModalCallback);
+        widgetParamExt, testCallback, testModalCallback);
     EXPECT_EQ(widgetAuth, testContextId);
     dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();

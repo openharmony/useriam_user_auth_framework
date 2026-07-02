@@ -131,9 +131,6 @@ private:
     void StartOnTerminateTimer();
     void StopOnTerminateTimer();
     void OnTerminateTimerTimeOut(uint64_t contextId);
-    void StartRemoteAuthTimer();
-    void StopRemoteAuthTimer();
-    void OnRemoteAuthTimerTimeOut();
     std::string ProcessCmdData(WidgetCmdParameters &widgetCmdParameters);
     void ProcessElementName(std::string &bundleName, std::string &abilityName);
     bool HandleAuthSuccessResult(Attributes &attr);
@@ -179,7 +176,6 @@ private:
     uint32_t widgetAlreadyLoad_ {0};
     nlohmann::json jsonBuf_ = {};
     uint32_t onTerminateTimerId_ {0};
-    uint32_t remoteAuthTimerId_ {0};
 };
 } // namespace UserAuth
 } // namespace UserIam

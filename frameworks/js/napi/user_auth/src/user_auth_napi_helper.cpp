@@ -561,7 +561,7 @@ napi_status UserAuthNapiHelper::SetUint8ArrayProperty(napi_env env,
 }
 
 napi_status UserAuthNapiHelper::SetEnrolledStateProperty(napi_env env, napi_value obj,
-    const char *name, EnrolledState &value)
+    const char *name, const EnrolledState &value)
 {
     napi_value napiValue = nullptr;
     napi_status ret = napi_create_object(env, &napiValue);
@@ -682,6 +682,39 @@ bool UserAuthNapiHelper::ConvertSizeToUint32(size_t in, uint32_t &out)
     }
     out = static_cast<uint32_t>(in);
     return true;
+}
+
+napi_status UserAuthNapiHelper::SetResultInfoProperty(napi_env env, napi_value obj, const ResultInfo &resultInfo)
+{
+    napi_status ret = UserAuthNapiHelper::SetInt32Property(env, obj, "result", resultInfo.result);
+    if (ret != napi_ok) {
+        IAM_LOGE("SetInt32Property result failed %{public}d", ret);
+        return ret;
+    }
+
+    if (!resultInfo.token.empty()) {
+        ret = UserAuthNapiHelper::SetUint8ArrayProperty(env, obj, "token", resultInfo.token);
+        if (ret != napi_ok) {
+            IAM_LOGE("SetUint8ArrayProperty failed %{public}d", ret);
+            return ret;
+        }
+    }
+
+    if (UserAuthHelper::CheckUserAuthType(resultInfo.authType)) {
+        ret = UserAuthNapiHelper::SetInt32Property(env, obj, "authType", resultInfo.authType);
+        if (ret != napi_ok) {
+            IAM_LOGE("SetInt32Property authType failed %{public}d", ret);
+            return ret;
+        }
+    }
+    if (UserAuthResultCode(resultInfo.result) == UserAuthResultCode::SUCCESS || !resultInfo.token.empty()) {
+        ret = UserAuthNapiHelper::SetEnrolledStateProperty(env, obj, "enrolledState", resultInfo.enrolledState);
+        if (ret != napi_ok) {
+            IAM_LOGE("SetEnrolledStateProperty failed %{public}d", ret);
+            return ret;
+        }
+    }
+    return ret;
 }
 } // namespace UserAuth
 } // namespace UserIam

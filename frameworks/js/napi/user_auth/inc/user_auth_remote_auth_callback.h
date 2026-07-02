@@ -20,14 +20,16 @@
 
 #include "nocopyable.h"
 
+#include "attributes.h"
 #include "auth_common.h"
-#include "user_auth_napi_helper.h"
 #include "iam_common_defines.h"
-#include "user_auth_common_defines.h"
+
+#include "remote_auth_client_callback.h"
 #include "set_widget_param_callback.h"
+#include "user_auth_napi_helper.h"
+#include "user_auth_common_defines.h"
 #include "user_auth_modal_callback.h"
 #include "user_auth_napi_client_impl.h"
-#include "attributes.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -51,7 +53,8 @@ private:
         const std::vector<uint8_t> &token,
         int32_t authType, EnrolledState enrolledState);
     napi_status ConvertRemoteAuthWidgetParam(napi_env env, napi_value value,
-        WidgetParamNapi &widgetParam, std::shared_ptr<UserAuthModalCallback> &modalCallback);
+        SetWidgetParamClientCallback::WidgetParamExt &widgetParamExt,
+        std::shared_ptr<UserAuthModalCallback> &modalCallback);
 
     std::shared_ptr<JsRefHolder> GetWidgetParamCallback();
     std::shared_ptr<JsRefHolder> GetResultCallback();

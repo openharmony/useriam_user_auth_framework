@@ -225,20 +225,6 @@ struct AuthSuccessEventInfo {
     /** Is widget auth. */
     bool isWidgetAuth {false};
 };
-
-/**
-* @brief Auth widget parameter.
-*/
-struct WidgetParamNapi {
-    /** Title of widget. */
-    std::string title;
-    /** The description text of navigation button. */
-    std::string navigationButtonText;
-    /** Full screen or not. */
-    WindowModeType windowMode;
-    /** Default has't context. */
-    bool hasContext {false};
-};
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

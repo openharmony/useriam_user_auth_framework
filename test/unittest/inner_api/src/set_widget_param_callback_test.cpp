@@ -48,14 +48,14 @@ HWTEST_F(SetWidgetParamCallbackTest, SetWidgetParamCallbackTest001, TestSize.Lev
     auto service = Common::MakeShared<SetWidgetParamClientCallback>(testCallback);
     EXPECT_NE(service, nullptr);
 
-    WidgetParamNapi testWidgetParam = {};
-    testWidgetParam.title = "test title";
-    testWidgetParam.navigationButtonText = "test navigation";
-    testWidgetParam.windowMode = WindowModeType::DIALOG_BOX;
-    testWidgetParam.hasContext = false;
+    SetWidgetParamClientCallback::WidgetParamExt widgetParamExt = {};
+    widgetParamExt.title = "test title";
+    widgetParamExt.navigationButtonText = "test navigation";
+    widgetParamExt.windowMode = WindowModeType::DIALOG_BOX;
+    widgetParamExt.hasContext = false;
     std::shared_ptr<UserAuthModalClientCallback> testModalCallback = nullptr;
 
-    int32_t result = service->OnSetRemoteAuthWidgetParam(testWidgetParam, testModalCallback);
+    int32_t result = service->OnSetRemoteAuthWidgetParam(widgetParamExt, testModalCallback);
     EXPECT_EQ(result, GENERAL_ERROR);
 }
 
@@ -67,16 +67,16 @@ HWTEST_F(SetWidgetParamCallbackTest, SetWidgetParamCallbackTest002, TestSize.Lev
     auto service = Common::MakeShared<SetWidgetParamClientCallback>(mockCallback);
     EXPECT_NE(service, nullptr);
 
-    WidgetParamNapi testWidgetParam = {};
-    testWidgetParam.title = "test title";
-    testWidgetParam.navigationButtonText = "test navigation";
-    testWidgetParam.windowMode = WindowModeType::DIALOG_BOX;
-    testWidgetParam.hasContext = false;
+    SetWidgetParamClientCallback::WidgetParamExt widgetParamExt = {};
+    widgetParamExt.title = "test title";
+    widgetParamExt.navigationButtonText = "test navigation";
+    widgetParamExt.windowMode = WindowModeType::DIALOG_BOX;
+    widgetParamExt.hasContext = false;
     auto mockModalCallback = Common::MakeShared<MockUserAuthModalCallback>();
     EXPECT_NE(mockModalCallback, nullptr);
 
     EXPECT_CALL(*mockCallback, OnSetRemoteAuthWidgetParam(_, _)).Times(1);
-    int32_t result = service->OnSetRemoteAuthWidgetParam(testWidgetParam, mockModalCallback);
+    int32_t result = service->OnSetRemoteAuthWidgetParam(widgetParamExt, mockModalCallback);
     EXPECT_EQ(result, SUCCESS);
 }
 
@@ -88,17 +88,17 @@ HWTEST_F(SetWidgetParamCallbackTest, SetWidgetParamCallbackTest003, TestSize.Lev
     auto service = Common::MakeShared<SetWidgetParamClientCallback>(mockCallback);
     EXPECT_NE(service, nullptr);
 
-    WidgetParamNapi testWidgetParam = {};
-    testWidgetParam.title = "test title";
-    testWidgetParam.navigationButtonText = "test navigation";
-    testWidgetParam.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
-    testWidgetParam.hasContext = false;
+    SetWidgetParamClientCallback::WidgetParamExt widgetParamExt = {};
+    widgetParamExt.title = "test title";
+    widgetParamExt.navigationButtonText = "test navigation";
+    widgetParamExt.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
+    widgetParamExt.hasContext = false;
 
     auto mockModalCallback = Common::MakeShared<MockUserAuthModalCallback>();
     EXPECT_NE(mockModalCallback, nullptr);
 
     EXPECT_CALL(*mockCallback, OnSetRemoteAuthWidgetParam(_, _)).Times(1);
-    int32_t result = service->OnSetRemoteAuthWidgetParam(testWidgetParam, mockModalCallback);
+    int32_t result = service->OnSetRemoteAuthWidgetParam(widgetParamExt, mockModalCallback);
     EXPECT_EQ(result, SUCCESS);
 }
 
@@ -110,17 +110,17 @@ HWTEST_F(SetWidgetParamCallbackTest, SetWidgetParamCallbackTest004, TestSize.Lev
     auto service = Common::MakeShared<SetWidgetParamClientCallback>(mockCallback);
     EXPECT_NE(service, nullptr);
 
-    WidgetParamNapi testWidgetParam = {};
-    testWidgetParam.title = "";
-    testWidgetParam.navigationButtonText = "";
-    testWidgetParam.windowMode = WindowModeType::DIALOG_BOX;
-    testWidgetParam.hasContext = true;
+    SetWidgetParamClientCallback::WidgetParamExt widgetParamExt = {};
+    widgetParamExt.title = "";
+    widgetParamExt.navigationButtonText = "";
+    widgetParamExt.windowMode = WindowModeType::DIALOG_BOX;
+    widgetParamExt.hasContext = true;
 
     auto mockModalCallback = Common::MakeShared<MockUserAuthModalCallback>();
     EXPECT_NE(mockModalCallback, nullptr);
 
     EXPECT_CALL(*mockCallback, OnSetRemoteAuthWidgetParam(_, _)).Times(1);
-    int32_t result = service->OnSetRemoteAuthWidgetParam(testWidgetParam, mockModalCallback);
+    int32_t result = service->OnSetRemoteAuthWidgetParam(widgetParamExt, mockModalCallback);
     EXPECT_EQ(result, SUCCESS);
 }
 } // namespace UserAuth

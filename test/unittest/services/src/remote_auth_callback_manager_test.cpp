@@ -71,7 +71,7 @@ HWTEST_F(RemoteAuthCallbackManagerTest, RemoteAuthCallbackManagerAddCallback_001
     ASSERT_NE(callback, nullptr);
     uint32_t tokenId = 12345;
     std::string callerName = "test";
-    EXPECT_EQ(manager->AddRemoteAuthCallback(tokenId, callback, callerName), SUCCESS);
+    EXPECT_EQ(manager->AddRemoteAuthCallback(tokenId, callback), SUCCESS);
     manager->DelRemoteAuthCallback(tokenId);
 }
 
@@ -82,7 +82,7 @@ HWTEST_F(RemoteAuthCallbackManagerTest, RemoteAuthCallbackManagerAddCallback_002
     sptr<MockIRemoteAuthCallback> callback = nullptr;
     uint32_t tokenId = 12345;
     std::string callerName = "test";
-    EXPECT_EQ(manager->AddRemoteAuthCallback(tokenId, callback, callerName), GENERAL_ERROR);
+    EXPECT_EQ(manager->AddRemoteAuthCallback(tokenId, callback), GENERAL_ERROR);
 }
 
 HWTEST_F(RemoteAuthCallbackManagerTest, RemoteAuthCallbackManagerDelCallback_001, TestSize.Level0)
@@ -93,8 +93,8 @@ HWTEST_F(RemoteAuthCallbackManagerTest, RemoteAuthCallbackManagerDelCallback_001
     ASSERT_NE(callback, nullptr);
     uint32_t tokenId = 12345;
     std::string callerName = "test";
-    manager->AddRemoteAuthCallback(tokenId, callback, callerName);
-    EXPECT_EQ(manager->DelRemoteAuthCallback(tokenId), SUCCESS);
+    manager->AddRemoteAuthCallback(tokenId, callback);
+    manager->DelRemoteAuthCallback(tokenId);
 }
 
 HWTEST_F(RemoteAuthCallbackManagerTest, RemoteAuthCallbackManagerDelCallback_002, TestSize.Level0)
@@ -102,7 +102,7 @@ HWTEST_F(RemoteAuthCallbackManagerTest, RemoteAuthCallbackManagerDelCallback_002
     auto manager = &RemoteAuthCallbackManager::GetInstance();
     ASSERT_NE(manager, nullptr);
     uint32_t tokenId = 99999;
-    EXPECT_EQ(manager->DelRemoteAuthCallback(tokenId), SUCCESS);
+    manager->DelRemoteAuthCallback(tokenId);
 }
 
 HWTEST_F(RemoteAuthCallbackManagerTest, RemoteAuthCallbackManagerGetCallback_001, TestSize.Level0)
@@ -113,7 +113,7 @@ HWTEST_F(RemoteAuthCallbackManagerTest, RemoteAuthCallbackManagerGetCallback_001
     ASSERT_NE(callback, nullptr);
     uint32_t tokenId = 12345;
     std::string callerName = "test";
-    manager->AddRemoteAuthCallback(tokenId, callback, callerName);
+    manager->AddRemoteAuthCallback(tokenId, callback);
     auto result = manager->GetRemoteAuthCallback(tokenId);
     EXPECT_NE(result, nullptr);
     manager->DelRemoteAuthCallback(tokenId);
@@ -136,8 +136,8 @@ HWTEST_F(RemoteAuthCallbackManagerTest, RemoteAuthCallbackManagerAddDuplicateCal
     ASSERT_NE(callback, nullptr);
     uint32_t tokenId = 12345;
     std::string callerName = "test";
-    EXPECT_EQ(manager->AddRemoteAuthCallback(tokenId, callback, callerName), SUCCESS);
-    EXPECT_EQ(manager->AddRemoteAuthCallback(tokenId, callback, callerName), SUCCESS);
+    EXPECT_EQ(manager->AddRemoteAuthCallback(tokenId, callback), SUCCESS);
+    EXPECT_EQ(manager->AddRemoteAuthCallback(tokenId, callback), GENERAL_ERROR);
     manager->DelRemoteAuthCallback(tokenId);
 }
 
@@ -157,9 +157,9 @@ HWTEST_F(RemoteAuthCallbackManagerTest, RemoteAuthCallbackManagerAddMultipleCall
     uint32_t tokenId3 = 33333;
     std::string callerName = "test";
 
-    EXPECT_EQ(manager->AddRemoteAuthCallback(tokenId1, callback1, callerName), SUCCESS);
-    EXPECT_EQ(manager->AddRemoteAuthCallback(tokenId2, callback2, callerName), SUCCESS);
-    EXPECT_EQ(manager->AddRemoteAuthCallback(tokenId3, callback3, callerName), SUCCESS);
+    EXPECT_EQ(manager->AddRemoteAuthCallback(tokenId1, callback1), SUCCESS);
+    EXPECT_EQ(manager->AddRemoteAuthCallback(tokenId2, callback2), SUCCESS);
+    EXPECT_EQ(manager->AddRemoteAuthCallback(tokenId3, callback3), SUCCESS);
 
     EXPECT_NE(manager->GetRemoteAuthCallback(tokenId1), nullptr);
     EXPECT_NE(manager->GetRemoteAuthCallback(tokenId2), nullptr);
@@ -178,57 +178,10 @@ HWTEST_F(RemoteAuthCallbackManagerTest, RemoteAuthCallbackManagerDelAndGetCallba
     ASSERT_NE(callback, nullptr);
     uint32_t tokenId = 12345;
     std::string callerName = "test";
-    manager->AddRemoteAuthCallback(tokenId, callback, callerName);
+    manager->AddRemoteAuthCallback(tokenId, callback);
     manager->DelRemoteAuthCallback(tokenId);
     auto result = manager->GetRemoteAuthCallback(tokenId);
     EXPECT_EQ(result, nullptr);
-}
-
-HWTEST_F(RemoteAuthCallbackManagerTest, RemoteAuthCallbackManagerGetCallbackDeathRecipientMap_001, TestSize.Level0)
-{
-    auto manager = &RemoteAuthCallbackManager::GetInstance();
-    ASSERT_NE(manager, nullptr);
-    sptr<MockIRemoteAuthCallback> callback = new (std::nothrow) MockIRemoteAuthCallback();
-    ASSERT_NE(callback, nullptr);
-    uint32_t tokenId = 12345;
-    std::string callerName = "test";
-    manager->AddRemoteAuthCallback(tokenId, callback, callerName);
-    auto map = manager->GetCallbackDeathRecipientMap();
-    EXPECT_GE(map.size(), 0);
-    manager->DelRemoteAuthCallback(tokenId);
-}
-
-HWTEST_F(RemoteAuthCallbackManagerTest, RemoteAuthCallbackManagerOnRemoteDied_001, TestSize.Level0)
-{
-    auto manager = &RemoteAuthCallbackManager::GetInstance();
-    ASSERT_NE(manager, nullptr);
-    sptr<MockIRemoteAuthCallback> callback = new (std::nothrow) MockIRemoteAuthCallback();
-    ASSERT_NE(callback, nullptr);
-    uint32_t tokenId = 12345;
-    std::string callerName = "test";
-    manager->AddRemoteAuthCallback(tokenId, callback, callerName);
-    auto map = manager->GetCallbackDeathRecipientMap();
-    manager->DelRemoteAuthCallback(tokenId);
-}
-
-HWTEST_F(RemoteAuthCallbackManagerTest, RemoteAuthCallbackManagerDelRemoteAuthCallbackOnRemoteDied_001, TestSize.Level0)
-{
-    auto manager = &RemoteAuthCallbackManager::GetInstance();
-    ASSERT_NE(manager, nullptr);
-    sptr<MockIRemoteAuthCallback> callback = new (std::nothrow) MockIRemoteAuthCallback();
-    ASSERT_NE(callback, nullptr);
-    uint32_t tokenId = 12345;
-    std::string callerName = "test";
-    manager->AddRemoteAuthCallback(tokenId, callback, callerName);
-    EXPECT_EQ(manager->DelRemoteAuthCallbackOnRemoteDied(callback), GENERAL_ERROR);
-}
-
-HWTEST_F(RemoteAuthCallbackManagerTest, RemoteAuthCallbackManagerDelRemoteAuthCallbackOnRemoteDied_002, TestSize.Level0)
-{
-    auto manager = &RemoteAuthCallbackManager::GetInstance();
-    ASSERT_NE(manager, nullptr);
-    sptr<MockIRemoteAuthCallback> callback = nullptr;
-    EXPECT_EQ(manager->DelRemoteAuthCallbackOnRemoteDied(callback), GENERAL_ERROR);
 }
 
 HWTEST_F(RemoteAuthCallbackManagerTest, RemoteAuthCallbackManagerGetCallerName_001, TestSize.Level0)
@@ -239,8 +192,8 @@ HWTEST_F(RemoteAuthCallbackManagerTest, RemoteAuthCallbackManagerGetCallerName_0
     ASSERT_NE(callback, nullptr);
     uint32_t tokenId = 12345;
     std::string callerName = "test_caller";
-    manager->AddRemoteAuthCallback(tokenId, callback, callerName);
-    EXPECT_EQ(manager->GetRemoteAuthCallerName(tokenId), callerName);
+    manager->AddRemoteAuthCallback(tokenId, callback);
+    EXPECT_NE(manager->GetRemoteAuthCallerName(tokenId), callerName);
     manager->DelRemoteAuthCallback(tokenId);
 }
 
