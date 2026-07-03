@@ -311,8 +311,8 @@ UserAuthResultCode UserAuthParamUtils::ProcessReuseUnlockResult(napi_env env, na
 }
 
 UserAuthResultCode UserAuthParamUtils::InitWidgetParam(napi_env env, napi_value value,
-    WidgetParamNapi &widgetParam, std::shared_ptr<AbilityRuntime::Context> &abilityContext,
-    sptr<OHOS::Rosen::Window> &window)
+    SetWidgetParamClientCallback::WidgetParamExt &widgetParamExt,
+    std::shared_ptr<AbilityRuntime::Context> &abilityContext, sptr<OHOS::Rosen::Window> &window)
 {
     napi_status ret = UserAuthNapiHelper::CheckNapiType(env, value, napi_null);
     if (ret == napi_ok) {
@@ -332,7 +332,7 @@ UserAuthResultCode UserAuthParamUtils::InitWidgetParam(napi_env env, napi_value 
         std::string msgStr = "Parameter error. The length of \"title\" connot exceed 500.";
         return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }
-    widgetParam.title = title;
+    widgetParamExt.title = title;
 
     if (UserAuthNapiHelper::HasNamedProperty(env, value, WIDGET_PARAM_NAVIBTNTEXT)) {
         std::string naviBtnTxt = UserAuthNapiHelper::GetStringPropertyUtf8(env, value, WIDGET_PARAM_NAVIBTNTEXT);
@@ -342,18 +342,18 @@ UserAuthResultCode UserAuthParamUtils::InitWidgetParam(napi_env env, napi_value 
             std::string msgStr = "Parameter error. The length of \"navigationButtonText\" connot exceed 60.";
             return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
         }
-        widgetParam.navigationButtonText = naviBtnTxt;
+        widgetParamExt.navigationButtonText = naviBtnTxt;
     }
 
-    UserAuthResultCode errorCode = ProcessWindowMode(env, value, widgetParam);
+    UserAuthResultCode errorCode = ProcessWindowMode(env, value, widgetParamExt);
     if (errorCode != UserAuthResultCode::SUCCESS) {
         return errorCode;
     }
 
     if (UserAuthNapiHelper::HasNamedProperty(env, value, WIDGET_PARAM_CONTEXT)) {
-        errorCode = ProcessContext(env, value, widgetParam, abilityContext);
+        errorCode = ProcessContext(env, value, widgetParamExt, abilityContext);
     } else if (UserAuthNapiHelper::HasNamedProperty(env, value, WIDGET_PARAM_WINDOW)) {
-        errorCode = ProcessWindow(env, value, widgetParam, window);
+        errorCode = ProcessWindow(env, value, widgetParamExt, window);
     }
     if (errorCode != UserAuthResultCode::SUCCESS) {
         IAM_LOGI("context or window is invalid");
@@ -363,7 +363,8 @@ UserAuthResultCode UserAuthParamUtils::InitWidgetParam(napi_env env, napi_value 
 }
 
 UserAuthResultCode UserAuthParamUtils::ProcessContext(napi_env env, napi_value value,
-    WidgetParamNapi &widgetParam, std::shared_ptr<AbilityRuntime::Context> &abilityContext)
+    SetWidgetParamClientCallback::WidgetParamExt &widgetParamExt,
+    std::shared_ptr<AbilityRuntime::Context> &abilityContext)
 {
     IAM_LOGI("process uiContext");
     napi_value napi_uiContext = UserAuthNapiHelper::GetNamedProperty(env, value, WIDGET_PARAM_CONTEXT);
@@ -383,17 +384,17 @@ UserAuthResultCode UserAuthParamUtils::ProcessContext(napi_env env, napi_value v
     auto context = OHOS::AbilityRuntime::GetStageModeContext(env, napi_uiContext);
     if (CheckUIContext(context)) {
         abilityContext = context;
-        widgetParam.hasContext = true;
-        IAM_LOGI("widgetParam has valid uiContext");
+        widgetParamExt.hasContext = true;
+        IAM_LOGI("widgetParamExt has valid uiContext");
     } else {
         // Default as modal system
-        IAM_LOGI("widgetParam has invalid uiContext, not base on valid AbilityContext or UIExtensionContext.");
+        IAM_LOGI("widgetParamExt has invalid uiContext, not base on valid AbilityContext or UIExtensionContext.");
     }
     return UserAuthResultCode::SUCCESS;
 }
 
 UserAuthResultCode UserAuthParamUtils::ProcessWindow(napi_env env, napi_value value,
-    WidgetParamNapi &widgetParam, sptr<OHOS::Rosen::Window> &window)
+    SetWidgetParamClientCallback::WidgetParamExt &widgetParamExt, sptr<OHOS::Rosen::Window> &window)
 {
     IAM_LOGI("process window");
     napi_value napi_window = UserAuthNapiHelper::GetNamedProperty(env, value, WIDGET_PARAM_WINDOW);
@@ -413,13 +414,13 @@ UserAuthResultCode UserAuthParamUtils::ProcessWindow(napi_env env, napi_value va
     }
 
     window = nativeWindow->GetWindow();
-    widgetParam.hasContext = true;
-    IAM_LOGI("widgetParam has valid window");
+    widgetParamExt.hasContext = true;
+    IAM_LOGI("widgetParamExt has valid window");
     return UserAuthResultCode::SUCCESS;
 }
 
 UserAuthResultCode UserAuthParamUtils::ProcessWindowMode(napi_env env, napi_value value,
-    WidgetParamNapi &widgetParam)
+    SetWidgetParamClientCallback::WidgetParamExt &widgetParamExt)
 {
     if (UserAuthNapiHelper::HasNamedProperty(env, value, WIDGET_PARAM_WINDOWMODE)) {
         napi_value napi_windowModeType = UserAuthNapiHelper::GetNamedProperty(env, value, WIDGET_PARAM_WINDOWMODE);
@@ -434,7 +435,7 @@ UserAuthResultCode UserAuthParamUtils::ProcessWindowMode(napi_env env, napi_valu
             case WindowModeType::DIALOG_BOX:
             case WindowModeType::FULLSCREEN:
             case WindowModeType::NONE_INTERRUPTION_DIALOG_BOX:
-                widgetParam.windowMode = static_cast<WindowModeType>(windowMode);
+                widgetParamExt.windowMode = static_cast<WindowModeType>(windowMode);
                 break;
             default:
                 IAM_LOGE("windowMode type not support.");
@@ -443,9 +444,9 @@ UserAuthResultCode UserAuthParamUtils::ProcessWindowMode(napi_env env, napi_valu
         }
     }
 
-    IAM_LOGI("widgetParam title:%{public}s, navBtnText:%{public}s, winMode:%{public}u",
-        widgetParam.title.c_str(), widgetParam.navigationButtonText.c_str(),
-        static_cast<uint32_t>(widgetParam.windowMode));
+    IAM_LOGI("widgetParamExt title:%{public}s, navBtnText:%{public}s, winMode:%{public}u",
+        widgetParamExt.title.c_str(), widgetParamExt.navigationButtonText.c_str(),
+        static_cast<uint32_t>(widgetParamExt.windowMode));
     return UserAuthResultCode::SUCCESS;
 }
 

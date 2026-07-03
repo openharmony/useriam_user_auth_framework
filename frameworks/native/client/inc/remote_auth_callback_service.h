@@ -19,7 +19,7 @@
 #include "remote_auth_callback_stub.h"
 
 #include "iremote_auth_callback.h"
-#include "user_auth_client_callback.h"
+#include "remote_auth_client_callback.h"
 
 namespace OHOS {
 namespace UserIam {

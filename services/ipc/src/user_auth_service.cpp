@@ -2005,12 +2005,12 @@ int32_t UserAuthService::RegisterRemoteAuthCallback(const sptr<IRemoteAuthCallba
     IF_FALSE_LOGE_AND_RETURN_VAL(remoteAuthCallback != nullptr, INVALID_PARAMETERS);
     if (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP)) {
         IAM_LOGE("the caller is not a system application");
-        return ResultCode::CHECK_SYSTEM_APP_FAILED;
+        return CHECK_SYSTEM_APP_FAILED;
     }
 
     if (!IpcCommon::CheckPermission(*this, SUPPORT_USER_AUTH)) {
         IAM_LOGE("CheckPermission failed, no permission");
-        return ResultCode::CHECK_PERMISSION_FAILED;
+        return CHECK_PERMISSION_FAILED;
     }
 
     uint32_t tokenId = IpcCommon::GetAccessTokenId(*this);
@@ -2021,23 +2021,24 @@ int32_t UserAuthService::RegisterRemoteAuthCallback(const sptr<IRemoteAuthCallba
         return GENERAL_ERROR;
     }
 
-    return RemoteAuthCallbackManager::GetInstance().AddRemoteAuthCallback(tokenId, remoteAuthCallback, callerName);
+    return RemoteAuthCallbackManager::GetInstance().AddRemoteAuthCallback(tokenId, remoteAuthCallback);
 }
 
 int32_t UserAuthService::UnregisterRemoteAuthCallback()
 {
     if (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP)) {
         IAM_LOGE("the caller is not a system application");
-        return ResultCode::CHECK_SYSTEM_APP_FAILED;
+        return CHECK_SYSTEM_APP_FAILED;
     }
 
     if (!IpcCommon::CheckPermission(*this, SUPPORT_USER_AUTH)) {
         IAM_LOGE("CheckPermission failed, no permission");
-        return ResultCode::CHECK_PERMISSION_FAILED;
+        return CHECK_PERMISSION_FAILED;
     }
 
     uint32_t tokenId = IpcCommon::GetAccessTokenId(*this);
-    return RemoteAuthCallbackManager::GetInstance().DelRemoteAuthCallback(tokenId);
+    RemoteAuthCallbackManager::GetInstance().DelRemoteAuthCallback(tokenId);
+    return SUCCESS;
 }
 
 void UserAuthService::InitAuthParam(const IpcAuthParamInner &ipcAuthParam, AuthParamInner &authParam)

@@ -24,6 +24,7 @@
 #include "ability.h"
 
 #include "auth_common.h"
+#include "set_widget_param_callback.h"
 #include "user_auth_napi_client_impl.h"
 #include "user_auth_api_event_reporter.h"
 
@@ -34,8 +35,8 @@ class UserAuthParamUtils : public NoCopyable {
 public:
     static UserAuthResultCode InitAuthParam(napi_env env, napi_value value, AuthParamInner &authParam);
     static UserAuthResultCode InitWidgetParam(napi_env env, napi_value value,
-        WidgetParamNapi &widgetParam, std::shared_ptr<AbilityRuntime::Context> &abilityContext,
-        sptr<OHOS::Rosen::Window> &window);
+        SetWidgetParamClientCallback::WidgetParamExt &widgetParamExt,
+        std::shared_ptr<AbilityRuntime::Context> &abilityContext, sptr<OHOS::Rosen::Window> &window);
 
 private:
     static UserAuthResultCode InitChallenge(napi_env env, napi_value value, AuthParamInner &authParam);
@@ -46,12 +47,12 @@ private:
     static UserAuthResultCode ProcessAuthTrustLevelAndUserId(napi_env env, napi_value value, AuthParamInner &authParam);
     static UserAuthResultCode ProcessReuseUnlockResult(napi_env env, napi_value value, AuthParamInner &authParam);
     static UserAuthResultCode ProcessWindowMode(napi_env env, napi_value value,
-        WidgetParamNapi &widgetParam);
+        SetWidgetParamClientCallback::WidgetParamExt &widgetParamExt);
     static UserAuthResultCode ProcessContext(napi_env env, napi_value value,
-        WidgetParamNapi &widgetParam,
+        SetWidgetParamClientCallback::WidgetParamExt &widgetParamExt,
         std::shared_ptr<AbilityRuntime::Context> &abilityContext);
     static UserAuthResultCode ProcessWindow(napi_env env, napi_value value,
-        WidgetParamNapi &widgetParam, sptr<OHOS::Rosen::Window> &window);
+        SetWidgetParamClientCallback::WidgetParamExt &widgetParamExt, sptr<OHOS::Rosen::Window> &window);
     static bool CheckUIContext(const std::shared_ptr<OHOS::AbilityRuntime::Context> context);
     static UserAuthResultCode ProcessSkipLockedBiometricAuth(napi_env env, napi_value value, AuthParamInner &authParam);
     static UserAuthResultCode ProcessCredentialIdList(napi_env env, napi_value value, AuthParamInner &authParam);

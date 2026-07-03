@@ -121,8 +121,8 @@ void WidgetScheduleNodeImpl::BuildParamWaitingStateTransitions(std::shared_ptr<F
 {
     builder->MakeTransition(S_WIDGET_PARAM_WAITING, E_START_WIDGET, S_WIDGET_WAITING,
         [this](FiniteStateMachine &machine, uint32_t event) { OnStartSchedule(machine, event); });
-    builder->MakeTransition(S_WIDGET_PARAM_WAITING, E_WIDGET_RELEASE, S_WIDGET_RELEASED,
-        [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetRelease(machine, event); });
+    builder->MakeTransition(S_WIDGET_PARAM_WAITING, E_CANCEL_AUTH, S_WIDGET_RELEASED,
+        [this](FiniteStateMachine &machine, uint32_t event) { OnStopSchedule(machine, event); });
 }
 
 void WidgetScheduleNodeImpl::BuildAuthFinishedStateTransitions(std::shared_ptr<FiniteStateMachine::Builder> &builder)

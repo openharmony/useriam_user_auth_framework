@@ -20,7 +20,6 @@
 #include "iam_ptr.h"
 #include "iam_common_defines.h"
 #include "user_auth_types.h"
-#include "user_auth_client_callback.h"
 
 #define LOG_TAG "USER_AUTH_SDK"
 #define LOG_FILE_ID LOG_FILE_REMOTE_AUTH_CALLBACK_SERVICE

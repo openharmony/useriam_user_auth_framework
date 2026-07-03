@@ -467,7 +467,14 @@ napi_value UserAuthImpl::RegisterRemoteAuthCallback(napi_env env, napi_callback_
         return nullptr;
     }
 
-    NAPI_CALL(env, UserAuthNapiHelper::CheckNapiType(env, argv[PARAM0], napi_object));
+    if (UserAuthNapiHelper::CheckNapiType(env, argv[PARAM0], napi_object) != napi_ok) {
+        IAM_LOGE("CheckNapiType fail");
+        std::string msgStr = "Parameter error. The type of \"callback\" must be IRemoteAuthCallback.";
+        napi_throw(env, UserAuthNapiHelper::GenerateErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr));
+        reporter.ReportFailed(UserAuthResultCode::OHOS_INVALID_PARAM);
+        return nullptr;
+    }
+
     napi_value onGetRemoteAuthWidgetParam;
     napi_value onRemoteAuthResult;
     NAPI_CALL(env, napi_get_named_property(env, argv[PARAM0], "onGetRemoteAuthWidgetParam",
@@ -475,16 +482,9 @@ napi_value UserAuthImpl::RegisterRemoteAuthCallback(napi_env env, napi_callback_
     NAPI_CALL(env, napi_get_named_property(env, argv[PARAM0], "onRemoteAuthResult", &onRemoteAuthResult));
     auto widgetParamCallback = Common::MakeShared<JsRefHolder>(env, onGetRemoteAuthWidgetParam);
     auto resultCallback = Common::MakeShared<JsRefHolder>(env, onRemoteAuthResult);
-    if (widgetParamCallback == nullptr || resultCallback == nullptr) {
-        IAM_LOGE("widgetParamCallback or resultCallback is null");
-        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
-        reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
-        return nullptr;
-    }
-
     auto remoteAuthCallback = Common::MakeShared<RemoteAuthCallback>(env, widgetParamCallback, resultCallback);
-    if (remoteAuthCallback == nullptr) {
-        IAM_LOGE("callback is nullptr");
+    if (widgetParamCallback == nullptr || resultCallback == nullptr || remoteAuthCallback == nullptr) {
+        IAM_LOGE("widgetParamCallback or resultCallback or remoteAuthCallback is null");
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
         reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
         return nullptr;
