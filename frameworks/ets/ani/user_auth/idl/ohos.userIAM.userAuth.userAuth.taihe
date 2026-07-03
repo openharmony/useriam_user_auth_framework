@@ -165,8 +165,10 @@ function GetUserAuthWidgetMgr(version: i32): UserAuthWidgetMgr;
 
 function QueryReusableAuthResult(authParam: AuthParam): @typedarray Array<u8>;
 
-@gen_promise("getAuthLockState")
 function getAuthLockStateSync(authType: UserAuthType): AuthLockState;
+
+@promise
+function getAuthLockState(authType: UserAuthType): AuthLockState;
 
 struct IRemoteAuthCallback {
     onGetRemoteAuthWidgetParam: (challenge: @typedarray Array<u8>) => WidgetParam;
