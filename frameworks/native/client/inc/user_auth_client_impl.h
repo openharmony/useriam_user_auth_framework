@@ -24,6 +24,7 @@
 #include "event_listener_callback_service.h"
 #include "iuser_auth.h"
 #include "iuser_auth_widget_callback.h"
+#include "remote_auth_client_callback.h"
 #include "user_auth_client.h"
 #include "user_auth_types.h"
 #include "user_auth_common_defines.h"
@@ -69,8 +70,8 @@ public:
         const std::shared_ptr<PrepareRemoteAuthCallback> &callback) override;
     int32_t QueryReusableAuthResult(const WidgetAuthParam &authParam, std::vector<uint8_t> &token) override;
 
-    int32_t RegisterRemoteAuthCallback(const std::shared_ptr<RemoteAuthClientCallback> &remoteAuthCallback) override;
-    int32_t UnregisterRemoteAuthCallback() override;
+    int32_t RegisterRemoteAuthCallback(const std::shared_ptr<RemoteAuthClientCallback> &remoteAuthCallback);
+    int32_t UnregisterRemoteAuthCallback();
 
     void CleanUpResource();
 

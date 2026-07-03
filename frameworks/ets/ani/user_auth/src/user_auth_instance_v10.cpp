@@ -52,9 +52,9 @@ UserAuthInstanceV10::UserAuthInstanceV10() : callback_(Common::MakeShared<UserAu
     authParam_.isUserIdSpecified = false;
     authParam_.skipLockedBiometricAuth = false;
     authParam_.reuseUnlockResult.isReuse = false;
-    widgetParam_.navigationButtonText = "";
-    widgetParam_.title = "";
-    widgetParam_.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
+    widgetParamExt_.navigationButtonText = "";
+    widgetParamExt_.title = "";
+    widgetParamExt_.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
 }
 
 UserAuthResultCode UserAuthInstanceV10::Init(
@@ -67,7 +67,7 @@ UserAuthResultCode UserAuthInstanceV10::Init(
         return errCode;
     }
 
-    errCode = UserAuthParamUtils::InitWidgetParam(widgetParam, widgetParam_, context_, window_);
+    errCode = UserAuthParamUtils::InitWidgetParam(widgetParam, widgetParamExt_, context_, window_);
     if (errCode != UserAuthResultCode::SUCCESS) {
         IAM_LOGE("WidgetParam type error, errorCode: %{public}d", errCode);
         return errCode;
@@ -128,7 +128,7 @@ UserAuthResultCode UserAuthInstanceV10::Start()
 
     modalCallback_ = Common::MakeShared<UserAuthModalCallback>(context_);
     contextId_ = UserAuthNapiClientImpl::Instance().BeginWidgetAuth(
-        API_VERSION_10, authParam_, widgetParam_, callback_, modalCallback_);
+        API_VERSION_10, authParam_, widgetParamExt_, callback_, modalCallback_);
     isAuthStarted_ = true;
     reporter.ReportSuccess();
     return UserAuthResultCode::SUCCESS;

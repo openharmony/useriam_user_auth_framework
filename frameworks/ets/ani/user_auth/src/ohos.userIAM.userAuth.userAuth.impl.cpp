@@ -419,7 +419,6 @@ void RegisterRemoteAuthCallback(::ohos::userIAM::userAuth::userAuth::IRemoteAuth
     auto remoteAuthCallback = MakeShared<UserAuth::RemoteAuthCallback>(callback);
     IF_FALSE_LOGE_AND_RETURN(remoteAuthCallback != nullptr);
     int32_t result =  UserAuth::UserAuthClientImpl::Instance().RegisterRemoteAuthCallback(remoteAuthCallback);
-    IAM_LOGI("result = %{public}d", result);
     if (result != UserAuth::SUCCESS) {
         IAM_LOGE("failed to register remote auth callback %{public}d", result);
         UserAuth::UserAuthResultCode resultCode = UserAuth::UserAuthResultCode(
@@ -438,7 +437,6 @@ void UnregisterRemoteAuthCallback()
     IAM_LOGD("begin");
     UserAuth::UserAuthApiEventReporter reporter("UnregisterRemoteAuthCallback");
     int32_t result = UserAuth::UserAuthClientImpl::Instance().UnregisterRemoteAuthCallback();
-    IAM_LOGI("result = %{public}d", result);
     if (result != UserAuth::SUCCESS) {
         IAM_LOGE("failed to unregister remote auth callback %{public}d", result);
         UserAuth::UserAuthResultCode resultCode = UserAuth::UserAuthResultCode(

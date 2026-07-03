@@ -23,6 +23,7 @@
 
 #include "iam_ptr.h"
 #include "auth_common.h"
+#include "set_widget_param_callback.h"
 #include "user_auth_client_defines.h"
 #include "user_auth_callback_v10.h"
 #include "user_auth_napi_client_impl.h"
@@ -53,7 +54,7 @@ private:
     bool isAuthStarted_ = false;
 
     AuthParamInner authParam_ = {};
-    WidgetParamNapi widgetParam_ = {};
+    SetWidgetParamClientCallback::WidgetParamExt widgetParamExt_ = {};
 
     std::mutex mutex_;
     std::shared_ptr<UserAuthCallbackV10> callback_ = nullptr;

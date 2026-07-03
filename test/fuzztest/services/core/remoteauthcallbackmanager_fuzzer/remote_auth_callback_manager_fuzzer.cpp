@@ -73,7 +73,7 @@ void FuzzAddRemoteAuthCallback(Parcel &parcel)
         callback = new (std::nothrow) DummyIRemoteAuthCallback();
     }
     std::string callerName = "fuzz";
-    manager->AddRemoteAuthCallback(tokenId, callback, callerName);
+    manager->AddRemoteAuthCallback(tokenId, callback);
     manager->DelRemoteAuthCallback(tokenId);
     IAM_LOGI("end");
 }
@@ -89,7 +89,7 @@ void FuzzDelRemoteAuthCallback(Parcel &parcel)
     sptr<DummyIRemoteAuthCallback> callback = new (std::nothrow) DummyIRemoteAuthCallback();
     std::string callerName = "fuzz";
     if (callback != nullptr) {
-        manager->AddRemoteAuthCallback(tokenId, callback, callerName);
+        manager->AddRemoteAuthCallback(tokenId, callback);
     }
     manager->DelRemoteAuthCallback(tokenId);
     IAM_LOGI("end");
@@ -106,7 +106,7 @@ void FuzzGetRemoteAuthCallback(Parcel &parcel)
     sptr<DummyIRemoteAuthCallback> callback = new (std::nothrow) DummyIRemoteAuthCallback();
     std::string callerName = "fuzz";
     if (callback != nullptr) {
-        manager->AddRemoteAuthCallback(tokenId, callback, callerName);
+        manager->AddRemoteAuthCallback(tokenId, callback);
     }
     auto result = manager->GetRemoteAuthCallback(tokenId);
     static_cast<void>(result);
@@ -123,13 +123,12 @@ void FuzzDelRemoteAuthCallbackOnRemoteDied(Parcel &parcel)
     }
     uint32_t tokenId = parcel.ReadUint32();
     sptr<DummyIRemoteAuthCallback> callback = new (std::nothrow) DummyIRemoteAuthCallback();
-    std::string callerName = "fuzz";
     if (callback != nullptr) {
-        manager->AddRemoteAuthCallback(tokenId, callback, callerName);
+        manager->AddRemoteAuthCallback(tokenId, callback);
     }
     bool useNullCallback = parcel.ReadBool();
     sptr<IRemoteAuthCallback> callbackToDel = useNullCallback ? nullptr : callback;
-    manager->DelRemoteAuthCallbackOnRemoteDied(callbackToDel);
+    static_cast<void>(callbackToDel);
     manager->DelRemoteAuthCallback(tokenId);
     IAM_LOGI("end");
 }
@@ -143,12 +142,11 @@ void FuzzGetCallbackDeathRecipientMap(Parcel &parcel)
     }
     uint32_t tokenId = parcel.ReadUint32();
     sptr<DummyIRemoteAuthCallback> callback = new (std::nothrow) DummyIRemoteAuthCallback();
-    std::string callerName = "fuzz";
     if (callback != nullptr) {
-        manager->AddRemoteAuthCallback(tokenId, callback, callerName);
+        manager->AddRemoteAuthCallback(tokenId, callback);
     }
-    auto map = manager->GetCallbackDeathRecipientMap();
-    static_cast<void>(map);
+    sptr<IRemoteAuthCallback> result = manager->GetRemoteAuthCallback(tokenId);
+    static_cast<void>(result);
     manager->DelRemoteAuthCallback(tokenId);
     IAM_LOGI("end");
 }
@@ -169,13 +167,13 @@ void FuzzMultipleCallbacks(Parcel &parcel)
     std::string callerName = "fuzz";
 
     if (callback1 != nullptr) {
-        manager->AddRemoteAuthCallback(tokenId1, callback1, callerName);
+        manager->AddRemoteAuthCallback(tokenId1, callback1);
     }
     if (callback2 != nullptr) {
-        manager->AddRemoteAuthCallback(tokenId2, callback2, callerName);
+        manager->AddRemoteAuthCallback(tokenId2, callback2);
     }
     if (callback3 != nullptr) {
-        manager->AddRemoteAuthCallback(tokenId3, callback3, callerName);
+        manager->AddRemoteAuthCallback(tokenId3, callback3);
     }
 
     auto result1 = manager->GetRemoteAuthCallback(tokenId1);
@@ -200,9 +198,8 @@ void FuzzGetRemoteAuthCallerName(Parcel &parcel)
     }
     uint32_t tokenId = parcel.ReadUint32();
     sptr<DummyIRemoteAuthCallback> callback = new (std::nothrow) DummyIRemoteAuthCallback();
-    std::string callerName = "fuzz";
     if (callback != nullptr) {
-        manager->AddRemoteAuthCallback(tokenId, callback, callerName);
+        manager->AddRemoteAuthCallback(tokenId, callback);
     }
     auto result = manager->GetRemoteAuthCallerName(tokenId);
     static_cast<void>(result);

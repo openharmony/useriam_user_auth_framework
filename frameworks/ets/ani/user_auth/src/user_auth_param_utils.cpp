@@ -31,6 +31,7 @@
 
 #include "user_auth_common_defines.h"
 #include "user_auth_helper.h"
+#include "user_auth_ani_helper.h"
 
 #include "ani_window.h"
 
@@ -222,23 +223,23 @@ UserAuthResultCode UserAuthParamUtils::InitCredentialIdList(userAuth::AuthParam 
 }
 
 UserAuthResultCode UserAuthParamUtils::InitWidgetParam(userAuth::WidgetParam const &widgetParam,
-    WidgetParamNapi &widgetParamNapi, std::shared_ptr<AbilityRuntime::Context> &abilityContext,
-    sptr<OHOS::Rosen::Window> &window)
+    SetWidgetParamClientCallback::WidgetParamExt &widgetParamExt,
+    std::shared_ptr<AbilityRuntime::Context> &abilityContext, sptr<OHOS::Rosen::Window> &window)
 {
     IAM_LOGI("InitWidgetParam start.");
-    UserAuthResultCode errorCode = InitTitle(widgetParam, widgetParamNapi);
+    UserAuthResultCode errorCode = InitTitle(widgetParam, widgetParamExt);
     if (errorCode != UserAuthResultCode::SUCCESS) {
         IAM_LOGE("InitTitle fail:%{public}d", errorCode);
         return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
 
-    errorCode = InitNavigationButtonText(widgetParam, widgetParamNapi);
+    errorCode = InitNavigationButtonText(widgetParam, widgetParamExt);
     if (errorCode != UserAuthResultCode::SUCCESS) {
         IAM_LOGE("InitNavigationButtonText fail:%{public}d", errorCode);
         return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
 
-    errorCode = InitWindowMode(widgetParam, widgetParamNapi);
+    errorCode = InitWindowMode(widgetParam, widgetParamExt);
     if (errorCode != UserAuthResultCode::SUCCESS) {
         IAM_LOGE("InitWindowMode fail:%{public}d", errorCode);
         return UserAuthResultCode::OHOS_INVALID_PARAM;
@@ -246,14 +247,14 @@ UserAuthResultCode UserAuthParamUtils::InitWidgetParam(userAuth::WidgetParam con
 
     if (widgetParam.uiContext.has_value()) {
         IAM_LOGI("widgetParam has uiContext");
-        errorCode = InitContext(widgetParam, widgetParamNapi, abilityContext);
+        errorCode = InitContext(widgetParam, widgetParamExt, abilityContext);
         if (errorCode != UserAuthResultCode::SUCCESS) {
             IAM_LOGE("InitContext fail:%{public}d", errorCode);
             return UserAuthResultCode::OHOS_INVALID_PARAM;
         }
     } else if (widgetParam.appWindow.has_value()) {
         IAM_LOGI("widgetParam has window");
-        errorCode = InitWindow(widgetParam, widgetParamNapi, window);
+        errorCode = InitWindow(widgetParam, widgetParamExt, window);
         if (errorCode != UserAuthResultCode::SUCCESS) {
             IAM_LOGE("InitWindow fail:%{public}d", errorCode);
             return UserAuthResultCode::OHOS_INVALID_PARAM;
@@ -263,7 +264,7 @@ UserAuthResultCode UserAuthParamUtils::InitWidgetParam(userAuth::WidgetParam con
 }
 
 UserAuthResultCode UserAuthParamUtils::InitTitle(userAuth::WidgetParam const &widgetParam,
-    WidgetParamNapi &widgetParamNapi)
+    SetWidgetParamClientCallback::WidgetParamExt &widgetParamExt)
 {
     IAM_LOGI("InitTitle start.");
     std::string title = widgetParam.title.c_str();
@@ -272,12 +273,12 @@ UserAuthResultCode UserAuthParamUtils::InitTitle(userAuth::WidgetParam const &wi
         std::string msgStr = "Parameter error. The length of \"title\" connot exceed 500.";
         return UserAuthResultCode::OHOS_INVALID_PARAM;
     }
-    widgetParamNapi.title = title;
+    widgetParamExt.title = title;
     return UserAuthResultCode::SUCCESS;
 }
 
 UserAuthResultCode UserAuthParamUtils::InitNavigationButtonText(userAuth::WidgetParam const &widgetParam,
-    WidgetParamNapi &widgetParamNapi)
+    SetWidgetParamClientCallback::WidgetParamExt &widgetParamExt)
 {
     IAM_LOGI("InitNavigationButtonText start.");
     if (widgetParam.navigationButtonText.has_value()) {
@@ -287,37 +288,38 @@ UserAuthResultCode UserAuthParamUtils::InitNavigationButtonText(userAuth::Widget
                 UserAuthHelper::GetUtf8CharCount(naviBtnTxt));
             return UserAuthResultCode::OHOS_INVALID_PARAM;
         }
-        widgetParamNapi.navigationButtonText = naviBtnTxt;
+        widgetParamExt.navigationButtonText = naviBtnTxt;
     }
     return UserAuthResultCode::SUCCESS;
 }
 
 UserAuthResultCode UserAuthParamUtils::InitWindowMode(userAuth::WidgetParam const &widgetParam,
-    WidgetParamNapi &widgetParamNapi)
+    SetWidgetParamClientCallback::WidgetParamExt &widgetParamExt)
 {
     IAM_LOGI("InitWindowMode start.");
     if (widgetParam.windowMode.has_value()) {
         switch (widgetParam.windowMode->get_key()) {
             case userAuth::WindowModeType::key_t::DIALOG_BOX:
-                widgetParamNapi.windowMode = WindowModeType::DIALOG_BOX;
+                widgetParamExt.windowMode = WindowModeType::DIALOG_BOX;
                 break;
             case userAuth::WindowModeType::key_t::FULLSCREEN:
-                widgetParamNapi.windowMode = WindowModeType::FULLSCREEN;
+                widgetParamExt.windowMode = WindowModeType::FULLSCREEN;
                 break;
             default:
                 IAM_LOGE("windowMode type not support.");
                 return UserAuthResultCode::OHOS_INVALID_PARAM;
         }
         IAM_LOGI("widgetParam title:%{public}s, navBtnText:%{public}s, winMode:%{public}u",
-            widgetParamNapi.title.c_str(),
-            widgetParamNapi.navigationButtonText.c_str(),
-            static_cast<uint32_t>(widgetParamNapi.windowMode));
+            widgetParamExt.title.c_str(),
+            widgetParamExt.navigationButtonText.c_str(),
+            static_cast<uint32_t>(widgetParamExt.windowMode));
     }
     return UserAuthResultCode::SUCCESS;
 }
 
 UserAuthResultCode UserAuthParamUtils::InitContext(userAuth::WidgetParam const &widgetParam,
-    WidgetParamNapi &widgetParamNapi, std::shared_ptr<AbilityRuntime::Context> &abilityContext)
+    SetWidgetParamClientCallback::WidgetParamExt &widgetParamExt,
+    std::shared_ptr<AbilityRuntime::Context> &abilityContext)
 {
     IAM_LOGI("InitContext start.");
     ani_env *env = taihe::get_env();
@@ -331,7 +333,7 @@ UserAuthResultCode UserAuthParamUtils::InitContext(userAuth::WidgetParam const &
     auto context = OHOS::AbilityRuntime::GetStageModeContext(env, uiContext);
     if (CheckUIContext(context)) {
         abilityContext = context;
-        widgetParamNapi.hasContext = true;
+        widgetParamExt.hasContext = true;
         IAM_LOGI("widgetParam has valid uiContext");
     } else {
         // Default as modal system
@@ -341,7 +343,7 @@ UserAuthResultCode UserAuthParamUtils::InitContext(userAuth::WidgetParam const &
 }
 
 UserAuthResultCode UserAuthParamUtils::InitWindow(userAuth::WidgetParam const &widgetParam,
-    WidgetParamNapi &widgetParamNapi, sptr<OHOS::Rosen::Window> &window)
+    SetWidgetParamClientCallback::WidgetParamExt &widgetParamExt, sptr<OHOS::Rosen::Window> &window)
 {
     IAM_LOGI("InitWindow start");
     ani_env *env = taihe::get_env();
@@ -352,7 +354,7 @@ UserAuthResultCode UserAuthParamUtils::InitWindow(userAuth::WidgetParam const &w
         return UserAuthResultCode::FAIL;
     }
     window = aniWindow->GetWindow();
-    widgetParamNapi.hasContext = true;
+    widgetParamExt.hasContext = true;
     IAM_LOGI("widgetParam has valid window");
     return UserAuthResultCode::SUCCESS;
 }
@@ -383,6 +385,46 @@ bool UserAuthParamUtils::CheckUIContext(const std::shared_ptr<OHOS::AbilityRunti
         }
     }
     return true;
+}
+
+UserAuthResultCode UserAuthParamUtils::GetUserAuthResult(int32_t result, const Attributes &extraInfo,
+    userAuth::UserAuthResult &userAuthResult)
+{
+    std::vector<uint8_t> token = {};
+    int32_t authType = 0;
+    EnrolledState enrolledState = {};
+    if (!extraInfo.GetUint8ArrayValue(Attributes::ATTR_SIGNATURE, token)) {
+        IAM_LOGE("ATTR_SIGNATURE is null");
+    }
+    if (!extraInfo.GetInt32Value(Attributes::ATTR_AUTH_TYPE, authType)) {
+        IAM_LOGE("ATTR_AUTH_TYPE is null");
+    }
+    if (!extraInfo.GetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, enrolledState.credentialDigest)) {
+        IAM_LOGE("ATTR_CREDENTIAL_DIGEST is null");
+    }
+    if (!extraInfo.GetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT, enrolledState.credentialCount)) {
+        IAM_LOGE("ATTR_CREDENTIAL_COUNT is null");
+    }
+
+    userAuthResult.result = UserAuthHelper::GetResultCodeV10(result);
+    if (!token.empty()) {
+        userAuthResult.token =
+            taihe::optional<taihe::array<uint8_t>>(
+                std::in_place_t{}, taihe::copy_data_t{}, token.data(), token.size());
+    }
+    if (UserAuthHelper::CheckUserAuthType(authType)) {
+        userAuth::UserAuthType authTypeAni(userAuth::UserAuthType::key_t::PIN);
+        if (!UserAuthAniHelper::ConvertUserAuthType(authType, authTypeAni)) {
+            IAM_LOGE("Set authType error. authType: %{public}d", authType);
+            return UserAuthResultCode::GENERAL_ERROR;
+        }
+        userAuthResult.authType = taihe::optional<userAuth::UserAuthType>::make(authTypeAni);
+    }
+    if (UserAuthResultCode(result) == UserAuthResultCode::SUCCESS) {
+        userAuth::EnrolledState enrolledStateAni = {enrolledState.credentialDigest, enrolledState.credentialCount};
+        userAuthResult.enrolledState = taihe::optional<userAuth::EnrolledState>::make(enrolledStateAni);
+    }
+    return UserAuthResultCode::SUCCESS;
 }
 } // namespace UserAuth
 } // namespace UserIam

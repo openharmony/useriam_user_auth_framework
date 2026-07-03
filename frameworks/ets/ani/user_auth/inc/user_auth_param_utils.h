@@ -24,6 +24,7 @@
 #include "ohos.userIAM.userAuth.userAuth.proj.hpp"
 
 #include "auth_common.h"
+#include "set_widget_param_callback.h"
 #include "user_auth_napi_client_impl.h"
 #include "user_auth_api_event_reporter.h"
 
@@ -37,8 +38,10 @@ class UserAuthParamUtils : public NoCopyable {
 public:
     static UserAuthResultCode InitAuthParam(userAuth::AuthParam const &authParam, AuthParamInner &authParamInner);
     static UserAuthResultCode InitWidgetParam(userAuth::WidgetParam const &widgetParam,
-        WidgetParamNapi &widgetParamNapi, std::shared_ptr<AbilityRuntime::Context> &abilityContext,
-        sptr<OHOS::Rosen::Window> &window);
+        SetWidgetParamClientCallback::WidgetParamExt &widgetParamExt,
+        std::shared_ptr<AbilityRuntime::Context> &abilityContext, sptr<OHOS::Rosen::Window> &window);
+    static UserAuthResultCode GetUserAuthResult(int32_t result, const Attributes &extraInfo,
+        userAuth::UserAuthResult &userAuthResult);
 
 private:
     static UserAuthResultCode InitAuthType(userAuth::AuthParam const &authParam, AuthParamInner &authParamInner);
@@ -50,15 +53,17 @@ private:
         AuthParamInner &authParamInner);
     static UserAuthResultCode InitCredentialIdList(userAuth::AuthParam const &authParam,
         AuthParamInner &authParamInner);
-    static UserAuthResultCode InitTitle(userAuth::WidgetParam const &widgetParam, WidgetParamNapi &widgetParamNapi);
+    static UserAuthResultCode InitTitle(userAuth::WidgetParam const &widgetParam,
+        SetWidgetParamClientCallback::WidgetParamExt &widgetParamExt);
     static UserAuthResultCode InitNavigationButtonText(userAuth::WidgetParam const &widgetParam,
-        WidgetParamNapi &widgetParamNapi);
+        SetWidgetParamClientCallback::WidgetParamExt &widgetParamExt);
     static UserAuthResultCode InitWindowMode(userAuth::WidgetParam const &widgetParam,
-        WidgetParamNapi &widgetParamNapi);
+        SetWidgetParamClientCallback::WidgetParamExt &widgetParamExt);
     static UserAuthResultCode InitContext(userAuth::WidgetParam const &widgetParam,
-        WidgetParamNapi &widgetParamNapi, std::shared_ptr<AbilityRuntime::Context> &abilityContext);
+        SetWidgetParamClientCallback::WidgetParamExt &widgetParamExt,
+        std::shared_ptr<AbilityRuntime::Context> &abilityContext);
     static UserAuthResultCode InitWindow(userAuth::WidgetParam const &widgetParam,
-        WidgetParamNapi &widgetParamNapi, sptr<OHOS::Rosen::Window> &window);
+        SetWidgetParamClientCallback::WidgetParamExt &widgetParamExt, sptr<OHOS::Rosen::Window> &window);
     static bool CheckUIContext(const std::shared_ptr<OHOS::AbilityRuntime::Context> context);
 };
 } // namespace UserAuth

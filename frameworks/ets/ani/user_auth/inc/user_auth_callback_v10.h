@@ -52,8 +52,7 @@ public:
     bool HasTipCallback();
 
 private:
-    bool DoResultCallback(
-        int32_t result, const std::vector<uint8_t> &token, int32_t authType, EnrolledState enrolledState);
+    bool DoResultCallback(int32_t result, const Attributes &extraInfo);
     bool DoTipInfoCallBack(int32_t tipType, uint32_t tipCode);
     AuthTipCallbackPtr GetTipCallback();
     std::mutex mutex_;
