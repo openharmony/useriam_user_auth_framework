@@ -323,3 +323,4 @@ userAccessCtrl::AuthToken verifyAuthTokenSync(array_view<uint8_t> authToken, dou
 }
 } // namespace
 TH_EXPORT_CPP_API_verifyAuthTokenSync(verifyAuthTokenSync);
+TH_EXPORT_CPP_API_verifyAuthToken(verifyAuthTokenSync);
