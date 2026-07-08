@@ -175,6 +175,7 @@ ohos_fuzztest("CoAuthServiceFuzzTest") {
     "ipc:ipc_core",
     "ipc:ipc_single",
     "napi:ace_napi",
+    "node:node_header_notice",
     "safwk:system_ability_fwk",
     "samgr:samgr_proxy",
   ]
