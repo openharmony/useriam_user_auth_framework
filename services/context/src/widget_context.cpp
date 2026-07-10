@@ -946,6 +946,7 @@ void WidgetContext::ProcAuthResult(int32_t resultCode, AuthType authType, int32_
         finalResult.GetUint64Value(Attributes::ATTR_CREDENTIAL_DIGEST, authResultInfo_.credentialDigest);
         finalResult.GetUint16Value(Attributes::ATTR_CREDENTIAL_COUNT, authResultInfo_.credentialCount);
         authResultInfo_.authType = authType;
+        authResultInfo_.resultUserId = para_.userId;
         IAM_LOGD("widget token size: %{public}zu.", authResultInfo_.token.size());
         if (resultCode != ResultCode::SUCCESS) {
             SetLatestError(resultCode);
