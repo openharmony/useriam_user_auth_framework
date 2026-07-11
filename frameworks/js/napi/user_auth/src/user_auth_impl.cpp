@@ -493,8 +493,9 @@ napi_value UserAuthImpl::RegisterRemoteAuthCallback(napi_env env, napi_callback_
     int32_t ret = UserAuthClientImpl::Instance().RegisterRemoteAuthCallback(remoteAuthCallback);
     if (ret != SUCCESS) {
         IAM_LOGE("RegisterRemoteAuthCallback fail, ret:%{public}d", ret);
-        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV21(env,
-            static_cast<UserAuthResultCode>(ret)));
+        auto resultCode = UserAuthHelper::GetResultCodeV21(ret);
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env,
+            static_cast<UserAuthResultCode>(resultCode)));
         reporter.ReportFailed(static_cast<UserAuthResultCode>(ret));
         return nullptr;
     }
@@ -511,8 +512,9 @@ napi_value UserAuthImpl::UnregisterRemoteAuthCallback(napi_env env, napi_callbac
     int32_t ret = UserAuthClientImpl::Instance().UnregisterRemoteAuthCallback();
     if (ret != SUCCESS) {
         IAM_LOGE("UnregisterRemoteAuthCallback fail, ret:%{public}d", ret);
-        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV21(env,
-            static_cast<UserAuthResultCode>(ret)));
+        auto resultCode = UserAuthHelper::GetResultCodeV21(ret);
+        napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env,
+            static_cast<UserAuthResultCode>(resultCode)));
         reporter.ReportFailed(static_cast<UserAuthResultCode>(ret));
         return nullptr;
     }
