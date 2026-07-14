@@ -57,6 +57,7 @@ public:
     static void SetAccessTokenId(uint32_t tokenId, bool isSetTokenId);
     static void AddPermission(Permission perm);
     static void DeleteAllPermission();
+    static void ResetAllState();
     static uint32_t GetTokenId(IPCObjectStub &stub);
     static void SetSkipUserFlag(bool isSkip);
     static bool CheckForegroundApplication(const std::string &bundleName);
