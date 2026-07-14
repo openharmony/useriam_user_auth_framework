@@ -28,6 +28,11 @@ namespace UserAuth {
 class DummyResourceNode final : public ResourceNode {
 public:
     using ExecutorRegisterInfo = CoAuthInterface::ExecutorRegisterInfo;
+    explicit DummyResourceNode(AuthType authType = PIN, ExecutorRole executorRole = SCHEDULER,
+        ExecutorSecureLevel esl = ESL0)
+        : authType_(authType), executorRole_(executorRole), esl_(esl)
+    {}
+
     uint64_t GetExecutorIndex() const
     {
         IAM_LOGI("start");
@@ -51,13 +56,13 @@ public:
     AuthType GetAuthType() const
     {
         IAM_LOGI("start");
-        return PIN;
+        return authType_;
     }
 
     ExecutorRole GetExecutorRole() const
     {
         IAM_LOGI("start");
-        return SCHEDULER;
+        return executorRole_;
     }
 
     uint64_t GetExecutorSensorHint() const
@@ -75,7 +80,7 @@ public:
     ExecutorSecureLevel GetExecutorEsl() const
     {
         IAM_LOGI("start");
-        return ESL0;
+        return esl_;
     }
 
     std::vector<uint8_t> GetExecutorPublicKey() const
@@ -140,6 +145,11 @@ public:
     {
         IAM_LOGI("start");
     }
+
+private:
+    AuthType authType_;
+    ExecutorRole executorRole_;
+    ExecutorSecureLevel esl_;
 };
 
 class DummyResourceNodePoolListener final : public ResourceNodePool::ResourceNodePoolListener {

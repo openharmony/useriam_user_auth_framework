@@ -296,6 +296,7 @@ FuzzFunc *g_fuzzFuncs[] = {
 
 void CoAuthFuzzTest(const uint8_t *data, size_t size)
 {
+    IpcCommon::ResetAllState();
     Parcel parcel;
     parcel.WriteBuffer(data, size);
     parcel.RewindRead(0);
