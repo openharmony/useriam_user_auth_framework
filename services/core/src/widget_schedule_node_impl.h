@@ -98,7 +98,7 @@ private:
     uint32_t alreadyLoad_ {0};
     AuthType rotateAuthType_ {0};
     AuthIntent authIntent_ {AuthIntent::DEFAULT};
-    int32_t resultCode_ {-1};
+    int32_t resultCode_ {GENERAL_ERROR};
     std::vector<uint8_t> authToken_;
 };
 } // namespace UserAuth
