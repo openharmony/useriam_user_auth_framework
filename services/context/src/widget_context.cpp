@@ -44,6 +44,7 @@
 #include "widget_schedule_node_impl.h"
 #include "widget_context_callback_impl.h"
 #include "widget_client.h"
+#include "user_auth_hdi.h"
 #include <sys/stat.h>
 #ifdef SCENE_BOARD_ENABLE
 #include "display_manager_lite.h"
