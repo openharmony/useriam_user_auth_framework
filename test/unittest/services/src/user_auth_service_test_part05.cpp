@@ -21,6 +21,7 @@
 #include "iam_ptr.h"
 
 #include "executor_messenger_service.h"
+#include "hdi_type_aliases.h"
 #include "mock_event_listener.h"
 #include "mock_context.h"
 #include "mock_iuser_auth_interface.h"
@@ -91,7 +92,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceSetGlobalConfigParam004, TestSize.L
                 return HDF_SUCCESS;
             }
         );
-    EXPECT_EQ(service.SetGlobalConfigParam(param), HDF_SUCCESS);
+    EXPECT_EQ(service.SetGlobalConfigParam(param), SUCCESS);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -120,7 +121,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceSetGlobalConfigParam005, TestSize.L
                 return HDF_SUCCESS;
             }
         );
-    EXPECT_EQ(service.SetGlobalConfigParam(param), HDF_SUCCESS);
+    EXPECT_EQ(service.SetGlobalConfigParam(param), SUCCESS);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -144,7 +145,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceSetGlobalConfigParam006, TestSize.L
                 return HDF_FAILURE;
             }
         );
-    EXPECT_EQ(service.SetGlobalConfigParam(param), HDF_FAILURE);
+    EXPECT_EQ(service.SetGlobalConfigParam(param), GENERAL_ERROR);
     IpcCommon::DeleteAllPermission();
 }
 

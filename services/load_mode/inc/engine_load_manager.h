@@ -12,26 +12,43 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef IAM_DRIVER_STATE_MANAGER_TEST_H
-#define IAM_DRIVER_STATE_MANAGER_TEST_H
 
-#include <gmock/gmock.h>
-#include <gtest/gtest.h>
+#ifndef ENGINE_LOAD_MANAGER_H
+#define ENGINE_LOAD_MANAGER_H
+
+#include <mutex>
+
+#include <optional>
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class DriverStateManagerTest : public testing::Test {
+class EngineLoadManager {
 public:
-    static void SetUpTestCase();
+    static EngineLoadManager &GetInstance();
 
-    static void TearDownTestCase();
+    void StartSubscribe();
+    void OnTimeout();
+    void OnEngineReady();
+    void OnEngineUnavailable();
 
-    void SetUp() override;
+    void OnSaStopping(bool isStopping);
 
-    void TearDown() override;
+private:
+    EngineLoadManager() = default;
+    ~EngineLoadManager() = default;
+
+    void ProcessServiceStatus();
+    bool Load();
+    bool Unload();
+
+    bool isSubscribed_ = false;
+    std::recursive_mutex mutex_;
+    bool isEngineRunning_ = false;
+    bool isSaStopping_ = false;
+    std::optional<int32_t> timerId_ = std::nullopt;
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // IAM_DRIVER_STATE_MANAGER_TEST_H
+#endif // ENGINE_LOAD_MANAGER_H

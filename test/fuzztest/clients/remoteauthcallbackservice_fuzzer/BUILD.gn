@@ -34,6 +34,7 @@ ohos_fuzztest("RemoteAuthCallbackServiceFuzzTest") {
     "../../../../frameworks/native/ipc/inc",
     "../../../../frameworks/native/client/inc",
     "../../../../frameworks/native/ipc/common_defines",
+    "../../../../services/engine/pub_inc",
     "../../../../common/utils",
     "../../../../common/logs",
   ]

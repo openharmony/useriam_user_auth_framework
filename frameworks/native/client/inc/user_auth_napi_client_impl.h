@@ -26,7 +26,6 @@
 #include "user_auth_client_defines.h"
 #include "user_auth_common_defines.h"
 #include "user_auth_modal_client_callback.h"
-#include "user_auth_types.h"
 
 namespace OHOS {
 namespace UserIam {

@@ -26,14 +26,14 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-bool ScheduleNodeHelper::BuildFromHdi(const std::vector<HdiScheduleInfo> &infos,
+bool ScheduleNodeHelper::BuildFromHdi(const std::vector<EngScheduleInfo> &infos,
     std::shared_ptr<ScheduleNodeCallback> callback, std::vector<std::shared_ptr<ScheduleNode>> &nodes)
 {
     NodeOptionalPara para;
     return BuildFromHdi(infos, callback, nodes, para);
 }
 
-bool ScheduleNodeHelper::BuildFromHdi(const std::vector<HdiScheduleInfo> &infos,
+bool ScheduleNodeHelper::BuildFromHdi(const std::vector<EngScheduleInfo> &infos,
     std::shared_ptr<ScheduleNodeCallback> callback, std::vector<std::shared_ptr<ScheduleNode>> &nodes,
     const NodeOptionalPara &para)
 {
@@ -52,7 +52,7 @@ bool ScheduleNodeHelper::BuildFromHdi(const std::vector<HdiScheduleInfo> &infos,
     return true;
 }
 
-bool ScheduleNodeHelper::ScheduleInfoToScheduleNode(const HdiScheduleInfo &info, std::shared_ptr<ScheduleNode> &node,
+bool ScheduleNodeHelper::ScheduleInfoToScheduleNode(const EngScheduleInfo &info, std::shared_ptr<ScheduleNode> &node,
     const NodeOptionalPara &para, const std::shared_ptr<ScheduleNodeCallback> &callback)
 {
     if (info.executorIndexes.empty()) {
@@ -107,7 +107,7 @@ bool ScheduleNodeHelper::ScheduleInfoToScheduleNode(const HdiScheduleInfo &info,
     return true;
 }
 
-bool ScheduleNodeHelper::ScheduleInfoToExecutors(const HdiScheduleInfo &info, std::shared_ptr<ResourceNode> &collector,
+bool ScheduleNodeHelper::ScheduleInfoToExecutors(const EngScheduleInfo &info, std::shared_ptr<ResourceNode> &collector,
     std::shared_ptr<ResourceNode> &verifier, std::vector<uint8_t> &collectorMessage,
     std::vector<uint8_t> &verifierMessage)
 {

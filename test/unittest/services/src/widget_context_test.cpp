@@ -13,6 +13,7 @@
  * limitations under the License.
  */
 
+#include "accesstoken_kit.h"
 #include "widget_context.h"
 
 #include <future>

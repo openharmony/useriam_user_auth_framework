@@ -19,8 +19,8 @@
 
 #include "attributes.h"
 #include "enrolled_info_impl.h"
-#include "hdi_wrapper.h"
 #include "iam_logger.h"
+#include "user_auth_engine.h"
 #include "iam_para2str.h"
 #include "iam_ptr.h"
 #include "iam_hitrace_helper.h"
@@ -34,17 +34,11 @@ namespace UserIam {
 namespace UserAuth {
 int32_t UserIdmDatabaseImpl::GetSecUserInfo(int32_t userId, std::shared_ptr<SecureUserInfoInterface> &secUserInfo)
 {
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (hdi == nullptr) {
-        IAM_LOGE("bad hdi");
-        return GENERAL_ERROR;
-    }
-
-    std::vector<HdiEnrolledInfo> enrolledInfoVector;
+    std::vector<EnrolledInfo> enrolledInfoVector;
     uint64_t secureUid = 0;
     int32_t pinSubType;
-    int32_t ret = hdi->GetUserInfo(userId, secureUid, pinSubType, enrolledInfoVector);
-    if (ret != HDF_SUCCESS) {
+    int32_t ret = GetUserAuthEngine().GetUserInfo(userId, secureUid, pinSubType, enrolledInfoVector);
+    if (ret != SUCCESS) {
         IAM_LOGE("GetSecureInfo failed, error code : %{public}d", ret);
         return GENERAL_ERROR;
     }
@@ -76,15 +70,9 @@ int32_t UserIdmDatabaseImpl::GetSecUserInfo(int32_t userId, std::shared_ptr<Secu
 int32_t UserIdmDatabaseImpl::GetCredentialInfo(int32_t userId, AuthType authType,
     std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos)
 {
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (hdi == nullptr) {
-        IAM_LOGE("bad hdi");
-        return INVALID_HDI_INTERFACE;
-    }
-
-    std::vector<HdiCredentialInfo> hdiInfos;
-    int32_t ret = hdi->GetCredential(userId, static_cast<HdiAuthType>(authType), hdiInfos);
-    if (ret != HDF_SUCCESS) {
+    std::vector<EngCredentialInfo> hdiInfos;
+    int32_t ret = GetUserAuthEngine().GetCredential(userId, static_cast<AuthType>(authType), hdiInfos);
+    if (ret != SUCCESS) {
         IAM_LOGE("GetCredential fail, userId:%{public}d, authType:%{public}d, ret:%{public}d", userId, authType, ret);
         return ret;
     }
@@ -104,16 +92,10 @@ int32_t UserIdmDatabaseImpl::GetCredentialInfo(int32_t userId, AuthType authType
 int32_t UserIdmDatabaseImpl::DeleteUser(int32_t userId, const std::vector<uint8_t> &authToken,
     std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos, std::vector<uint8_t> &rootSecret)
 {
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (hdi == nullptr) {
-        IAM_LOGE("bad hdi");
-        return INVALID_HDI_INTERFACE;
-    }
-
-    std::vector<HdiCredentialInfo> hdiInfos;
+    std::vector<EngCredentialInfo> hdiInfos;
     IamHitraceHelper traceHelper("hdi DeleteUser");
-    int32_t ret = hdi->DeleteUser(userId, authToken, hdiInfos, rootSecret);
-    if (ret != HDF_SUCCESS) {
+    int32_t ret = GetUserAuthEngine().DeleteUser(userId, authToken, hdiInfos, rootSecret);
+    if (ret != SUCCESS) {
         HILOG_COMM_ERROR("failed to delete user, error code : %{public}d, userId: %{public}d", ret, userId);
         return ret;
     }
@@ -133,16 +115,10 @@ int32_t UserIdmDatabaseImpl::DeleteUser(int32_t userId, const std::vector<uint8_
 int32_t UserIdmDatabaseImpl::DeleteUserEnforce(int32_t userId,
     std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos)
 {
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (hdi == nullptr) {
-        IAM_LOGE("bad hdi");
-        return INVALID_HDI_INTERFACE;
-    }
-
-    std::vector<HdiCredentialInfo> hdiInfos;
+    std::vector<EngCredentialInfo> hdiInfos;
     IamHitraceHelper traceHelper("hdi EnforceDeleteUser");
-    int32_t ret = hdi->EnforceDeleteUser(userId, hdiInfos);
-    if (ret != HDF_SUCCESS) {
+    int32_t ret = GetUserAuthEngine().EnforceDeleteUser(userId, hdiInfos);
+    if (ret != SUCCESS) {
         HILOG_COMM_ERROR("failed to enforce delete user, error code : %{public}d, userId: %{public}d",
             ret, userId);
         return ret;
@@ -162,15 +138,9 @@ int32_t UserIdmDatabaseImpl::DeleteUserEnforce(int32_t userId,
 
 int32_t UserIdmDatabaseImpl::GetAllExtUserInfo(std::vector<std::shared_ptr<UserInfoInterface>> &userInfos)
 {
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (hdi == nullptr) {
-        IAM_LOGE("bad hdi");
-        return INVALID_HDI_INTERFACE;
-    }
-
-    std::vector<ExtUserInfo> hdiUserInfos;
-    int32_t ret = hdi->GetAllExtUserInfo(hdiUserInfos);
-    if (ret != HDF_SUCCESS) {
+    std::vector<EngExtUserInfo> hdiUserInfos;
+    int32_t ret = GetUserAuthEngine().GetAllExtUserInfo(hdiUserInfos);
+    if (ret != SUCCESS) {
         IAM_LOGE("GetAllExtUserInfo failed, error code :%{public}d", ret);
         return ret;
     }
@@ -190,15 +160,9 @@ int32_t UserIdmDatabaseImpl::GetAllExtUserInfo(std::vector<std::shared_ptr<UserI
 int32_t UserIdmDatabaseImpl::GetCredentialInfoById(uint64_t credentialId,
     std::shared_ptr<CredentialInfoInterface> &credInfo)
 {
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (hdi == nullptr) {
-        IAM_LOGE("bad hdi");
-        return GENERAL_ERROR;
-    }
-
-    HdiCredentialInfo hdiInfo;
-    int32_t ret = hdi->GetCredentialById(credentialId, hdiInfo);
-    if (ret != HDF_SUCCESS) {
+    EngCredentialInfo hdiInfo;
+    int32_t ret = GetUserAuthEngine().GetCredentialById(credentialId, hdiInfo);
+    if (ret != SUCCESS) {
         IAM_LOGE("GetCredentialById failed, error code : %{public}d", ret);
         return ret;
     }
@@ -215,17 +179,11 @@ int32_t UserIdmDatabaseImpl::GetCredentialInfoById(uint64_t credentialId,
 int32_t UserIdmDatabaseImpl::ClearUnavailableCredential(int32_t userId,
     std::vector<std::shared_ptr<CredentialInfoInterface>> &credInfos)
 {
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (hdi == nullptr) {
-        IAM_LOGE("bad hdi");
-        return GENERAL_ERROR;
-    }
-
-    std::vector<HdiCredentialInfo> hdiInfos;
+    std::vector<EngCredentialInfo> hdiInfos;
     std::vector<int32_t> userIds;
     userIds.push_back(userId);
-    int32_t ret = hdi->ClearUnavailableCredential(userIds, hdiInfos);
-    if (ret != HDF_SUCCESS) {
+    int32_t ret = GetUserAuthEngine().ClearUnavailableCredential(userIds, hdiInfos);
+    if (ret != SUCCESS) {
         IAM_LOGE("ClearUnavailableCredential failed, error code : %{public}d", ret);
         return ret;
     }

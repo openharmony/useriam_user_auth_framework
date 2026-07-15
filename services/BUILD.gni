@@ -16,6 +16,8 @@ import("../user_auth_framework.gni")
 
 userauth_services_include_dirs = [
   "base/inc",
+  "engine/inc",
+  "engine/pub_inc",
   "context/inc",
   "core/inc",
   "core/src",
@@ -23,12 +25,12 @@ userauth_services_include_dirs = [
   "load_mode/inc",
   "remote_connect/inc",
   "../frameworks/common/inc",
+  "../interfaces/inner_api",
 ]
 
 userauth_services_sources = [
   "base/src/finite_state_machine_builder.cpp",
   "base/src/finite_state_machine_impl.cpp",
-  "base/src/hdi_wrapper.cpp",
   "base/src/system_ability_listener.cpp",
   "base/src/thread_handler_impl.cpp",
   "base/src/thread_handler_manager.cpp",
@@ -63,7 +65,7 @@ userauth_services_sources = [
   "core/src/credential_info_impl.cpp",
   "core/src/credential_updated_manager.cpp",
   "core/src/delete_impl.cpp",
-  "core/src/driver_state_manager.cpp",
+  "core/src/engine_state_manager.cpp",
   "core/src/enrolled_info_impl.cpp",
   "core/src/enrollment_impl.cpp",
   "core/src/event_listener_manager.cpp",
@@ -88,7 +90,7 @@ userauth_services_sources = [
   "core/src/widget_schedule_node_impl.cpp",
   "ipc/src/co_auth_service.cpp",
   "ipc/src/executor_messenger_service.cpp",
-  "ipc/src/hdi_message_callback_service.cpp",
+  "ipc/src/message_callback_service.cpp",
   "ipc/src/service_init_manager.cpp",
   "ipc/src/template_cache_manager.cpp",
   "ipc/src/user_auth_service.cpp",
@@ -119,10 +121,6 @@ userauth_services_external_deps = [
   "access_token:libtokenid_sdk",
   "c_utils:utils",
   "config_policy:configpolicy_util",
-  "drivers_interface_user_auth:libuser_auth_proxy_4.0",
-  "drivers_interface_user_auth:libuser_auth_proxy_4.1",
-  "hdf_core:libhdf_utils",
-  "hdf_core:libhdi",
   "hilog:libhilog",
   "hitrace:hitrace_meter",
   "init:libbeget_proxy",
@@ -141,7 +139,7 @@ userauth_services_defines = []
 # load_mode conditional
 if (user_auth_framework_enable_dynamic_load) {
   userauth_services_sources += [
-    "load_mode/src/driver_load_manager.cpp",
+    "load_mode/src/engine_load_manager.cpp",
     "load_mode/src/load_mode_handler_dynamic.cpp",
     "load_mode/src/service_unload_manager.cpp",
   ]
@@ -226,4 +224,12 @@ if (userauth_services_has_notification) {
       [ "common_event_service:cesfwk_innerkits" ]
 } else {
   userauth_services_sources += [ "core/src/publish_event_adapter_mock.cpp" ]
+}
+
+if (user_auth_framework_has_ext) {
+  userauth_engine_deps = []
+  userauth_engine_external_deps = [ "user_auth_framework_ext:userauth_engine_ext" ]
+} else {
+  userauth_engine_deps = [ "engine:userauth_engine" ]
+  userauth_engine_external_deps = []
 }

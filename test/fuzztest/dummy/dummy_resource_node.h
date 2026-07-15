@@ -87,9 +87,9 @@ public:
     {
         return 0;
     };
-    void DeleteFromDriver()
+    void DeleteFromEngine()
     {};
-    void DetachFromDriver()
+    void DetachFromEngine()
     {};
 
     static std::shared_ptr<ResourceNode> MakeNewResource(const ExecutorRegisterInfo &info,

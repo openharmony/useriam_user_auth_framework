@@ -65,7 +65,7 @@ void CredentialUpdatedManager::ProcessCredentialDeleted(const Deletion::DeletePa
 }
 
 void CredentialUpdatedManager::ProcessCredentialEnrolled(const Enrollment::EnrollmentPara &enrollPara,
-    const HdiEnrollResultInfo &resultInfo, bool isUpdate, uint64_t scheduleId)
+    const EngEnrollResultInfo &resultInfo, bool isUpdate, uint64_t scheduleId)
 {
     IAM_LOGI("ProcessCredentialEnrolled called, userId:%{public}d, authType:%{public}d", enrollPara.userId,
         enrollPara.authType);
