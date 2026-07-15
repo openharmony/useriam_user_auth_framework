@@ -50,7 +50,7 @@ struct WidgetNotice {
     bool endAfterFirstFail {false};
     AuthIntent authIntent {AuthIntent::DEFAULT};
     int32_t tipCode {0};
-    int32_t resultCode {-1};
+    int32_t resultCode {GENERAL_ERROR};
     std::vector<uint8_t> authToken {};
 };
 void to_json(nlohmann::json &jsonNotice, const WidgetNotice &notice);
