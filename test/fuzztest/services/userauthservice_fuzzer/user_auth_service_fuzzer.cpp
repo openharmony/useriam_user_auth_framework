@@ -932,7 +932,7 @@ void FuzzGetAuthTokenAttr(Parcel &parcel)
     IAM_LOGI("begin");
     std::vector<uint8_t> challenge;
     FillFuzzUint8Vector(parcel, challenge);
-    const HdiUserAuthTokenPlain tokenPlain = {
+    const EngUserAuthTokenPlain tokenPlain = {
         .version = parcel.ReadInt32(),
         .userId = parcel.ReadInt32(),
         .challenge = challenge,

@@ -45,7 +45,7 @@ void ScheduleNodeHelperTest::TearDown()
 
 HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTest_001, TestSize.Level0)
 {
-    std::vector<HdiScheduleInfo> scheduleInfoList;
+    std::vector<EngScheduleInfo> scheduleInfoList;
     auto callback = Common::MakeShared<MockScheduleNodeCallback>();
     EXPECT_NE(callback, nullptr);
     std::vector<std::shared_ptr<ScheduleNode>> scheduleNodeList;
@@ -55,16 +55,16 @@ HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTest_001, TestSize.Level0)
 
 HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTest_002, TestSize.Level0)
 {
-    std::vector<HdiScheduleInfo> scheduleInfoList;
-    HdiScheduleInfo scheduleInfo = {};
-    scheduleInfo.authType = HdiAuthType::FACE;
+    std::vector<EngScheduleInfo> scheduleInfoList;
+    EngScheduleInfo scheduleInfo = {};
+    scheduleInfo.authType = AuthType::FACE;
     scheduleInfo.executorMatcher = 10;
     scheduleInfo.executorIndexes.push_back(60);
 
     scheduleInfo.executorIndexes.push_back(90);
 
     scheduleInfo.scheduleId = 20;
-    scheduleInfo.scheduleMode = HdiScheduleMode::AUTH;
+    scheduleInfo.scheduleMode = ScheduleMode::AUTH;
     scheduleInfo.templateIds.push_back(30);
     scheduleInfoList.push_back(scheduleInfo);
 
@@ -99,13 +99,13 @@ HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTest_002, TestSize.Level0)
 
 HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestScheduleInfoToExecutors_001, TestSize.Level0)
 {
-    HdiScheduleInfo scheduleInfo = {};
-    scheduleInfo.authType = HdiAuthType::FACE;
+    EngScheduleInfo scheduleInfo = {};
+    scheduleInfo.authType = AuthType::FACE;
     scheduleInfo.executorMatcher = 10;
     scheduleInfo.executorIndexes.push_back(60);
     scheduleInfo.executorMessages.push_back({6});
     scheduleInfo.scheduleId = 20;
-    scheduleInfo.scheduleMode = HdiScheduleMode::AUTH;
+    scheduleInfo.scheduleMode = ScheduleMode::AUTH;
     scheduleInfo.templateIds.push_back(30);
     std::vector<ExecutorRole> executorRole = {SCHEDULER, COLLECTOR, VERIFIER, ALL_IN_ONE};
     auto resourceNode1 = MockResourceNode::CreateWithExecuteIndex(60, FACE, executorRole[0]);
@@ -124,13 +124,13 @@ HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestScheduleInfoToExecutors_0
 
 HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestScheduleInfoToExecutors_002, TestSize.Level0)
 {
-    HdiScheduleInfo scheduleInfo = {};
-    scheduleInfo.authType = HdiAuthType::FACE;
+    EngScheduleInfo scheduleInfo = {};
+    scheduleInfo.authType = AuthType::FACE;
     scheduleInfo.executorMatcher = 10;
     scheduleInfo.executorIndexes.push_back(60);
     scheduleInfo.executorMessages.push_back({6});
     scheduleInfo.scheduleId = 20;
-    scheduleInfo.scheduleMode = HdiScheduleMode::AUTH;
+    scheduleInfo.scheduleMode = ScheduleMode::AUTH;
     scheduleInfo.templateIds.push_back(30);
     std::vector<ExecutorRole> executorRole = {SCHEDULER, COLLECTOR, VERIFIER, ALL_IN_ONE};
     auto resourceNode1 = MockResourceNode::CreateWithExecuteIndex(60, FACE, executorRole[1]);
@@ -149,13 +149,13 @@ HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestScheduleInfoToExecutors_0
 
 HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestScheduleInfoToExecutors_003, TestSize.Level0)
 {
-    HdiScheduleInfo scheduleInfo = {};
-    scheduleInfo.authType = HdiAuthType::FACE;
+    EngScheduleInfo scheduleInfo = {};
+    scheduleInfo.authType = AuthType::FACE;
     scheduleInfo.executorMatcher = 10;
     scheduleInfo.executorIndexes.push_back(60);
     scheduleInfo.executorMessages.push_back({6});
     scheduleInfo.scheduleId = 20;
-    scheduleInfo.scheduleMode = HdiScheduleMode::AUTH;
+    scheduleInfo.scheduleMode = ScheduleMode::AUTH;
     scheduleInfo.templateIds.push_back(30);
     std::vector<ExecutorRole> executorRole = {SCHEDULER, COLLECTOR, VERIFIER, ALL_IN_ONE};
     auto resourceNode1 = MockResourceNode::CreateWithExecuteIndex(60, FACE, executorRole[2]);
@@ -174,14 +174,14 @@ HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestScheduleInfoToExecutors_0
 
 HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestWithAdditionalInfo, TestSize.Level0)
 {
-    std::vector<HdiScheduleInfo> scheduleInfoList;
-    HdiScheduleInfo scheduleInfo = {};
-    scheduleInfo.authType = HdiAuthType::FACE;
+    std::vector<EngScheduleInfo> scheduleInfoList;
+    EngScheduleInfo scheduleInfo = {};
+    scheduleInfo.authType = AuthType::FACE;
     scheduleInfo.executorMatcher = 10;
     scheduleInfo.executorIndexes.push_back(60);
     scheduleInfo.executorMessages.push_back({6});
     scheduleInfo.scheduleId = 20;
-    scheduleInfo.scheduleMode = HdiScheduleMode::ENROLL;
+    scheduleInfo.scheduleMode = ScheduleMode::ENROLL;
     scheduleInfo.templateIds.push_back(30);
     scheduleInfoList.push_back(scheduleInfo);
 
@@ -204,14 +204,14 @@ HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestWithAdditionalInfo, TestS
 
 HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestWithTitleAndAuthScene, TestSize.Level0)
 {
-    std::vector<HdiScheduleInfo> scheduleInfoList;
-    HdiScheduleInfo scheduleInfo = {};
-    scheduleInfo.authType = HdiAuthType::FACE;
+    std::vector<EngScheduleInfo> scheduleInfoList;
+    EngScheduleInfo scheduleInfo = {};
+    scheduleInfo.authType = AuthType::FACE;
     scheduleInfo.executorMatcher = 10;
     scheduleInfo.executorIndexes.push_back(60);
     scheduleInfo.executorMessages.push_back({6});
     scheduleInfo.scheduleId = 20;
-    scheduleInfo.scheduleMode = HdiScheduleMode::AUTH;
+    scheduleInfo.scheduleMode = ScheduleMode::AUTH;
     scheduleInfo.templateIds.push_back(30);
     scheduleInfoList.push_back(scheduleInfo);
 
@@ -235,14 +235,14 @@ HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestWithTitleAndAuthScene, Te
 
 HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestWithDefaultAuthScene, TestSize.Level0)
 {
-    std::vector<HdiScheduleInfo> scheduleInfoList;
-    HdiScheduleInfo scheduleInfo = {};
-    scheduleInfo.authType = HdiAuthType::PIN;
+    std::vector<EngScheduleInfo> scheduleInfoList;
+    EngScheduleInfo scheduleInfo = {};
+    scheduleInfo.authType = AuthType::PIN;
     scheduleInfo.executorMatcher = 10;
     scheduleInfo.executorIndexes.push_back(60);
     scheduleInfo.executorMessages.push_back({6});
     scheduleInfo.scheduleId = 20;
-    scheduleInfo.scheduleMode = HdiScheduleMode::AUTH;
+    scheduleInfo.scheduleMode = ScheduleMode::AUTH;
     scheduleInfo.templateIds.push_back(30);
     scheduleInfoList.push_back(scheduleInfo);
 
@@ -265,11 +265,11 @@ HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestWithDefaultAuthScene, Tes
 
 HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestEmptyExecutorIndexes_001, TestSize.Level0)
 {
-    HdiScheduleInfo scheduleInfo = {};
-    scheduleInfo.authType = HdiAuthType::FACE;
+    EngScheduleInfo scheduleInfo = {};
+    scheduleInfo.authType = AuthType::FACE;
     scheduleInfo.executorMatcher = 10;
     scheduleInfo.scheduleId = 20;
-    scheduleInfo.scheduleMode = HdiScheduleMode::AUTH;
+    scheduleInfo.scheduleMode = ScheduleMode::AUTH;
     scheduleInfo.templateIds.push_back(30);
 
     auto callback = Common::MakeShared<MockScheduleNodeCallback>();
@@ -285,14 +285,14 @@ HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestEmptyExecutorIndexes_001,
 
 HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestMismatchedExecutorMessages_001, TestSize.Level0)
 {
-    HdiScheduleInfo scheduleInfo = {};
-    scheduleInfo.authType = HdiAuthType::FACE;
+    EngScheduleInfo scheduleInfo = {};
+    scheduleInfo.authType = AuthType::FACE;
     scheduleInfo.executorMatcher = 10;
     scheduleInfo.executorIndexes.push_back(60);
     scheduleInfo.executorIndexes.push_back(90);
     scheduleInfo.executorMessages.push_back({6});
     scheduleInfo.scheduleId = 20;
-    scheduleInfo.scheduleMode = HdiScheduleMode::AUTH;
+    scheduleInfo.scheduleMode = ScheduleMode::AUTH;
     scheduleInfo.templateIds.push_back(30);
 
     auto callback = Common::MakeShared<MockScheduleNodeCallback>();
@@ -308,13 +308,13 @@ HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestMismatchedExecutorMessage
 
 HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestNullResourceNode_001, TestSize.Level0)
 {
-    HdiScheduleInfo scheduleInfo = {};
-    scheduleInfo.authType = HdiAuthType::FACE;
+    EngScheduleInfo scheduleInfo = {};
+    scheduleInfo.authType = AuthType::FACE;
     scheduleInfo.executorMatcher = 10;
     scheduleInfo.executorIndexes.push_back(99999);
     scheduleInfo.executorMessages.push_back({6});
     scheduleInfo.scheduleId = 20;
-    scheduleInfo.scheduleMode = HdiScheduleMode::AUTH;
+    scheduleInfo.scheduleMode = ScheduleMode::AUTH;
     scheduleInfo.templateIds.push_back(30);
 
     auto callback = Common::MakeShared<MockScheduleNodeCallback>();
@@ -330,8 +330,8 @@ HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestNullResourceNode_001, Tes
 
 HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestMultipleExecutorRoles_001, TestSize.Level0)
 {
-    HdiScheduleInfo scheduleInfo = {};
-    scheduleInfo.authType = HdiAuthType::FACE;
+    EngScheduleInfo scheduleInfo = {};
+    scheduleInfo.authType = AuthType::FACE;
     scheduleInfo.executorMatcher = 10;
     scheduleInfo.executorIndexes.push_back(60);
     scheduleInfo.executorIndexes.push_back(70);
@@ -340,7 +340,7 @@ HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestMultipleExecutorRoles_001
     scheduleInfo.executorMessages.push_back({7});
     scheduleInfo.executorMessages.push_back({8});
     scheduleInfo.scheduleId = 20;
-    scheduleInfo.scheduleMode = HdiScheduleMode::AUTH;
+    scheduleInfo.scheduleMode = ScheduleMode::AUTH;
     scheduleInfo.templateIds.push_back(30);
 
     auto resourceNode1 = MockResourceNode::CreateWithExecuteIndex(60, FACE, COLLECTOR);
@@ -372,14 +372,14 @@ HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestMultipleExecutorRoles_001
 
 HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestWithOptionalParameters_001, TestSize.Level0)
 {
-    std::vector<HdiScheduleInfo> scheduleInfoList;
-    HdiScheduleInfo scheduleInfo = {};
-    scheduleInfo.authType = HdiAuthType::FACE;
+    std::vector<EngScheduleInfo> scheduleInfoList;
+    EngScheduleInfo scheduleInfo = {};
+    scheduleInfo.authType = AuthType::FACE;
     scheduleInfo.executorMatcher = 10;
     scheduleInfo.executorIndexes.push_back(60);
     scheduleInfo.executorMessages.push_back({6});
     scheduleInfo.scheduleId = 20;
-    scheduleInfo.scheduleMode = HdiScheduleMode::AUTH;
+    scheduleInfo.scheduleMode = ScheduleMode::AUTH;
     scheduleInfo.templateIds.push_back(30);
     scheduleInfoList.push_back(scheduleInfo);
 
@@ -407,14 +407,14 @@ HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestWithOptionalParameters_00
 
 HWTEST_F(ScheduleNodeHelperTest, ScheduleNodeHelperTestInvalidScheduleMode_001, TestSize.Level0)
 {
-    std::vector<HdiScheduleInfo> scheduleInfoList;
-    HdiScheduleInfo scheduleInfo = {};
-    scheduleInfo.authType = HdiAuthType::FACE;
+    std::vector<EngScheduleInfo> scheduleInfoList;
+    EngScheduleInfo scheduleInfo = {};
+    scheduleInfo.authType = AuthType::FACE;
     scheduleInfo.executorMatcher = 10;
     scheduleInfo.executorIndexes.push_back(60);
     scheduleInfo.executorMessages.push_back({6});
     scheduleInfo.scheduleId = 20;
-    scheduleInfo.scheduleMode = static_cast<HdiScheduleMode>(999);
+    scheduleInfo.scheduleMode = static_cast<ScheduleMode>(999);
     scheduleInfo.templateIds.push_back(30);
     scheduleInfoList.push_back(scheduleInfo);
 

@@ -48,8 +48,8 @@ public:
     virtual int32_t SetProperty(const Attributes &properties) = 0;
     virtual int32_t GetProperty(const Attributes &condition, Attributes &values) = 0;
     virtual int32_t SendData(uint64_t scheduleId, const Attributes &data) = 0;
-    virtual void DeleteFromDriver() = 0;
-    virtual void DetachFromDriver() = 0;
+    virtual void DeleteFromEngine() = 0;
+    virtual void DetachFromEngine() = 0;
 
     static std::shared_ptr<ResourceNode> MakeNewResource(const ExecutorRegisterInfo &info,
         const std::shared_ptr<IExecutorCallback> &callback, std::vector<uint64_t> &templateIdList,

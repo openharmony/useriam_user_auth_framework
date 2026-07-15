@@ -151,7 +151,7 @@ void FuzzOther(Parcel &parcel)
     }
     g_coAuthService->SetIsReady(true);
     g_coAuthService->SetAccessTokenReady(true);
-    g_coAuthService->OnDriverStart();
+    g_coAuthService->OnEngineReady();
 
     auto callback = Common::MakeShared<CoAuthServiceFuzzer>(parcel.ReadInt32(), parcel.ReadInt32(),
         parcel.ReadInt32(), parcel.ReadInt32(), parcel.ReadInt32());

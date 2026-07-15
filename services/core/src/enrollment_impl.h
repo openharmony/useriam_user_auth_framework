@@ -21,7 +21,7 @@
 
 #include "enrollment.h"
 #include "schedule_node.h"
-#include "user_auth_hdi.h"
+#include "user_auth_engine_types.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -52,7 +52,7 @@ protected:
 
 private:
     bool GetSecUserId(std::optional<uint64_t> &secUserId);
-    bool StartSchedule(int32_t userId, HdiScheduleInfo &info,
+    bool StartSchedule(int32_t userId, EngScheduleInfo &info,
         std::vector<std::shared_ptr<ScheduleNode>> &scheduleList, std::shared_ptr<ScheduleNodeCallback> callback);
 
     EnrollmentPara enrollPara_;

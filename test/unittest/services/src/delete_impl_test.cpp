@@ -18,6 +18,7 @@
 #include "credential_info_impl.h"
 #include "delete_impl.h"
 #include "resource_node_pool.h"
+#include "hdi_type_aliases.h"
 #include "mock_iuser_auth_interface.h"
 #include "mock_resource_node.h"
 #include "mock_schedule_node_callback.h"
@@ -70,7 +71,7 @@ HWTEST_F(DeleteImplTest, AbandonHdiError, TestSize.Level0)
     auto abandon = std::make_shared<DeleteImpl>(para);
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
     bool isCredentialDelete = false;
-    std::vector<HdiCredentialInfo> credentialInfos = {};
+    std::vector<EngCredentialInfo> credentialInfos = {};
     EXPECT_FALSE(abandon->Start(scheduleList, nullptr, isCredentialDelete, credentialInfos));
 }
 
@@ -89,7 +90,7 @@ HWTEST_F(DeleteImplTest, AbandonHdiEmpty, TestSize.Level0)
     auto abandon = std::make_shared<DeleteImpl>(para);
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
     bool isCredentialDelete = false;
-    std::vector<HdiCredentialInfo> credentialInfos = {};
+    std::vector<EngCredentialInfo> credentialInfos = {};
     EXPECT_FALSE(abandon->Start(scheduleList, nullptr, isCredentialDelete, credentialInfos));
 }
 
@@ -139,7 +140,7 @@ HWTEST_F(DeleteImplTest, AbandonUpdateHdiSuccessful_001, TestSize.Level0)
         );
 
     auto abandon = std::make_shared<DeleteImpl>(para);
-    HdiCredentialInfo oldInfo = {};
+    EngCredentialInfo oldInfo = {};
     std::shared_ptr<CredentialInfoInterface> info = std::make_shared<CredentialInfoImpl>(para.userId, oldInfo);
     EXPECT_TRUE(abandon->Update(scheduleResult, info));
 
@@ -207,7 +208,7 @@ HWTEST_F(DeleteImplTest, DeleteImplTestStart_001, TestSize.Level0)
     auto callback = Common::MakeShared<MockScheduleNodeCallback>();
     EXPECT_NE(callback, nullptr);
     bool isCredentialDelete = false;
-    std::vector<HdiCredentialInfo> credentialInfos = {};
+    std::vector<EngCredentialInfo> credentialInfos = {};
     EXPECT_TRUE(abandon->Start(scheduleList, callback, isCredentialDelete, credentialInfos));
     EXPECT_TRUE(abandon->Cancel());
     EXPECT_TRUE(ResourceNodePool::Instance().Delete(executorIndex));
@@ -227,7 +228,7 @@ HWTEST_F(DeleteImplTest, DeleteImplTestStart_002, TestSize.Level0)
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
     auto callback = Common::MakeShared<MockScheduleNodeCallback>();
     bool isCredentialDelete = false;
-    std::vector<HdiCredentialInfo> credentialInfos = {};
+    std::vector<EngCredentialInfo> credentialInfos = {};
     EXPECT_FALSE(abandon->Start(scheduleList, callback, isCredentialDelete, credentialInfos));
 }
 
@@ -253,7 +254,7 @@ HWTEST_F(DeleteImplTest, StartSchedule_001, TestSize.Level0)
     para.token = testAuthToken;
     auto abandon = std::make_shared<DeleteImpl>(para);
     int32_t userId = 100;
-    HdiScheduleInfo info = {};
+    EngScheduleInfo info = {};
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
     std::shared_ptr<ScheduleNodeCallback> callback;
     EXPECT_FALSE(abandon->StartSchedule(userId, info, scheduleList, callback));

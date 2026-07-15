@@ -287,7 +287,7 @@ void FuzzResourceNodeDetach(Parcel &parcel)
     IAM_LOGI("start");
     auto node = GetResourceNode(parcel);
     if (node != nullptr) {
-        node->DetachFromDriver();
+        node->DetachFromEngine();
     }
     IAM_LOGI("end");
 }

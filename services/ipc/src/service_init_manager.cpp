@@ -20,7 +20,7 @@
 
 #include "co_auth_service.h"
 #include "context_pool.h"
-#include "driver_state_manager.h"
+#include "engine_state_manager.h"
 #include "load_mode_handler.h"
 #include "os_accounts_manager.h"
 #include "remote_auth_service.h"
@@ -118,24 +118,24 @@ void ServiceInitManager::CheckAllServiceStart()
     ContextPool::Instance().StartSubscribeOsAccountSaStatus();
     StrongAuthStatusManager::Instance().StartSubscribe();
 
-    DriverStateManager::GetInstance().RegisterDriverStartCallback([]() {
+    EngineStateManager::GetInstance().RegisterEngineReadyCallback([]() {
         std::shared_ptr<CoAuthService> instance = CoAuthService::GetInstance();
         if (instance == nullptr) {
             IAM_LOGE("CoAuthService instance is null");
             return;
         }
-        instance->OnDriverStart();
+        instance->OnEngineReady();
     });
-    DriverStateManager::GetInstance().RegisterDriverStopCallback([]() {
+    EngineStateManager::GetInstance().RegisterEngineUnavailableCallback([]() {
         std::shared_ptr<CoAuthService> instance = CoAuthService::GetInstance();
         if (instance == nullptr) {
             IAM_LOGE("CoAuthService instance is null");
             return;
         }
-        instance->OnDriverStop();
+        instance->OnEngineUnavailable();
     });
 
-    DriverStateManager::GetInstance().StartSubscribe();
+    EngineStateManager::GetInstance().StartSubscribe();
 
     IAM_LOGI("all service start, init global instance end");
 }

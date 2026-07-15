@@ -20,9 +20,9 @@
 #include <memory>
 #include <optional>
 
-#include "hdi_wrapper.h"
 #include "schedule_node.h"
 #include "schedule_node_builder.h"
+#include "user_auth_engine_types.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -42,16 +42,16 @@ public:
         AuthScene authScene {AUTH_SCENE_DEFAULT};
     };
 
-    static bool BuildFromHdi(const std::vector<HdiScheduleInfo> &infos, std::shared_ptr<ScheduleNodeCallback> callback,
+    static bool BuildFromHdi(const std::vector<EngScheduleInfo> &infos, std::shared_ptr<ScheduleNodeCallback> callback,
         std::vector<std::shared_ptr<ScheduleNode>> &nodes);
-    static bool BuildFromHdi(const std::vector<HdiScheduleInfo> &infos, std::shared_ptr<ScheduleNodeCallback> callback,
+    static bool BuildFromHdi(const std::vector<EngScheduleInfo> &infos, std::shared_ptr<ScheduleNodeCallback> callback,
         std::vector<std::shared_ptr<ScheduleNode>> &nodes, const NodeOptionalPara &para);
 
 private:
-    static bool ScheduleInfoToScheduleNode(const HdiScheduleInfo &info, std::shared_ptr<ScheduleNode> &node,
+    static bool ScheduleInfoToScheduleNode(const EngScheduleInfo &info, std::shared_ptr<ScheduleNode> &node,
         const NodeOptionalPara &para, const std::shared_ptr<ScheduleNodeCallback> &callback = nullptr);
 
-    static bool ScheduleInfoToExecutors(const HdiScheduleInfo &info, std::shared_ptr<ResourceNode> &collector,
+    static bool ScheduleInfoToExecutors(const EngScheduleInfo &info, std::shared_ptr<ResourceNode> &collector,
         std::shared_ptr<ResourceNode> &verifier, std::vector<uint8_t> &collectorMessage,
         std::vector<uint8_t> &verifierMessage);
 };

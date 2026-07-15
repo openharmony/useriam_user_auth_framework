@@ -26,7 +26,6 @@
 #include "iuser_auth_widget_callback.h"
 #include "remote_auth_client_callback.h"
 #include "user_auth_client.h"
-#include "user_auth_types.h"
 #include "user_auth_common_defines.h"
 
 namespace OHOS {

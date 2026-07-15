@@ -17,7 +17,6 @@
 #include "credential_info_impl.h"
 #include "credential_updated_manager.h"
 #include "event_listener_manager.h"
-#include "hdi_wrapper.h"
 #include "iam_hitrace_helper.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
@@ -28,6 +27,7 @@
 #include "schedule_node_helper.h"
 #include "thread_handler_manager.h"
 #include "update_pin_param_impl.h"
+#include "user_auth_engine.h"
 #include "user_idm_database.h"
 
 #define LOG_TAG "USER_AUTH_SA"
@@ -74,30 +74,25 @@ int32_t DeleteImpl::GetUserId() const
 
 bool DeleteImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
     std::shared_ptr<ScheduleNodeCallback> callback, bool &isCredentialDelete,
-    std::vector<HdiCredentialInfo> &credentialInfos)
+    std::vector<EngCredentialInfo> &credentialInfos)
 {
     IAM_LOGE("UserId:%{public}d", deletePara_.userId);
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (!hdi) {
-        IAM_LOGE("bad hdi");
-        return false;
-    }
 
-    HdiCredentialOperateResult hdiResult = {};
+    EngCredentialOperateResult hdiResult = {};
     IamHitraceHelper traceHelper("hdi DeleteCredential");
-    int32_t ret = hdi->DeleteCredential(deletePara_.userId, deletePara_.credentialId, deletePara_.token,
+    int32_t ret = GetUserAuthEngine().DeleteCredential(deletePara_.userId, deletePara_.credentialId, deletePara_.token,
         hdiResult);
-    if (ret != HDF_SUCCESS) {
+    if (ret != SUCCESS) {
         IAM_LOGE("failed to delete credential, error code : %{public}d", ret);
         SetLatestError(ret);
         return false;
     }
 
     credentialInfos = hdiResult.credentialInfos;
-    if (hdiResult.operateType == HdiCredentialOperateType::CREDENTIAL_DELETE) {
+    if (hdiResult.operateType == EngCredentialOperateType::CREDENTIAL_DELETE) {
         isCredentialDelete = true;
         return DeleteCredential(deletePara_.userId, hdiResult.credentialInfos);
-    } else if (hdiResult.operateType == HdiCredentialOperateType::CREDENTIAL_ABANDON) {
+    } else if (hdiResult.operateType == EngCredentialOperateType::CREDENTIAL_ABANDON) {
         return StartSchedule(deletePara_.userId, hdiResult.scheduleInfo, scheduleList, callback);
     }
 
@@ -106,16 +101,10 @@ bool DeleteImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
 
 bool DeleteImpl::Update(const std::vector<uint8_t> &scheduleResult, std::shared_ptr<CredentialInfoInterface> &info)
 {
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (!hdi) {
-        IAM_LOGE("bad hdi");
-        return false;
-    }
-
-    std::vector<HdiCredentialInfo> credentialInfos;
-    auto result = hdi->UpdateAbandonResult(deletePara_.userId, scheduleResult, credentialInfos);
-    if (result != HDF_SUCCESS) {
-        IAM_LOGE("hdi UpdateAbandonResult failed, err is %{public}d, userId is %{public}d", result,
+    std::vector<EngCredentialInfo> credentialInfos;
+    auto result = GetUserAuthEngine().UpdateAbandonResult(deletePara_.userId, scheduleResult, credentialInfos);
+    if (result != SUCCESS) {
+        IAM_LOGE("UpdateAbandonResult failed, err is %{public}d, userId is %{public}d", result,
             deletePara_.userId);
         SetLatestError(result);
         return false;
@@ -137,11 +126,11 @@ bool DeleteImpl::Cancel()
     return true;
 }
 
-bool DeleteImpl::StartSchedule(int32_t userId, HdiScheduleInfo &info,
+bool DeleteImpl::StartSchedule(int32_t userId, EngScheduleInfo &info,
     std::vector<std::shared_ptr<ScheduleNode>> &scheduleList, std::shared_ptr<ScheduleNodeCallback> callback)
 {
     IAM_LOGI("start");
-    std::vector<HdiScheduleInfo> infos = {};
+    std::vector<EngScheduleInfo> infos = {};
     infos.emplace_back(info);
 
     ScheduleNodeHelper::NodeOptionalPara para;
@@ -161,7 +150,7 @@ bool DeleteImpl::StartSchedule(int32_t userId, HdiScheduleInfo &info,
     return true;
 }
 
-bool DeleteImpl::DeleteCredential(int32_t userId, std::vector<HdiCredentialInfo> &credentialInfos)
+bool DeleteImpl::DeleteCredential(int32_t userId, std::vector<EngCredentialInfo> &credentialInfos)
 {
     IAM_LOGI("start");
     std::vector<std::shared_ptr<CredentialInfoInterface>> list;

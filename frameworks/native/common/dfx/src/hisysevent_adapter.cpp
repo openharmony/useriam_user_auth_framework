@@ -224,7 +224,7 @@ void ReportConnectFaultTrace(const RemoteConnectFaultTrace &info)
     ReportSystemFault(Common::GetNowTimeString(), ss.str());
 }
 
-void ReportSaLoadDriverFailure(const SaLoadDriverFailureTrace &info)
+void ReportSaLoadEngineFailure(const SaLoadEngineFailureTrace &info)
 {
     int32_t ret = HiSysEventWrite(HiSysEvent::Domain::USERIAM_FWK, "SA_LOAD_DRIVER_FAILURE",
         HiSysEvent::EventType::FAULT,

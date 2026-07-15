@@ -81,11 +81,11 @@ void LoadModeHandlerDefault::OnPinAuthServiceStop()
 {
 }
 
-void LoadModeHandlerDefault::OnDriverStart()
+void LoadModeHandlerDefault::OnEngineReady()
 {
 }
 
-void LoadModeHandlerDefault::OnDriverStop()
+void LoadModeHandlerDefault::OnEngineUnavailable()
 {
 }
 

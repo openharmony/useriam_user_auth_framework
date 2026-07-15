@@ -13,35 +13,31 @@
  * limitations under the License.
  */
 
-#include "driver_load_manager.h"
+#include "engine_load_manager.h"
 
 #include "hisysevent_adapter.h"
-#include "idevmgr_hdi.h"
 
-#include "iam_check.h"
+#include "iam_common_defines.h"
 #include "iam_logger.h"
 
 #include "relative_timer.h"
 #include "system_param_manager.h"
+#include "user_auth_engine.h"
 
 #define LOG_TAG "USER_AUTH_SA"
-#define LOG_FILE_ID LOG_FILE_DRIVER_LOAD_MANAGER
+#define LOG_FILE_ID LOG_FILE_ENGINE_LOAD_MANAGER
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-namespace {
-using namespace HDI::DeviceManager::V1_0;
-const char *SERVICE_NAME = "user_auth_interface_service";
-}
 
-DriverLoadManager &DriverLoadManager::GetInstance()
+EngineLoadManager &EngineLoadManager::GetInstance()
 {
-    static DriverLoadManager instance;
+    static EngineLoadManager instance;
     return instance;
 }
 
-void DriverLoadManager::StartSubscribe()
+void EngineLoadManager::StartSubscribe()
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (isSubscribed_) {
@@ -50,7 +46,7 @@ void DriverLoadManager::StartSubscribe()
 
     SystemParamManager::GetInstance().WatchParam(STOP_SA_KEY, [](const std::string &value) {
         IAM_LOGI("%{public}s changed, value %{public}s", STOP_SA_KEY, value.c_str());
-        DriverLoadManager::GetInstance().OnSaStopping(value == TRUE_STR);
+        EngineLoadManager::GetInstance().OnSaStopping(value == TRUE_STR);
     });
     OnSaStopping(SystemParamManager::GetInstance().GetParam(STOP_SA_KEY, FALSE_STR) == TRUE_STR);
 
@@ -58,7 +54,7 @@ void DriverLoadManager::StartSubscribe()
     isSubscribed_ = true;
 }
 
-void DriverLoadManager::OnTimeout()
+void EngineLoadManager::OnTimeout()
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     IAM_LOGI("timeout");
@@ -66,85 +62,79 @@ void DriverLoadManager::OnTimeout()
     ProcessServiceStatus();
 }
 
-void DriverLoadManager::OnDriverStart()
+void EngineLoadManager::OnEngineReady()
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     IAM_LOGI("service start");
-    isDriverRunning_ = true;
+    isEngineRunning_ = true;
     ProcessServiceStatus();
 }
 
-void DriverLoadManager::OnDriverStop()
+void EngineLoadManager::OnEngineUnavailable()
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     IAM_LOGI("service stop");
-    isDriverRunning_ = false;
+    isEngineRunning_ = false;
     ProcessServiceStatus();
 }
 
-void DriverLoadManager::OnSaStopping(bool isStopping)
+void EngineLoadManager::OnSaStopping(bool isStopping)
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     isSaStopping_ = isStopping;
     ProcessServiceStatus();
 }
 
-bool DriverLoadManager::LoadDriver()
+bool EngineLoadManager::Load()
 {
     IAM_LOGI("start");
-    auto devMgr = IDeviceManager::Get();
-    IF_FALSE_LOGE_AND_RETURN_VAL(devMgr != nullptr, false);
-
-    IAM_LOGI("load hdi service begin");
-    int32_t loadDriverRet = devMgr->LoadDevice(SERVICE_NAME);
-    if (loadDriverRet != 0) {
-        IAM_LOGE("load %{public}s service failed, ret:%{public}d", SERVICE_NAME, loadDriverRet);
-        SaLoadDriverFailureTrace saLoadDriverFailureTraceInfo = {};
-        saLoadDriverFailureTraceInfo.errCode = loadDriverRet;
-        UserIam::UserAuth::ReportSaLoadDriverFailure(saLoadDriverFailureTraceInfo);
+    int32_t loadRet = GetUserAuthEngine().Load();
+    if (loadRet != SUCCESS) {
+        IAM_LOGE("load %{public}s service failed, ret:%{public}d", GetUserAuthEngine().GetType().c_str(), loadRet);
+        SaLoadEngineFailureTrace saLoadEngineFailureTraceInfo = {};
+        saLoadEngineFailureTraceInfo.errCode = loadRet;
+        UserIam::UserAuth::ReportSaLoadEngineFailure(saLoadEngineFailureTraceInfo);
         return false;
     }
     return true;
 }
 
-bool DriverLoadManager::UnloadDriver()
+bool EngineLoadManager::Unload()
 {
     IAM_LOGI("start");
-    auto devMgr = IDeviceManager::Get();
-    IF_FALSE_LOGE_AND_RETURN_VAL(devMgr != nullptr, false);
-
-    if (devMgr->UnloadDevice(SERVICE_NAME) != 0) {
-        IAM_LOGE("unload %{public}s service failed", SERVICE_NAME);
+    if (GetUserAuthEngine().Unload() != SUCCESS) {
+        IAM_LOGE("unload %{public}s service failed", GetUserAuthEngine().GetType().c_str());
         return false;
     }
     return true;
 }
 
-void DriverLoadManager::ProcessServiceStatus()
+void EngineLoadManager::ProcessServiceStatus()
 {
     const uint32_t RETRY_LOAD_INTERVAL = 1000; // 1s
 
     std::lock_guard<std::recursive_mutex> lock(mutex_);
+    auto engineName = GetUserAuthEngine().GetType();
     bool shouldRunning = !isSaStopping_;
-    IAM_LOGI("process service %{public}s status %{public}d, isSaStopping_ %{public}d", SERVICE_NAME, isDriverRunning_,
-        isSaStopping_);
-    if (isDriverRunning_ != shouldRunning) {
+    IAM_LOGI("process service %{public}s status %{public}d, isSaStopping_ %{public}d", engineName.c_str(),
+        isEngineRunning_, isSaStopping_);
+    if (isEngineRunning_ != shouldRunning) {
         if (shouldRunning) {
-            bool loadDriverRet = LoadDriver();
-            if (loadDriverRet) {
-                IAM_LOGI("load service %{public}s success", SERVICE_NAME);
-                isDriverRunning_ = true;
+            bool loadRet = Load();
+            if (loadRet) {
+                IAM_LOGI("load service %{public}s success", engineName.c_str());
+                isEngineRunning_ = true;
             }
         } else {
-            bool unloadDriverRet = UnloadDriver();
-            if (unloadDriverRet) {
-                IAM_LOGI("unload service %{public}s success", SERVICE_NAME);
-                isDriverRunning_ = false;
+            bool unloadRet = Unload();
+            if (unloadRet) {
+                IAM_LOGI("unload service %{public}s success", engineName.c_str());
+                isEngineRunning_ = false;
             }
         }
     }
 
-    if (isDriverRunning_ == shouldRunning) {
+    if (isEngineRunning_ == shouldRunning) {
         if (timerId_ != std::nullopt) {
             RelativeTimer::GetInstance().Unregister(timerId_.value());
             timerId_ = std::nullopt;

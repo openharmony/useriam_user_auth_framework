@@ -98,7 +98,7 @@ USERIAM_REMOTE_CONNECT:
   SOCKET_ID: {type: STRING, desc: socket id}
 
 SA_LOAD_DRIVER_FAILURE:
-  __BASE: {type: FAULT, level: CRITICAL, tag: UserAuth, desc: user auth Sa load Driver fail}
+  __BASE: {type: FAULT, level: CRITICAL, tag: UserAuth, desc: user auth Sa load Engine fail}
   ERROR_CODE: {type: INT32, desc: error code}
 
 IS_CREDENTIAL_ENROLLED_MISMATCH:

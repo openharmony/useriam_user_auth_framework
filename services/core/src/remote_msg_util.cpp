@@ -21,11 +21,11 @@
 #include <string>
 
 #include "device_manager_util.h"
-#include "hdi_wrapper.h"
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "parameter.h"
 #include "resource_node_pool.h"
+#include "user_auth_engine.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 #define LOG_FILE_ID LOG_FILE_REMOTE_MSG_UTIL
@@ -179,16 +179,13 @@ ResultCode RemoteMsgUtil::GetQueryExecutorInfoReply(const std::vector<int32_t> a
 {
     IF_FALSE_LOGE_AND_RETURN_VAL(authTypes.size() == 1, INVALID_PARAMETERS);
 
-    auto hdi = HdiWrapper::GetHdiInstance();
-    IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, GENERAL_ERROR);
-
     std::vector<uint8_t> signedExecutorInfo;
-    int32_t hdiRet = hdi->GetSignedExecutorInfo(authTypes, executorRole, remoteUdid, signedExecutorInfo);
-    if (hdiRet == DEVICE_CAPABILITY_NOT_SUPPORT || hdiRet == REMOTE_DEVICE_CONNECTION_FAIL) {
-        IAM_LOGE("get signed executor info failed, ret: %{public}d", hdiRet);
-        return (ResultCode)hdiRet;
+    int32_t ret = GetUserAuthEngine().GetSignedExecutorInfo(authTypes, executorRole, remoteUdid, signedExecutorInfo);
+    if (ret == DEVICE_CAPABILITY_NOT_SUPPORT || ret == REMOTE_DEVICE_CONNECTION_FAIL) {
+        IAM_LOGE("get signed executor info failed, ret: %{public}d", ret);
+        return (ResultCode)ret;
     }
-    IF_FALSE_LOGE_AND_RETURN_VAL(hdiRet == SUCCESS, GENERAL_ERROR);
+    IF_FALSE_LOGE_AND_RETURN_VAL(ret == SUCCESS, GENERAL_ERROR);
 
     std::string localUdid;
     bool getLocalUdidRet = DeviceManagerUtil::GetInstance().GetLocalDeviceUdid(localUdid);

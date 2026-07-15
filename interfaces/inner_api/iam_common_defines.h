@@ -68,6 +68,16 @@ enum AuthType : int32_t {
 };
 
 /**
+ * @brief Define credential enrollment information.
+ */
+struct EnrolledInfo {
+    /** Auth type supported by executor. */
+    AuthType authType {0};
+    /** Enrolled ID. */
+    uint64_t enrolledId {0};
+};
+
+/**
  * @brief Defines pin auth's subtype.
  */
 enum PinSubType : int32_t {
@@ -236,8 +246,8 @@ enum ResultCode : int32_t {
     WRITE_PARCEL_ERROR = 1004,
     /** The result is fail, because permission check is failed. */
     CHECK_PERMISSION_FAILED = 1005,
-    /** The result is fail, because the hdi interface is invalid. */
-    INVALID_HDI_INTERFACE = 1006,
+    /** The result is fail, because the auth engine is unavailable. */
+    ENGINE_UNAVAILABLE = 1006,
     /** The result is fail, because the caller app is not system. */
     CHECK_SYSTEM_APP_FAILED = 1007,
     /** The result is fail, because remote device connection failed. */
