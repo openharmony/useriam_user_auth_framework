@@ -36,6 +36,9 @@ sptr<IRemoteObject> HdiWrapper::GetHdiRemoteObjInstance()
 std::shared_ptr<MockIUserAuthInterface> MockIUserAuthInterface::Holder::Get()
 {
     std::lock_guard<std::mutex> guard(mutex_);
+    if (disabled_) {
+        return nullptr;
+    }
     if (!mock_) {
         mock_ = std::make_shared<MockIUserAuthInterface>();
     }
@@ -46,6 +49,15 @@ void MockIUserAuthInterface::Holder::Reset()
 {
     std::lock_guard<std::mutex> guard(mutex_);
     mock_ = nullptr;
+    disabled_ = false;
+}
+
+void MockIUserAuthInterface::Holder::Set(std::shared_ptr<MockIUserAuthInterface> mock)
+{
+    std::lock_guard<std::mutex> guard(mutex_);
+    bool cleared = (mock == nullptr);
+    mock_ = std::move(mock);
+    disabled_ = cleared;
 }
 } // namespace UserAuth
 } // namespace UserIam

@@ -14,10 +14,10 @@
  */
 #include "identification_impl.h"
 
-#include "hdi_wrapper.h"
 #include "iam_hitrace_helper.h"
 #include "iam_logger.h"
 #include "schedule_node_helper.h"
+#include "user_auth_engine.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 #define LOG_FILE_ID LOG_FILE_IDENTIFICATION_IMPL
@@ -71,23 +71,17 @@ uint32_t IdentificationImpl::GetAccessTokenId() const
 bool IdentificationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
     std::shared_ptr<ScheduleNodeCallback> callback)
 {
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (!hdi) {
-        IAM_LOGE("bad hdi");
-        return false;
-    }
-
-    HdiScheduleInfo info;
+    EngScheduleInfo info;
     IamHitraceHelper traceHelper("hdi BeginIdentification");
-    auto result =
-        hdi->BeginIdentification(contextId_, static_cast<HdiAuthType>(authType_), challenge_, executorIndex_, info);
-    if (result != HDF_SUCCESS) {
-        IAM_LOGE("hdi BeginAuthentication failed, err is %{public}d", result);
+    auto result = GetUserAuthEngine().BeginIdentification(contextId_, static_cast<AuthType>(authType_), challenge_,
+        executorIndex_, info);
+    if (result != SUCCESS) {
+        IAM_LOGE("BeginAuthentication failed, err is %{public}d", result);
         SetLatestError(result);
         return false;
     }
 
-    std::vector<HdiScheduleInfo> infos = {};
+    std::vector<EngScheduleInfo> infos = {};
     infos.emplace_back(info);
 
     ScheduleNodeHelper::NodeOptionalPara para;
@@ -104,16 +98,10 @@ bool IdentificationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &sched
 
 bool IdentificationImpl::Update(const std::vector<uint8_t> &scheduleResult, IdentifyResultInfo &resultInfo)
 {
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (!hdi) {
-        IAM_LOGE("bad hdi");
-        return false;
-    }
-
-    HdiIdentifyResultInfo info;
-    auto result = hdi->UpdateIdentificationResult(contextId_, scheduleResult, info);
-    if (result != HDF_SUCCESS) {
-        IAM_LOGE("hdi UpdateAuthenticationResult failed, err is %{public}d", result);
+    EngIdentifyResultInfo info;
+    auto result = GetUserAuthEngine().UpdateIdentificationResult(contextId_, scheduleResult, info);
+    if (result != SUCCESS) {
+        IAM_LOGE("UpdateAuthenticationResult failed, err is %{public}d", result);
         SetLatestError(result);
         return false;
     }
@@ -132,15 +120,9 @@ bool IdentificationImpl::Cancel()
     }
     running_ = false;
 
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (!hdi) {
-        IAM_LOGE("bad hdi");
-        return false;
-    }
-
-    auto result = hdi->CancelIdentification(contextId_);
-    if (result != HDF_SUCCESS) {
-        IAM_LOGE("hdi CancelAuthentication failed, err is %{public}d", result);
+    auto result = GetUserAuthEngine().CancelIdentification(contextId_);
+    if (result != SUCCESS) {
+        IAM_LOGE("CancelAuthentication failed, err is %{public}d", result);
         SetLatestError(result);
         return false;
     }

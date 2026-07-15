@@ -21,8 +21,8 @@
 #include "context_factory.h"
 #include "context_pool.h"
 #include "device_manager_util.h"
-#include "hdi_wrapper.h"
 #include "hisysevent_adapter.h"
+#include "user_auth_engine.h"
 #include "iam_logger.h"
 #include "iam_para2str.h"
 #include "iam_ptr.h"
@@ -42,7 +42,7 @@ class RemoteExecutorStubScheduleNode : public ScheduleNode,
                                        public std::enable_shared_from_this<ScheduleNode>,
                                        public NoCopyable {
 public:
-    RemoteExecutorStubScheduleNode(HdiScheduleInfo &scheduleInfo, std::weak_ptr<RemoteExecutorStub> callback,
+    RemoteExecutorStubScheduleNode(EngScheduleInfo &scheduleInfo, std::weak_ptr<RemoteExecutorStub> callback,
         std::weak_ptr<ResourceNode> collectorExecutor)
         : scheduleId_(scheduleInfo.scheduleId),
           callback_(callback),
@@ -258,11 +258,9 @@ int32_t RemoteExecutorStub::ProcBeginExecuteRequest(Attributes &attr, RemoteExec
     bool getScheduleDataRet = attr.GetUint8ArrayValue(Attributes::ATTR_SCHEDULE_DATA, scheduleData);
     IF_FALSE_LOGE_AND_RETURN_VAL(getScheduleDataRet, GENERAL_ERROR);
 
-    HdiScheduleInfo scheduleInfo;
-    auto hdi = HdiWrapper::GetHdiInstance();
-    IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, GENERAL_ERROR);
+    EngScheduleInfo scheduleInfo;
 
-    int32_t ret = hdi->GetLocalScheduleFromMessage(srcUdid, scheduleData, scheduleInfo);
+    int32_t ret = GetUserAuthEngine().GetLocalScheduleFromMessage(srcUdid, scheduleData, scheduleInfo);
     IF_FALSE_LOGE_AND_RETURN_VAL(ret == SUCCESS, GENERAL_ERROR);
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleInfo.executorIndexes.size() == 1, GENERAL_ERROR);
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleInfo.executorMessages.size() == 1, GENERAL_ERROR);

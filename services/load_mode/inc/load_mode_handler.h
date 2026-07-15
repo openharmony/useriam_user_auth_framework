@@ -31,8 +31,8 @@ public:
     virtual void OnCredentialUpdated(AuthType authType) = 0;
     virtual void OnPinAuthServiceReady() = 0;
     virtual void OnPinAuthServiceStop() = 0;
-    virtual void OnDriverStart() = 0;
-    virtual void OnDriverStop() = 0;
+    virtual void OnEngineReady() = 0;
+    virtual void OnEngineUnavailable() = 0;
     virtual void SubscribeCredentialUpdatedListener() = 0;
     virtual void OnCommonEventSaStart() = 0;
     virtual void StartCheckServiceReadyTimer() = 0;

@@ -39,11 +39,11 @@ void CredentialInfoTest::TearDown()
 HWTEST_F(CredentialInfoTest, GetCredentialId, TestSize.Level0)
 {
     int32_t userId = 100;
-    HdiCredentialInfo info = {
+    EngCredentialInfo info = {
         .credentialId = 1,
         .executorIndex = 2,
         .templateId = 3,
-        .authType = static_cast<HdiAuthType>(4),
+        .authType = static_cast<AuthType>(4),
         .executorMatcher = 5,
         .executorSensorHint = 6,
     };
@@ -56,11 +56,11 @@ HWTEST_F(CredentialInfoTest, GetCredentialId, TestSize.Level0)
 HWTEST_F(CredentialInfoTest, GetUserId, TestSize.Level0)
 {
     int32_t userId = 100;
-    HdiCredentialInfo info = {
+    EngCredentialInfo info = {
         .credentialId = 1,
         .executorIndex = 2,
         .templateId = 3,
-        .authType = static_cast<HdiAuthType>(4),
+        .authType = static_cast<AuthType>(4),
         .executorMatcher = 5,
         .executorSensorHint = 6,
     };
@@ -72,11 +72,11 @@ HWTEST_F(CredentialInfoTest, GetUserId, TestSize.Level0)
 HWTEST_F(CredentialInfoTest, GetExecutorIndex, TestSize.Level0)
 {
     int32_t userId = 100;
-    HdiCredentialInfo info = {
+    EngCredentialInfo info = {
         .credentialId = 1,
         .executorIndex = 2,
         .templateId = 3,
-        .authType = static_cast<HdiAuthType>(4),
+        .authType = static_cast<AuthType>(4),
         .executorMatcher = 5,
         .executorSensorHint = 6,
     };
@@ -88,11 +88,11 @@ HWTEST_F(CredentialInfoTest, GetExecutorIndex, TestSize.Level0)
 HWTEST_F(CredentialInfoTest, GetTemplateId, TestSize.Level0)
 {
     int32_t userId = 100;
-    HdiCredentialInfo info = {
+    EngCredentialInfo info = {
         .credentialId = 1,
         .executorIndex = 2,
         .templateId = 3,
-        .authType = static_cast<HdiAuthType>(4),
+        .authType = static_cast<AuthType>(4),
         .executorMatcher = 5,
         .executorSensorHint = 6,
     };
@@ -104,27 +104,27 @@ HWTEST_F(CredentialInfoTest, GetTemplateId, TestSize.Level0)
 HWTEST_F(CredentialInfoTest, GetAuthType, TestSize.Level0)
 {
     int32_t userId = 100;
-    HdiCredentialInfo info = {
+    EngCredentialInfo info = {
         .credentialId = 1,
         .executorIndex = 2,
         .templateId = 3,
-        .authType = static_cast<HdiAuthType>(4),
+        .authType = static_cast<AuthType>(4),
         .executorMatcher = 5,
         .executorSensorHint = 6,
     };
     CredentialInfoImpl CredentialInfoImpl(userId, info);
-    HdiAuthType ret = static_cast<HdiAuthType>(CredentialInfoImpl.GetAuthType());
+    AuthType ret = static_cast<AuthType>(CredentialInfoImpl.GetAuthType());
     EXPECT_EQ(static_cast<uint32_t>(ret), static_cast<uint32_t>(info.authType));
 }
 
 HWTEST_F(CredentialInfoTest, GetExecutorSensorHint, TestSize.Level0)
 {
     int32_t userId = 100;
-    HdiCredentialInfo info = {
+    EngCredentialInfo info = {
         .credentialId = 1,
         .executorIndex = 2,
         .templateId = 3,
-        .authType = static_cast<HdiAuthType>(4),
+        .authType = static_cast<AuthType>(4),
         .executorMatcher = 5,
         .executorSensorHint = 6,
     };
@@ -136,11 +136,11 @@ HWTEST_F(CredentialInfoTest, GetExecutorSensorHint, TestSize.Level0)
 HWTEST_F(CredentialInfoTest, GetExecutorMatcher, TestSize.Level0)
 {
     int32_t userId = 100;
-    HdiCredentialInfo info = {
+    EngCredentialInfo info = {
         .credentialId = 1,
         .executorIndex = 2,
         .templateId = 3,
-        .authType = static_cast<HdiAuthType>(4),
+        .authType = static_cast<AuthType>(4),
         .executorMatcher = 5,
         .executorSensorHint = 6,
     };
@@ -152,18 +152,18 @@ HWTEST_F(CredentialInfoTest, GetExecutorMatcher, TestSize.Level0)
 HWTEST_F(CredentialInfoTest, GetAuthSubType, TestSize.Level0)
 {
     int32_t userId = 100;
-    HdiCredentialInfo info = {
+    EngCredentialInfo info = {
         .credentialId = 1,
         .executorIndex = 2,
         .templateId = 3,
-        .authType = static_cast<HdiAuthType>(4),
+        .authType = static_cast<AuthType>(4),
         .executorMatcher = 5,
         .executorSensorHint = 6,
         .authSubType = PIN_SIX,
     };
     CredentialInfoImpl CredentialInfoImpl(userId, info);
-    HdiPinSubType ret = static_cast<HdiPinSubType>(CredentialInfoImpl.GetAuthSubType());
-    EXPECT_EQ(static_cast<HdiPinSubType>(ret), static_cast<uint32_t>(info.authSubType));
+    PinSubType ret = static_cast<PinSubType>(CredentialInfoImpl.GetAuthSubType());
+    EXPECT_EQ(static_cast<PinSubType>(ret), static_cast<uint32_t>(info.authSubType));
 }
 } // namespace UserAuth
 } // namespace UserIam

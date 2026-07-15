@@ -51,10 +51,10 @@ HWTEST_F(HiSysEventAdapterTest, ReportRemoteExecuteProcTest001, TestSize.Level3)
     EXPECT_NO_THROW(ReportRemoteExecuteProc(trace));
 }
 
-HWTEST_F(HiSysEventAdapterTest, ReportSaLoadDriverFailureTest001, TestSize.Level3)
+HWTEST_F(HiSysEventAdapterTest, ReportSaLoadEngineFailureTest001, TestSize.Level3)
 {
-    SaLoadDriverFailureTrace trace = {};
-    EXPECT_NO_THROW(ReportSaLoadDriverFailure(trace));
+    SaLoadEngineFailureTrace trace = {};
+    EXPECT_NO_THROW(ReportSaLoadEngineFailure(trace));
 }
 
 HWTEST_F(HiSysEventAdapterTest, ReportIsCredentialEnrolledMismatchTest001, TestSize.Level3)

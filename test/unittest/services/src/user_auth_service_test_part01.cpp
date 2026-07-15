@@ -27,6 +27,7 @@
 #include "mock_event_listener.h"
 #include "mock_context.h"
 #include "mock_iuser_auth_interface.h"
+#include "hdi_type_aliases.h"
 #include "mock_ipc_common.h"
 #include "mock_user_auth_callback.h"
 #include "mock_user_auth_service.h"

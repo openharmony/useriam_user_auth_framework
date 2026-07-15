@@ -26,6 +26,7 @@
 #include "mock_event_listener.h"
 #include "mock_ipc_common.h"
 #include "mock_iuser_auth_interface.h"
+#include "hdi_type_aliases.h"
 #include "mock_resource_node.h"
 #include "mock_user_idm_callback.h"
 #include "resource_node_pool.h"
@@ -281,12 +282,12 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetSecInfo002, TestSize.Level0)
                     .authType = static_cast<HdiAuthType>(1),
                 };
                 infos.push_back(info);
-                pinSubType = static_cast<HdiPinSubType>(10000);
+                pinSubType = static_cast<PinSubType>(10000);
                 secureUid = 4542;
                 return HDF_SUCCESS;
             }
         );
-    
+
     testCallback = sptr<MockIdmGetSecureUserInfoCallback>(new (std::nothrow) MockIdmGetSecureUserInfoCallback());
     EXPECT_NE(testCallback, nullptr);
     EXPECT_CALL(*testCallback, OnSecureUserInfo(_, _)).Times(2);
@@ -329,7 +330,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceAddCredential002, TestSize.Level0)
         )
         .WillOnce(
             [](int32_t result, const std::vector<uint8_t> &extraInfo) {
-                EXPECT_EQ(result, HDF_FAILURE);
+                EXPECT_EQ(result, GENERAL_ERROR);
                 return SUCCESS;
             }
         );
@@ -476,7 +477,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceUpdateCredential002, TestSize.Level0)
     EXPECT_CALL(*testCallback, OnResult(_, _))
         .WillOnce(
             [](int32_t result, const std::vector<uint8_t> &extraInfo) {
-                EXPECT_EQ(result, HDF_FAILURE);
+                EXPECT_EQ(result, GENERAL_ERROR);
                 return SUCCESS;
             }
         );
@@ -498,7 +499,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceUpdateCredential002, TestSize.Level0)
                 return HDF_SUCCESS;
             }
         );
-    
+
     EXPECT_CALL(*mockHdi, BeginEnrollmentExt(_, _, _)).WillOnce(Return(HDF_FAILURE));
 
     testCredPara.token = {1, 2, 3, 4};
@@ -651,11 +652,11 @@ static void MockForDelUserHdi()
                 .authType = static_cast<HdiAuthType>(1),
             };
             infos.push_back(info);
-            pinSubType = static_cast<HdiPinSubType>(testPinSubType);
+            pinSubType = static_cast<PinSubType>(testPinSubType);
             secureUid = testSecureUid;
             return HDF_SUCCESS;
         });
-    
+
     EXPECT_CALL(*mockHdi, EnforceDeleteUser(_, _))
         .Times(testTimes)
         .WillOnce(Return(HDF_FAILURE))
@@ -682,7 +683,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceEnforceDelUser003, TestSize.Level0)
         .Times(2)
         .WillOnce(
             [](int32_t result, const std::vector<uint8_t> &extraInfo) {
-                EXPECT_EQ(result, HDF_FAILURE);
+                EXPECT_EQ(result, GENERAL_ERROR);
                 return SUCCESS;
             }
         )
@@ -695,7 +696,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceEnforceDelUser003, TestSize.Level0)
     MockForDelUserHdi();
     IpcCommon::AddPermission(ENFORCE_USER_IDM);
     int32_t ret = service.EnforceDelUser(testUserId, testCallback);
-    EXPECT_EQ(ret, -1);
+    EXPECT_EQ(ret, GENERAL_ERROR);
     ret = service.EnforceDelUser(testUserId, testCallback);
     EXPECT_EQ(ret, SUCCESS);
     IpcCommon::DeleteAllPermission();
@@ -719,7 +720,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelUser001, TestSize.Level0)
         )
         .WillOnce(
             [](int32_t result, const std::vector<uint8_t> &extraInfo) {
-                EXPECT_EQ(result, HDF_FAILURE);
+                EXPECT_EQ(result, GENERAL_ERROR);
                 return SUCCESS;
             }
         );
@@ -730,7 +731,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceDelUser001, TestSize.Level0)
 
     EXPECT_EQ(service.DelUser(testUserId, testAuthToken, testCallback), CHECK_PERMISSION_FAILED);
     IpcCommon::AddPermission(MANAGE_USER_IDM_PERMISSION);
-    EXPECT_EQ(service.DelUser(testUserId, testAuthToken, testCallback), HDF_FAILURE);
+    EXPECT_EQ(service.DelUser(testUserId, testAuthToken, testCallback), GENERAL_ERROR);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -908,7 +909,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceTestDump, TestSize.Level0)
                     .authType = static_cast<HdiAuthType>(1),
                 };
                 infos.push_back(info);
-                pinSubType = static_cast<HdiPinSubType>(10000);
+                pinSubType = static_cast<PinSubType>(10000);
                 secureUid = 4542;
                 return HDF_SUCCESS;
             }
@@ -947,7 +948,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceClearRedundancyCredential001, TestSiz
         )
         .WillOnce(
             [](int32_t result, const std::vector<uint8_t> &extraInfo) {
-                EXPECT_EQ(result, INVALID_HDI_INTERFACE);
+                EXPECT_EQ(result, GENERAL_ERROR);
                 return SUCCESS;
             }
         );
@@ -958,7 +959,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceClearRedundancyCredential001, TestSiz
 
     EXPECT_EQ(service.ClearRedundancyCredential(testCallback), CHECK_PERMISSION_FAILED);
     IpcCommon::AddPermission(CLEAR_REDUNDANCY_PERMISSION);
-    EXPECT_EQ(service.ClearRedundancyCredential(testCallback), INVALID_HDI_INTERFACE);
+    EXPECT_EQ(service.ClearRedundancyCredential(testCallback), GENERAL_ERROR);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -971,13 +972,13 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceClearRedundancyCredential002, TestSiz
         .Times(2)
         .WillOnce(
             [](int32_t result, const std::vector<uint8_t> &extraInfo) {
-                EXPECT_EQ(result, HDF_SUCCESS);
+                EXPECT_EQ(result, SUCCESS);
                 return SUCCESS;
             }
         )
         .WillOnce(
             [](int32_t result, const std::vector<uint8_t> &extraInfo) {
-                EXPECT_EQ(result, HDF_SUCCESS);
+                EXPECT_EQ(result, SUCCESS);
                 return SUCCESS;
             }
         );
@@ -986,8 +987,8 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceClearRedundancyCredential002, TestSiz
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetAllExtUserInfo(_))
         .WillRepeatedly(
-            [](std::vector<ExtUserInfo> &userInfos) {
-                ExtUserInfo info = { .userId = 100, };
+            [](std::vector<HdiExtUserInfo> &userInfos) {
+                HdiExtUserInfo info = { .userId = 100, };
                 userInfos.push_back(info);
                 return HDF_SUCCESS;
             }
@@ -1304,7 +1305,7 @@ HWTEST_F(UserIdmServiceTest, UserIdmServiceGetCredentialInfoImplTest, TestSize.L
             return HDF_SUCCESS;
         });
     EXPECT_EQ(NOT_ENROLLED, service.GetCredentialInfoImpl(userId, authType, testCallback));
-    EXPECT_EQ(HDF_SUCCESS, service.GetCredentialInfoImpl(userId, authType, testCallback));
+    EXPECT_EQ(SUCCESS, service.GetCredentialInfoImpl(userId, authType, testCallback));
     IpcCommon::DeleteAllPermission();
 }
 

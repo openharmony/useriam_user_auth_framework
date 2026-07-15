@@ -27,7 +27,7 @@ class CredentialUpdatedManager {
 public:
     static CredentialUpdatedManager &GetInstance();
     void ProcessCredentialDeleted(const Deletion::DeleteParam &deletePara, uint64_t credentialId, AuthType authType);
-    void ProcessCredentialEnrolled(const Enrollment::EnrollmentPara &enrollPara, const HdiEnrollResultInfo &resultInfo,
+    void ProcessCredentialEnrolled(const Enrollment::EnrollmentPara &enrollPara, const EngEnrollResultInfo &resultInfo,
         bool isUpdate, uint64_t scheduleId);
     void ProcessUserDeleted(int32_t userId);
 

@@ -19,14 +19,14 @@
 #include "nocopyable.h"
 
 #include "enrolled_info_interface.h"
-#include "hdi_wrapper.h"
+#include "user_auth_engine_types.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 class EnrolledInfoImpl final : public EnrolledInfoInterface, public NoCopyable {
 public:
-    EnrolledInfoImpl(int32_t userId, const HdiEnrolledInfo &info);
+    EnrolledInfoImpl(int32_t userId, const EnrolledInfo &info);
     ~EnrolledInfoImpl() override = default;
     AuthType GetAuthType() const override;
     int32_t GetUserId() const override;
@@ -34,7 +34,7 @@ public:
 
 private:
     int32_t userId_{INVALID_USER_ID};
-    HdiEnrolledInfo info_;
+    EnrolledInfo info_;
 };
 } // namespace UserAuth
 } // namespace UserIam

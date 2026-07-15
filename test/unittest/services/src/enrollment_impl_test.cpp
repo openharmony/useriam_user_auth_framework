@@ -18,6 +18,7 @@
 #include "credential_info_impl.h"
 #include "enrollment_impl.h"
 #include "resource_node_pool.h"
+#include "hdi_type_aliases.h"
 #include "mock_iuser_auth_interface.h"
 #include "mock_resource_node.h"
 #include "mock_schedule_node_callback.h"
@@ -143,7 +144,7 @@ HWTEST_F(EnrollmentImplTest, EnrollmentUpdateHdiSuccessful_001, TestSize.Level0)
 
     auto enroll = std::make_shared<EnrollmentImpl>(para);
     enroll->SetIsUpdate(true);
-    HdiCredentialInfo oldInfo = {};
+    EngCredentialInfo oldInfo = {};
     std::shared_ptr<CredentialInfoInterface> info = std::make_shared<CredentialInfoImpl>(para.userId, oldInfo);
     uint64_t credentialId = 0;
     std::shared_ptr<UpdatePinParamInterface> pinInfo = nullptr;
@@ -211,7 +212,7 @@ HWTEST_F(EnrollmentImplTest, EnrollmentImplTestStart_001, TestSize.Level0)
                 executorMessages.resize(1);
                 info.executorMessages.push_back(executorMessages);
                 info.scheduleId = 20;
-                info.scheduleMode = HdiScheduleMode::IDENTIFY;
+                info.scheduleMode = ScheduleMode::IDENTIFY;
                 info.templateIds.push_back(30);
                 return HDF_SUCCESS;
             }
@@ -248,7 +249,7 @@ HWTEST_F(EnrollmentImplTest, EnrollmentImplTestStart_002, TestSize.Level0)
             [](int32_t userId, uint64_t &secureUid, int32_t &pinSubType,
                 std::vector<HdiEnrolledInfo> &infos) {
                 secureUid = 1;
-                pinSubType = static_cast<HdiPinSubType>(10000);
+                pinSubType = static_cast<PinSubType>(10000);
                 HdiEnrolledInfo info = {
                     .enrolledId = 200,
                     .authType = static_cast<HdiAuthType>(1),
@@ -340,7 +341,7 @@ HWTEST_F(EnrollmentImplTest, EnrollmentStartWithAdditionalInfoTest, TestSize.Lev
                 executorMessages.resize(1);
                 info.executorMessages.push_back(executorMessages);
                 info.scheduleId = 21;
-                info.scheduleMode = HdiScheduleMode::ENROLL;
+                info.scheduleMode = ScheduleMode::ENROLL;
                 info.templateIds.push_back(31);
                 return HDF_SUCCESS;
             }

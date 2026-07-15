@@ -21,7 +21,7 @@
 
 #include "deletion.h"
 #include "schedule_node.h"
-#include "user_auth_hdi.h"
+#include "user_auth_engine_types.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -33,7 +33,7 @@ public:
 
     bool Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
         std::shared_ptr<ScheduleNodeCallback> callback, bool &isCredentialDelete,
-        std::vector<HdiCredentialInfo> &credentialInfos) override;
+        std::vector<EngCredentialInfo> &credentialInfos) override;
     bool Update(const std::vector<uint8_t> &scheduleResult, std::shared_ptr<CredentialInfoInterface> &info) override;
     bool Cancel() override;
 
@@ -46,9 +46,9 @@ protected:
     void SetLatestError(int32_t error) override;
 
 private:
-    bool StartSchedule(int32_t userId, HdiScheduleInfo &info,
+    bool StartSchedule(int32_t userId, EngScheduleInfo &info,
         std::vector<std::shared_ptr<ScheduleNode>> &scheduleList, std::shared_ptr<ScheduleNodeCallback> callback);
-    bool DeleteCredential(int32_t userId, std::vector<HdiCredentialInfo> &credentialInfo);
+    bool DeleteCredential(int32_t userId, std::vector<EngCredentialInfo> &credentialInfo);
 
     DeleteParam deletePara_;
 
