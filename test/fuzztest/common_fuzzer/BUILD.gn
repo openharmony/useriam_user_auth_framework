@@ -322,6 +322,7 @@ ohos_source_set("userauth_service_context_fuzzer") {
 ohos_source_set("userauth_service_remote_connect_fuzzer") {
   include_dirs = [
     "inc",
+    "../dummy",
     "../../../services/remote_connect/inc",
   ]
 
@@ -359,12 +360,12 @@ ohos_source_set("userauth_service_remote_connect_fuzzer") {
       "../../../services/remote_connect/default/src/soft_bus_message.cpp",
       "../../../services/remote_connect/default/src/soft_bus_server_socket.cpp",
       "../../../services/remote_connect/default/src/soft_bus_socket_listener.cpp",
+      "../dummy/mock_device_manager.cpp",
     ]
 
     external_deps = [
       "access_token:libtoken_setproc",
       "c_utils:utils",
-      "device_manager:devicemanagersdk",
       "dsoftbus:softbus_client",
       "hicollie:libhicollie",
       "hilog:libhilog",
