@@ -1986,7 +1986,7 @@ int32_t UserAuthService::RegisterRemoteAuthCallback(const sptr<IRemoteAuthCallba
         return CHECK_SYSTEM_APP_FAILED;
     }
 
-    if (!IpcCommon::CheckPermission(*this, SUPPORT_USER_AUTH)) {
+    if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         IAM_LOGE("CheckPermission failed, no permission");
         return CHECK_PERMISSION_FAILED;
     }
@@ -2009,7 +2009,7 @@ int32_t UserAuthService::UnregisterRemoteAuthCallback()
         return CHECK_SYSTEM_APP_FAILED;
     }
 
-    if (!IpcCommon::CheckPermission(*this, SUPPORT_USER_AUTH)) {
+    if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         IAM_LOGE("CheckPermission failed, no permission");
         return CHECK_PERMISSION_FAILED;
     }
