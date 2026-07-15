@@ -927,7 +927,7 @@ void WidgetContext::SendAuthResultInfo(int32_t resultCode, int32_t authType, con
 
     HdiEnrolledState enrolledState = {};
     auto hdi = HdiWrapper::GetHdiInstance();
-    if (hdi != nullptr) {
+    if (hdi == nullptr) {
         IAM_LOGE("bad hdi");
         return End(ResultCode::GENERAL_ERROR);
     }
