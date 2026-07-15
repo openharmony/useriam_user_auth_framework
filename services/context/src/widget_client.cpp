@@ -451,7 +451,7 @@ void WidgetClient::WidgetRelease(uint64_t contextId, std::vector<AuthType> &auth
 void WidgetClient::WidgetCompleteAuth(const WidgetNotice &notice, std::vector<AuthType> &authTypeList)
 {
     IAM_LOGI("start, contextId:%{public}hx", static_cast<uint16_t>(notice.widgetContextId));
-    if (authTypeList.size() != 1) {
+    if (authTypeList.empty()) {
         IAM_LOGE("bad authTypeList:%{public}zu", authTypeList.size());
         return;
     }
