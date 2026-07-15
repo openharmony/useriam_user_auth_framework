@@ -30,6 +30,8 @@
 #include "user_idm_database.h"
 
 #define LOG_TAG "USER_AUTH_SA"
+#define LOG_FILE_ID LOG_FILE_SIMPLE_AUTH_CONTEXT
+
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
@@ -335,6 +337,14 @@ void SimpleAuthContext::InvokeResultCallback(const Authentication::AuthResultInf
     callback_->SetTraceAuthFinishReason("SimpleAuthContext InvokeResultCallback");
     callback_->OnResult(resultInfo.result, finalResult);
     IAM_LOGI("%{public}s invoke result callback success, result %{public}d", GetDescription(), resultInfo.result);
+}
+
+void SimpleAuthContext::SetRemoteAuthParam(const WidgetParamInner &widgetParam,
+    const sptr<IModalCallback> &modalCallback)
+{
+    static_cast<void>(widgetParam);
+    static_cast<void>(modalCallback);
+    IAM_LOGE("not implemented");
 }
 } // namespace UserAuth
 } // namespace UserIam

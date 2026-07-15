@@ -23,6 +23,7 @@
 
 #include "iam_ptr.h"
 #include "auth_common.h"
+#include "set_widget_param_callback.h"
 #include "user_auth_client_defines.h"
 #include "user_auth_callback_v10.h"
 #include "user_auth_napi_client_impl.h"
@@ -49,31 +50,17 @@ public:
     UserAuthResultCode offAuthTip(taihe::optional_view<taihe::callback<void(userAuth::AuthTipInfo const&)>> callback);
 
 private:
-    UserAuthResultCode InitAuthParam(userAuth::AuthParam const &authParam);
-    UserAuthResultCode InitWidgetParam(userAuth::WidgetParam const &widgetParam);
-    UserAuthResultCode InitChallenge(userAuth::AuthParam const &authParam);
-    UserAuthResultCode InitAuthType(userAuth::AuthParam const &authParam);
-    UserAuthResultCode InitAuthTrustLevel(userAuth::AuthParam const &authParam);
-    UserAuthResultCode InitReuseUnlockResult(userAuth::AuthParam const &authParam);
-    UserAuthResultCode InitUserId(userAuth::AuthParam const &authParam);
-    UserAuthResultCode InitSkipLockedBiometricAuth(userAuth::AuthParam const &authParam);
-    UserAuthResultCode InitCredentialIdList(userAuth::AuthParam const &authParam);
-    UserAuthResultCode InitTitle(userAuth::WidgetParam const &widgetParam);
-    UserAuthResultCode InitNavigationButtonText(userAuth::WidgetParam const &widgetParam);
-    UserAuthResultCode InitWindowMode(userAuth::WidgetParam const &widgetParam);
-    UserAuthResultCode InitContext(userAuth::WidgetParam const &widgetParam);
-    bool CheckUIContext(const std::shared_ptr<OHOS::AbilityRuntime::Context> context);
-
     uint64_t contextId_ = 0;
     bool isAuthStarted_ = false;
 
     AuthParamInner authParam_ = {};
-    UserAuthNapiClientImpl::WidgetParamNapi widgetParam_ = {};
+    SetWidgetParamClientCallback::WidgetParamExt widgetParamExt_ = {};
 
     std::mutex mutex_;
     std::shared_ptr<UserAuthCallbackV10> callback_ = nullptr;
     std::shared_ptr<UserAuthModalCallback> modalCallback_ = nullptr;
     std::shared_ptr<AbilityRuntime::Context> context_ = nullptr;
+    sptr<OHOS::Rosen::Window> window_ = nullptr;
 };
 }  // namespace UserAuth
 }  // namespace UserIam

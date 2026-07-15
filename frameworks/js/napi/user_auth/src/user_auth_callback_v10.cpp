@@ -25,6 +25,7 @@
 #include "user_auth_client_impl.h"
 
 #define LOG_TAG "USER_AUTH_NAPI"
+#define LOG_FILE_ID LOG_FILE_USER_AUTH_CALLBACK_VERSION_10
 
 namespace OHOS {
 namespace UserIam {
@@ -140,33 +141,11 @@ napi_status UserAuthCallbackV10::DoResultCallback(int32_t result,
         IAM_LOGE("napi_create_object failed %{public}d", ret);
         return ret;
     }
-    ret = UserAuthNapiHelper::SetInt32Property(env_, eventInfo, "result", result);
+    ResultInfo resultInfo = { result, token, authType, enrolledState };
+    ret = UserAuthNapiHelper::SetResultInfoProperty(env_, eventInfo, resultInfo);
     if (ret != napi_ok) {
-        IAM_LOGE("napi_create_int32 failed %{public}d", ret);
+        IAM_LOGE("SetResultInfoProperty failed %{public}d", ret);
         return ret;
-    }
-
-    if (!token.empty()) {
-        ret = UserAuthNapiHelper::SetUint8ArrayProperty(env_, eventInfo, "token", token);
-        if (ret != napi_ok) {
-            IAM_LOGE("SetUint8ArrayProperty failed %{public}d", ret);
-            return ret;
-        }
-    }
-
-    if (UserAuthHelper::CheckUserAuthType(authType)) {
-        ret = UserAuthNapiHelper::SetInt32Property(env_, eventInfo, "authType", authType);
-        if (ret != napi_ok) {
-            IAM_LOGE("napi_create_int32 failed %{public}d", ret);
-            return ret;
-        }
-    }
-    if (UserAuthResultCode(result) == UserAuthResultCode::SUCCESS || !token.empty()) {
-        ret = UserAuthNapiHelper::SetEnrolledStateProperty(env_, eventInfo, "enrolledState", enrolledState);
-        if (ret != napi_ok) {
-            IAM_LOGE("SetEnrolledStateProperty failed %{public}d", ret);
-            return ret;
-        }
     }
     return UserAuthNapiHelper::CallVoidNapiFunc(env_, resultCallback->Get(), ARGS_ONE, &eventInfo);
 }

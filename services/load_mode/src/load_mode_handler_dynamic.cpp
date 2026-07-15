@@ -30,6 +30,7 @@
 #include "iam_ptr.h"
 
 #define LOG_TAG "USER_AUTH_SA"
+#define LOG_FILE_ID LOG_FILE_LOAD_MODE_HANDLER_DYNAMIC
 
 namespace OHOS {
 namespace UserIam {
@@ -319,7 +320,7 @@ void LoadModeHandlerDynamic::TriggerAllServiceStart()
     }
 
     IAM_LOGI("trigger all service start");
-    SystemParamManager::GetInstance().SetParamTwice(START_SA_KEY, FALSE_STR, TRUE_STR);
+    SystemParamManager::GetInstance().SetParamTwice(START_SA_INNER_KEY, FALSE_STR, TRUE_STR);
 }
 } // namespace UserAuth
 } // namespace UserIam

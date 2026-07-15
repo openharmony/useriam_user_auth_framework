@@ -50,7 +50,7 @@ void WidgetScheduleNodeImplTest::SetUpTestCase()
     uint64_t contextId = 1;
     ContextFactory::AuthWidgetContextPara para;
     std::shared_ptr<ContextCallback> callback = Common::MakeShared<MockContextCallback>();
-    widgetContext = Common::MakeShared<WidgetContext>(contextId, para, callback, nullptr);
+    widgetContext = Common::MakeShared<WidgetContext>(contextId, para, callback, nullptr, nullptr);
 }
 
 void WidgetScheduleNodeImplTest::TearDownTestCase()
@@ -593,6 +593,49 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImpl_SendAuthResultInfo_0
     schedule->SetCallback(callback);
     schedule->SendAuthResultInfo(0, PIN, token);
     EXPECT_CALL(*callback, SendAuthResultInfo(_, _, _)).Times(0);
+}
+
+HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImpl_GetRemoteAuthParam_001, TestSize.Level0)
+{
+    auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
+    ASSERT_NE(schedule, nullptr);
+    schedule->SetCallback(widgetContext);
+    schedule->StartSchedule();
+    EXPECT_TRUE(schedule->GetRemoteAuthParam());
+    widgetContext->LaunchWidget();
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImpl_GetRemoteAuthParam_002, TestSize.Level0)
+{
+    auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
+    ASSERT_NE(schedule, nullptr);
+    schedule->machine_ = nullptr;
+    EXPECT_FALSE(schedule->GetRemoteAuthParam());
+}
+
+HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImpl_GetRemoteAuthParam_003, TestSize.Level0)
+{
+    auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
+    auto callback = std::make_shared<MockWidgetScheduleNodeCallback>();
+    schedule->SetCallback(callback);
+    EXPECT_CALL(*callback, LaunchWidget()).WillOnce(Return(true));
+    schedule->StartSchedule();
+    EXPECT_TRUE(schedule->GetRemoteAuthParam());
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
+}
+
+HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImpl_GetRemoteAuthParam_004, TestSize.Level0)
+{
+    auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
+    ASSERT_NE(schedule, nullptr);
+    schedule->SetCallback(nullptr);
+    schedule->StartSchedule();
+    EXPECT_TRUE(schedule->GetRemoteAuthParam());
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    handler->EnsureTask([]() {});
 }
 } // namespace UserAuth
 } // namespace UserIam

@@ -21,12 +21,9 @@
 #include "delete_impl.h"
 #include "enrollment.h"
 #include "event_listener_manager.h"
-#include "iam_logger.h"
 #include "publish_event_adapter.h"
 #include "system_param_manager.h"
 #include "user_idm_database_impl.h"
-
-#define LOG_TAG "USER_AUTH_SA"
 
 namespace OHOS {
 namespace UserIam {
@@ -60,7 +57,7 @@ HWTEST_F(CredentialUpdatedManagerTest, ProcessCredentialDeletedTest, TestSize.Le
     deletePara.callerName = TEST_CALLER_NAME;
     deletePara.callerType = TEST_CALLER_TYPE;
 
-    auto& instance = CredentialUpdatedManager::GetInstance();
+    auto &instance = CredentialUpdatedManager::GetInstance();
     EXPECT_NO_THROW(instance.ProcessCredentialDeleted(deletePara, TEST_CREDENTIAL_ID, FACE));
 }
 
@@ -75,7 +72,7 @@ HWTEST_F(CredentialUpdatedManagerTest, ProcessCredentialEnrolledTest, TestSize.L
     HdiEnrollResultInfo resultInfo;
     resultInfo.oldInfo.credentialId = TEST_CREDENTIAL_ID;
 
-    auto& instance = CredentialUpdatedManager::GetInstance();
+    auto &instance = CredentialUpdatedManager::GetInstance();
     EXPECT_NO_THROW(instance.ProcessCredentialEnrolled(enrollPara, resultInfo, true, TEST_SCHEDULE_ID));
     EXPECT_NO_THROW(instance.ProcessCredentialEnrolled(enrollPara, resultInfo, false, TEST_SCHEDULE_ID));
 
@@ -86,7 +83,7 @@ HWTEST_F(CredentialUpdatedManagerTest, ProcessCredentialEnrolledTest, TestSize.L
 
 HWTEST_F(CredentialUpdatedManagerTest, ProcessUserDeletedTest, TestSize.Level0)
 {
-    auto& instance = CredentialUpdatedManager::GetInstance();
+    auto &instance = CredentialUpdatedManager::GetInstance();
     EXPECT_NO_THROW(instance.ProcessUserDeleted(TEST_USER_ID));
 }
 } // namespace UserAuth

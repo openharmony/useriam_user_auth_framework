@@ -40,12 +40,14 @@
 #include "remote_msg_util.h"
 #include "remote_iam_callback.h"
 #include "remote_auth_service.h"
+#include "remote_auth_callback_manager.h"
 #include "thread_handler_manager.h"
 #include "user_auth_helper.h"
 #include "device_manager_util.h"
 #include "xcollie_helper.h"
 
 #define LOG_TAG "USER_AUTH_SA"
+#define LOG_FILE_ID LOG_FILE_USER_AUTH_SERVICE
 
 namespace OHOS {
 namespace UserIam {
@@ -97,6 +99,11 @@ bool IsTemplateIdListRequired(const std::vector<Attributes::AttributeKey> &keys)
         }
     }
     return false;
+}
+
+bool IsSensorInfoRequested(const std::vector<Attributes::AttributeKey> &keys)
+{
+    return std::find(keys.begin(), keys.end(), Attributes::AttributeKey::ATTR_SENSOR_INFO) != keys.end();
 }
 
 void GetResourceNodeByTypeAndRole(AuthType authType, ExecutorRole role,
@@ -386,6 +393,11 @@ int32_t UserAuthService::GetPropertyHelper(int32_t userId, int32_t authType,
             IAM_LOGE("template id list is required, but templateIds size is 0");
             getExecutorPropertyCallback->OnGetExecutorPropertyResult(NOT_ENROLLED, values.Serialize());
             return SUCCESS;
+        }
+    } else if (IsSensorInfoRequested(keys)) {
+        int32_t ret = GetTemplatesByAuthType(userId, static_cast<AuthType>(authType), templateIds);
+        if (ret != SUCCESS) {
+            IAM_LOGE("get templates for sensorInfo fail, ret:%{public}d, userId:%{public}d, ignore", ret, userId);
         }
     }
 
@@ -1255,7 +1267,23 @@ uint64_t UserAuthService::StartWidgetContext(const std::shared_ptr<ContextCallba
         contextCallback->OnResult(ResultCode::GENERAL_ERROR, extraInfo);
         return BAD_CONTEXT_ID;
     }
-    auto context = ContextFactory::CreateWidgetContext(para, contextCallback, modalCallback);
+    sptr<IRemoteAuthCallback> remoteAuthCallback = nullptr;
+    if (authParam.remoteTokenId.has_value()) {
+        remoteAuthCallback =
+            RemoteAuthCallbackManager::GetInstance().GetRemoteAuthCallback(authParam.remoteTokenId.value());
+        if (remoteAuthCallback == nullptr) {
+            IAM_LOGE("get remoteAuthCallback failed");
+            contextCallback->SetTraceAuthFinishReason("UserAuthService GetRemoteAuthCallback fail");
+            contextCallback->OnResult(ResultCode::GENERAL_ERROR, extraInfo);
+            return BAD_CONTEXT_ID;
+        }
+        std::string callerName =
+            RemoteAuthCallbackManager::GetInstance().GetRemoteAuthCallerName(authParam.remoteTokenId.value());
+        if (!callerName.empty()) {
+            para.remoteCallerName = callerName;
+        }
+    }
+    auto context = ContextFactory::CreateWidgetContext(para, contextCallback, modalCallback, remoteAuthCallback);
     if (context == nullptr || !Insert2ContextPool(context)) {
         contextCallback->SetTraceAuthFinishReason("UserAuthService AuthWidget insert context fail");
         contextCallback->OnResult(ResultCode::GENERAL_ERROR, extraInfo);
@@ -1275,6 +1303,10 @@ uint64_t UserAuthService::StartWidgetContext(const std::shared_ptr<ContextCallba
 int32_t UserAuthService::CheckSkipLockedBiometricAuth(ContextFactory::AuthWidgetContextPara &para,
     const AuthParamInner &authParam, const WidgetParamInner &widgetParam, std::vector<AuthType> &validType)
 {
+    if (validType.empty()) {
+        IAM_LOGE("validType size is 0");
+        return TYPE_NOT_SUPPORT;
+    }
     for (auto iter = validType.begin(); iter != validType.end();) {
         AuthType type = *iter;
         ContextFactory::AuthProfile profile = {};
@@ -1968,6 +2000,47 @@ int32_t UserAuthService::QueryReusableAuthResult(const IpcAuthParamInner &ipcAut
     return SUCCESS;
 }
 
+int32_t UserAuthService::RegisterRemoteAuthCallback(const sptr<IRemoteAuthCallback> &remoteAuthCallback)
+{
+    IF_FALSE_LOGE_AND_RETURN_VAL(remoteAuthCallback != nullptr, INVALID_PARAMETERS);
+    if (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP)) {
+        IAM_LOGE("the caller is not a system application");
+        return CHECK_SYSTEM_APP_FAILED;
+    }
+
+    if (!IpcCommon::CheckPermission(*this, SUPPORT_USER_AUTH)) {
+        IAM_LOGE("CheckPermission failed, no permission");
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    uint32_t tokenId = IpcCommon::GetAccessTokenId(*this);
+    std::string callerName;
+    int32_t callerType;
+    if ((!IpcCommon::GetCallerName(*this, callerName, callerType))) {
+        IAM_LOGE("get bundle name fail");
+        return GENERAL_ERROR;
+    }
+
+    return RemoteAuthCallbackManager::GetInstance().AddRemoteAuthCallback(tokenId, remoteAuthCallback);
+}
+
+int32_t UserAuthService::UnregisterRemoteAuthCallback()
+{
+    if (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP)) {
+        IAM_LOGE("the caller is not a system application");
+        return CHECK_SYSTEM_APP_FAILED;
+    }
+
+    if (!IpcCommon::CheckPermission(*this, SUPPORT_USER_AUTH)) {
+        IAM_LOGE("CheckPermission failed, no permission");
+        return CHECK_PERMISSION_FAILED;
+    }
+
+    uint32_t tokenId = IpcCommon::GetAccessTokenId(*this);
+    RemoteAuthCallbackManager::GetInstance().DelRemoteAuthCallback(tokenId);
+    return SUCCESS;
+}
+
 void UserAuthService::InitAuthParam(const IpcAuthParamInner &ipcAuthParam, AuthParamInner &authParam)
 {
     authParam.userId = ipcAuthParam.userId;
@@ -1986,6 +2059,9 @@ void UserAuthService::InitAuthParam(const IpcAuthParamInner &ipcAuthParam, AuthP
     authParam.reuseUnlockResult.isReuse = ipcAuthParam.reuseUnlockResult.isReuse;
     authParam.reuseUnlockResult.reuseMode = static_cast<ReuseMode>(ipcAuthParam.reuseUnlockResult.reuseMode);
     authParam.reuseUnlockResult.reuseDuration = ipcAuthParam.reuseUnlockResult.reuseDuration;
+    if (ipcAuthParam.isHasRemoteTokenId) {
+        authParam.remoteTokenId = ipcAuthParam.remoteTokenId;
+    }
 }
 
 void UserAuthService::InitRemoteAuthParam(const IpcRemoteAuthParam &ipcRemoteAuthParam,

@@ -24,6 +24,7 @@
 #include "event_listener_callback_service.h"
 #include "iuser_auth.h"
 #include "iuser_auth_widget_callback.h"
+#include "remote_auth_client_callback.h"
 #include "user_auth_client.h"
 #include "user_auth_types.h"
 #include "user_auth_common_defines.h"
@@ -33,7 +34,7 @@ namespace UserIam {
 namespace UserAuth {
 class UserAuthClientImpl final : public UserAuthClient, NoCopyable {
 public:
-    static UserAuthClientImpl& Instance();
+    static UserAuthClientImpl &Instance();
     int32_t GetAvailableStatus(AuthType authType, AuthTrustLevel authTrustLevel);
     int32_t GetNorthAvailableStatus(int32_t apiVersion, AuthType authType, AuthTrustLevel authTrustLevel);
     int32_t GetAvailableStatus(int32_t userId, AuthType authType, AuthTrustLevel authTrustLevel) override;
@@ -68,6 +69,10 @@ public:
     int32_t PrepareRemoteAuth(const std::string &networkId,
         const std::shared_ptr<PrepareRemoteAuthCallback> &callback) override;
     int32_t QueryReusableAuthResult(const WidgetAuthParam &authParam, std::vector<uint8_t> &token) override;
+
+    int32_t RegisterRemoteAuthCallback(const std::shared_ptr<RemoteAuthClientCallback> &remoteAuthCallback);
+    int32_t UnregisterRemoteAuthCallback();
+
     void CleanUpResource();
 
 private:

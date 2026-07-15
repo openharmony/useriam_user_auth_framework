@@ -18,6 +18,7 @@
 #include "iam_logger.h"
 
 #define LOG_TAG "USER_AUTH_SA"
+#define LOG_FILE_ID LOG_FILE_SCHEDULE_HOLDER_CONTEXT
 
 namespace OHOS {
 namespace UserIam {
@@ -91,6 +92,14 @@ int32_t ScheduleHolderContext::GetUserId() const
 void ScheduleHolderContext::SetLatestError(int32_t error)
 {
     static_cast<void>(error);
+    IAM_LOGE("not implemented");
+}
+
+void ScheduleHolderContext::SetRemoteAuthParam(const WidgetParamInner &widgetParam,
+    const sptr<IModalCallback> &modalCallback)
+{
+    static_cast<void>(widgetParam);
+    static_cast<void>(modalCallback);
     IAM_LOGE("not implemented");
 }
 } // namespace UserAuth

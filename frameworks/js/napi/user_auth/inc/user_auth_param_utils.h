@@ -18,11 +18,13 @@
 
 #include <mutex>
 
+#include "window.h"
 #include "nocopyable.h"
 
 #include "ability.h"
 
 #include "auth_common.h"
+#include "set_widget_param_callback.h"
 #include "user_auth_napi_client_impl.h"
 #include "user_auth_api_event_reporter.h"
 
@@ -33,8 +35,8 @@ class UserAuthParamUtils : public NoCopyable {
 public:
     static UserAuthResultCode InitAuthParam(napi_env env, napi_value value, AuthParamInner &authParam);
     static UserAuthResultCode InitWidgetParam(napi_env env, napi_value value,
-        UserAuthNapiClientImpl::WidgetParamNapi &widgetParam,
-        std::shared_ptr<AbilityRuntime::Context> &abilityContext);
+        SetWidgetParamClientCallback::WidgetParamExt &widgetParamExt,
+        std::shared_ptr<AbilityRuntime::Context> &abilityContext, sptr<OHOS::Rosen::Window> &window);
 
 private:
     static UserAuthResultCode InitChallenge(napi_env env, napi_value value, AuthParamInner &authParam);
@@ -42,19 +44,18 @@ private:
     static UserAuthResultCode InitAuthTrustLevel(napi_env env, napi_value value, AuthParamInner &authParam);
     static UserAuthResultCode InitReuseUnlockResult(napi_env env, napi_value value, AuthParamInner &authParam);
     static UserAuthResultCode InitUserId(napi_env env, napi_value value, AuthParamInner &authParam);
-    static UserAuthResultCode ProcessAuthTrustLevelAndUserId(napi_env env, napi_value value,
-        AuthParamInner &authParam);
+    static UserAuthResultCode ProcessAuthTrustLevelAndUserId(napi_env env, napi_value value, AuthParamInner &authParam);
     static UserAuthResultCode ProcessReuseUnlockResult(napi_env env, napi_value value, AuthParamInner &authParam);
     static UserAuthResultCode ProcessWindowMode(napi_env env, napi_value value,
-        UserAuthNapiClientImpl::WidgetParamNapi &widgetParam);
+        SetWidgetParamClientCallback::WidgetParamExt &widgetParamExt);
     static UserAuthResultCode ProcessContext(napi_env env, napi_value value,
-        UserAuthNapiClientImpl::WidgetParamNapi &widgetParam,
+        SetWidgetParamClientCallback::WidgetParamExt &widgetParamExt,
         std::shared_ptr<AbilityRuntime::Context> &abilityContext);
+    static UserAuthResultCode ProcessWindow(napi_env env, napi_value value,
+        SetWidgetParamClientCallback::WidgetParamExt &widgetParamExt, sptr<OHOS::Rosen::Window> &window);
     static bool CheckUIContext(const std::shared_ptr<OHOS::AbilityRuntime::Context> context);
-    static UserAuthResultCode ProcessSkipLockedBiometricAuth(napi_env env, napi_value value,
-        AuthParamInner &authParam);
-    static UserAuthResultCode ProcessCredentialIdList(napi_env env, napi_value value,
-        AuthParamInner &authParam);
+    static UserAuthResultCode ProcessSkipLockedBiometricAuth(napi_env env, napi_value value, AuthParamInner &authParam);
+    static UserAuthResultCode ProcessCredentialIdList(napi_env env, napi_value value, AuthParamInner &authParam);
 };
 } // namespace UserAuth
 } // namespace UserIam

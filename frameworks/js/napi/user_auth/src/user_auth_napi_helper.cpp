@@ -30,6 +30,7 @@
 #include "user_auth_helper.h"
 
 #define LOG_TAG "USER_AUTH_NAPI"
+#define LOG_FILE_ID LOG_FILE_USER_AUTH_NAPI_HELPER
 
 namespace OHOS {
 namespace UserIam {
@@ -458,6 +459,31 @@ napi_status UserAuthNapiHelper::CallVoidNapiFunc(napi_env env, napi_ref funcRef,
     return ret;
 }
 
+napi_status UserAuthNapiHelper::CallNapiFuncWithResult(napi_env env, napi_ref funcRef, size_t argc,
+    const napi_value *argv, napi_value *result)
+{
+    napi_value funcVal;
+    napi_status ret = napi_get_reference_value(env, funcRef, &funcVal);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_get_reference_value failed %{public}d", ret);
+        return ret;
+    }
+
+    napi_value undefined;
+    ret = napi_get_undefined(env, &undefined);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_get_undefined failed %{public}d", ret);
+        return ret;
+    }
+
+    ret = napi_call_function(env, undefined, funcVal, argc, argv, result);
+    if (ret != napi_ok) {
+        IAM_LOGE("napi_call_function failed %{public}d", ret);
+    }
+
+    return ret;
+}
+
 napi_status UserAuthNapiHelper::SetBoolProperty(napi_env env, napi_value obj, const char *name, int32_t value)
 {
     napi_value napiValue = nullptr;
@@ -535,7 +561,7 @@ napi_status UserAuthNapiHelper::SetUint8ArrayProperty(napi_env env,
 }
 
 napi_status UserAuthNapiHelper::SetEnrolledStateProperty(napi_env env, napi_value obj,
-    const char *name, EnrolledState &value)
+    const char *name, const EnrolledState &value)
 {
     napi_value napiValue = nullptr;
     napi_status ret = napi_create_object(env, &napiValue);
@@ -656,6 +682,39 @@ bool UserAuthNapiHelper::ConvertSizeToUint32(size_t in, uint32_t &out)
     }
     out = static_cast<uint32_t>(in);
     return true;
+}
+
+napi_status UserAuthNapiHelper::SetResultInfoProperty(napi_env env, napi_value obj, const ResultInfo &resultInfo)
+{
+    napi_status ret = UserAuthNapiHelper::SetInt32Property(env, obj, "result", resultInfo.result);
+    if (ret != napi_ok) {
+        IAM_LOGE("SetInt32Property result failed %{public}d", ret);
+        return ret;
+    }
+
+    if (!resultInfo.token.empty()) {
+        ret = UserAuthNapiHelper::SetUint8ArrayProperty(env, obj, "token", resultInfo.token);
+        if (ret != napi_ok) {
+            IAM_LOGE("SetUint8ArrayProperty failed %{public}d", ret);
+            return ret;
+        }
+    }
+
+    if (UserAuthHelper::CheckUserAuthType(resultInfo.authType)) {
+        ret = UserAuthNapiHelper::SetInt32Property(env, obj, "authType", resultInfo.authType);
+        if (ret != napi_ok) {
+            IAM_LOGE("SetInt32Property authType failed %{public}d", ret);
+            return ret;
+        }
+    }
+    if (UserAuthResultCode(resultInfo.result) == UserAuthResultCode::SUCCESS || !resultInfo.token.empty()) {
+        ret = UserAuthNapiHelper::SetEnrolledStateProperty(env, obj, "enrolledState", resultInfo.enrolledState);
+        if (ret != napi_ok) {
+            IAM_LOGE("SetEnrolledStateProperty failed %{public}d", ret);
+            return ret;
+        }
+    }
+    return ret;
 }
 } // namespace UserAuth
 } // namespace UserIam

@@ -39,5 +39,7 @@ struct AuthToken {
     credentialId: Optional<i64>;
 }
 
-@gen_promise("verifyAuthToken")
 function verifyAuthTokenSync(authToken: @typedarray Array<u8>, allowableDuration: i32): AuthToken;
+
+@promise
+function verifyAuthToken(authToken: @typedarray Array<u8>, allowableDuration: i32): AuthToken;
