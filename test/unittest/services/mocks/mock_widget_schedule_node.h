@@ -40,6 +40,7 @@ public:
     MOCK_METHOD2(SendAuthTipInfo, void(const std::vector<AuthType> &authTypeList, int32_t tipCode));
     MOCK_METHOD3(SendAuthResultInfo, void(int32_t resultCode, int32_t authType, const std::vector<uint8_t> &token));
     MOCK_METHOD0(ClearSchedule, bool());
+    MOCK_METHOD0(GetRemoteAuthParam, bool());
 };
 } // namespace UserAuth
 } // namespace UserIam

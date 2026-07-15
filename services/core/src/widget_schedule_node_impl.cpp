@@ -28,6 +28,8 @@
 #include "user_auth_common_defines.h"
 
 #define LOG_TAG "USER_AUTH_SA"
+#define LOG_FILE_ID LOG_FILE_WIDGET_SCHEDULE_NODE_IMPL
+
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
@@ -45,12 +47,32 @@ WidgetScheduleNodeImpl::WidgetScheduleNodeImpl()
 std::shared_ptr<FiniteStateMachine> WidgetScheduleNodeImpl::MakeFiniteStateMachine()
 {
     auto builder = FiniteStateMachine::Builder::New("widget_schedule", S_WIDGET_INIT);
-    IF_FALSE_LOGE_AND_RETURN_VAL(builder != nullptr, nullptr);
+    if (builder == nullptr) {
+        return nullptr;
+    }
+    BuildInitStateTransitions(builder);
+    BuildWaitingStateTransitions(builder);
+    BuildAuthRunningStateTransitions(builder);
+    BuildReloadWaitingStateTransitions(builder);
+    BuildParamWaitingStateTransitions(builder);
+    BuildAuthFinishedStateTransitions(builder);
+    return builder->Build();
+}
 
+void WidgetScheduleNodeImpl::BuildInitStateTransitions(std::shared_ptr<FiniteStateMachine::Builder> &builder)
+{
+    builder->MakeTransition(S_WIDGET_INIT, E_GET_REMOTE_AUTH_PARAM, S_WIDGET_PARAM_WAITING,
+        [this](FiniteStateMachine &machine, uint32_t event) { OnGetRemoteAuthParam(machine, event); });
     builder->MakeTransition(S_WIDGET_INIT, E_START_WIDGET, S_WIDGET_WAITING,
         [this](FiniteStateMachine &machine, uint32_t event) { OnStartSchedule(machine, event); });
     builder->MakeTransition(S_WIDGET_INIT, E_START_DIRECT_AUTH, S_WIDGET_AUTH_RUNNING,
         [this](FiniteStateMachine &machine, uint32_t event) { OnStartDirectAuth(machine, event); });
+    builder->MakeTransition(S_WIDGET_INIT, E_WIDGET_RELEASE, S_WIDGET_RELEASED,
+        [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetRelease(machine, event); });
+}
+
+void WidgetScheduleNodeImpl::BuildWaitingStateTransitions(std::shared_ptr<FiniteStateMachine::Builder> &builder)
+{
     builder->MakeTransition(S_WIDGET_WAITING, E_START_AUTH, S_WIDGET_AUTH_RUNNING,
         [this](FiniteStateMachine &machine, uint32_t event) { OnStartAuth(machine, event); });
     builder->MakeTransition(S_WIDGET_WAITING, E_CANCEL_AUTH, S_WIDGET_AUTH_FINISHED,
@@ -59,6 +81,16 @@ std::shared_ptr<FiniteStateMachine> WidgetScheduleNodeImpl::MakeFiniteStateMachi
         [this](FiniteStateMachine &machine, uint32_t event) { OnNaviPinAuth(machine, event); });
     builder->MakeTransition(S_WIDGET_WAITING, E_NOTICE_COMPLETE_AUTH, S_WIDGET_AUTH_FINISHED,
         [this](FiniteStateMachine &machine, uint32_t event) { OnSendAuthResult(machine, event); });
+    builder->MakeTransition(S_WIDGET_WAITING, E_WIDGET_PARA_INVALID, S_WIDGET_AUTH_FINISHED,
+        [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetParaInvalid(machine, event); });
+    builder->MakeTransition(S_WIDGET_WAITING, E_WIDGET_RELOAD, S_WIDGET_RELOAD_WAITING,
+        [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetReloadInit(machine, event); });
+    builder->MakeTransition(S_WIDGET_WAITING, E_WIDGET_RELEASE, S_WIDGET_RELEASED,
+        [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetRelease(machine, event); });
+}
+
+void WidgetScheduleNodeImpl::BuildAuthRunningStateTransitions(std::shared_ptr<FiniteStateMachine::Builder> &builder)
+{
     builder->MakeTransition(S_WIDGET_AUTH_RUNNING, E_COMPLETE_AUTH, S_WIDGET_AUTH_FINISHED,
         [this](FiniteStateMachine &machine, uint32_t event) { OnSuccessAuth(machine, event); });
     builder->MakeTransition(S_WIDGET_AUTH_RUNNING, E_STOP_AUTH, S_WIDGET_AUTH_FINISHED,
@@ -71,30 +103,34 @@ std::shared_ptr<FiniteStateMachine> WidgetScheduleNodeImpl::MakeFiniteStateMachi
         [this](FiniteStateMachine &machine, uint32_t event) { OnStartAuth(machine, event); });
     builder->MakeTransition(S_WIDGET_AUTH_RUNNING, E_UPDATE_AUTH, S_WIDGET_AUTH_RUNNING,
         [this](FiniteStateMachine &machine, uint32_t event) { OnStopAuthList(machine, event); });
-    builder->MakeTransition(S_WIDGET_WAITING, E_WIDGET_PARA_INVALID, S_WIDGET_AUTH_FINISHED,
-        [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetParaInvalid(machine, event); });
     builder->MakeTransition(S_WIDGET_AUTH_RUNNING, E_WIDGET_PARA_INVALID, S_WIDGET_AUTH_FINISHED,
         [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetParaInvalid(machine, event); });
-    // Add for AuthWidget rotate
     builder->MakeTransition(S_WIDGET_AUTH_RUNNING, E_WIDGET_RELOAD, S_WIDGET_RELOAD_WAITING,
         [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetReloadInit(machine, event); });
-    builder->MakeTransition(S_WIDGET_WAITING, E_WIDGET_RELOAD, S_WIDGET_RELOAD_WAITING,
-        [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetReloadInit(machine, event); });
-    builder->MakeTransition(S_WIDGET_RELOAD_WAITING, E_CANCEL_AUTH, S_WIDGET_WAITING,
-        [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetReload(machine, event); });
-
-    builder->MakeTransition(S_WIDGET_INIT, E_WIDGET_RELEASE, S_WIDGET_RELEASED,
-        [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetRelease(machine, event); });
-    builder->MakeTransition(S_WIDGET_WAITING, E_WIDGET_RELEASE, S_WIDGET_RELEASED,
-        [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetRelease(machine, event); });
     builder->MakeTransition(S_WIDGET_AUTH_RUNNING, E_WIDGET_RELEASE, S_WIDGET_RELEASED,
         [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetRelease(machine, event); });
-    builder->MakeTransition(S_WIDGET_AUTH_FINISHED, E_WIDGET_RELEASE, S_WIDGET_RELEASED,
-        [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetRelease(machine, event); });
+}
+
+void WidgetScheduleNodeImpl::BuildReloadWaitingStateTransitions(std::shared_ptr<FiniteStateMachine::Builder> &builder)
+{
+    builder->MakeTransition(S_WIDGET_RELOAD_WAITING, E_CANCEL_AUTH, S_WIDGET_WAITING,
+        [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetReload(machine, event); });
     builder->MakeTransition(S_WIDGET_RELOAD_WAITING, E_WIDGET_RELEASE, S_WIDGET_RELEASED,
         [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetRelease(machine, event); });
+}
 
-    return builder->Build();
+void WidgetScheduleNodeImpl::BuildParamWaitingStateTransitions(std::shared_ptr<FiniteStateMachine::Builder> &builder)
+{
+    builder->MakeTransition(S_WIDGET_PARAM_WAITING, E_START_WIDGET, S_WIDGET_WAITING,
+        [this](FiniteStateMachine &machine, uint32_t event) { OnStartSchedule(machine, event); });
+    builder->MakeTransition(S_WIDGET_PARAM_WAITING, E_CANCEL_AUTH, S_WIDGET_RELEASED,
+        [this](FiniteStateMachine &machine, uint32_t event) { OnStopSchedule(machine, event); });
+}
+
+void WidgetScheduleNodeImpl::BuildAuthFinishedStateTransitions(std::shared_ptr<FiniteStateMachine::Builder> &builder)
+{
+    builder->MakeTransition(S_WIDGET_AUTH_FINISHED, E_WIDGET_RELEASE, S_WIDGET_RELEASED,
+        [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetRelease(machine, event); });
 }
 
 bool WidgetScheduleNodeImpl::TryKickMachine(Event event)
@@ -104,6 +140,19 @@ bool WidgetScheduleNodeImpl::TryKickMachine(Event event)
         return false;
     }
     machine_->Schedule(event);
+    return true;
+}
+
+bool WidgetScheduleNodeImpl::GetRemoteAuthParam()
+{
+    iamHitraceHelper_ = Common::MakeShared<IamHitraceHelper>("widget_get_remote_auth_param");
+    {
+        std::lock_guard<std::mutex> lock(mutex_);
+        if (!TryKickMachine(E_GET_REMOTE_AUTH_PARAM)) {
+            IAM_LOGE("TryKickMachine E_GET_REMOTE_AUTH_PARAM failed");
+            return false;
+        }
+    }
     return true;
 }
 
@@ -208,6 +257,15 @@ void WidgetScheduleNodeImpl::SetCallback(std::shared_ptr<WidgetScheduleNodeCallb
 {
     std::lock_guard<std::mutex> lock(mutex_);
     callback_ = callback;
+}
+
+void WidgetScheduleNodeImpl::OnGetRemoteAuthParam(FiniteStateMachine &machine, uint32_t event)
+{
+    auto callback = callback_.lock();
+    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
+    if (!callback->GetRemoteAuthParam()) {
+        IAM_LOGE("Failed to get remote auth param");
+    }
 }
 
 void WidgetScheduleNodeImpl::OnStartSchedule(FiniteStateMachine &machine, uint32_t event)

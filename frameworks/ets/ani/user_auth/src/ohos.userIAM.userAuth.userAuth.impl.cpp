@@ -31,8 +31,10 @@
 #include "user_auth_widget_mgr_v10.h"
 #include "user_auth_api_event_reporter.h"
 #include "user_auth_client_callback.h"
+#include "user_auth_remote_auth_callback.h"
 
 #define LOG_TAG "USER_AUTH_ANI"
+#define LOG_FILE_ID LOG_FILE_USER_AUTH_ANI_IMPL
 
 namespace UserAuth = OHOS::UserIam::UserAuth;
 using namespace taihe;
@@ -409,6 +411,43 @@ userAuth::AuthLockState getAuthLockStateSync(UserAuthType authType)
     reporter.ReportSuccess();
     return authLockState;
 }
+
+void RegisterRemoteAuthCallback(::ohos::userIAM::userAuth::userAuth::IRemoteAuthCallback const &callback)
+{
+    IAM_LOGD("begin");
+    UserAuth::UserAuthApiEventReporter reporter("RegisterRemoteAuthCallback");
+    auto remoteAuthCallback = MakeShared<UserAuth::RemoteAuthCallback>(callback);
+    IF_FALSE_LOGE_AND_RETURN(remoteAuthCallback != nullptr);
+    int32_t result =  UserAuth::UserAuthClientImpl::Instance().RegisterRemoteAuthCallback(remoteAuthCallback);
+    if (result != UserAuth::SUCCESS) {
+        IAM_LOGE("failed to register remote auth callback %{public}d", result);
+        UserAuth::UserAuthResultCode resultCode = UserAuth::UserAuthResultCode(
+            UserAuth::UserAuthHelper::GetResultCodeV10(result));
+        reporter.ReportFailed(resultCode);
+        UserAuth::UserAuthAniHelper::ThrowBusinessError(resultCode);
+        return;
+    }
+
+    IAM_LOGD("success");
+    reporter.ReportSuccess();
+}
+
+void UnregisterRemoteAuthCallback()
+{
+    IAM_LOGD("begin");
+    UserAuth::UserAuthApiEventReporter reporter("UnregisterRemoteAuthCallback");
+    int32_t result = UserAuth::UserAuthClientImpl::Instance().UnregisterRemoteAuthCallback();
+    if (result != UserAuth::SUCCESS) {
+        IAM_LOGE("failed to unregister remote auth callback %{public}d", result);
+        UserAuth::UserAuthResultCode resultCode = UserAuth::UserAuthResultCode(
+            UserAuth::UserAuthHelper::GetResultCodeV10(result));
+        reporter.ReportFailed(resultCode);
+        UserAuth::UserAuthAniHelper::ThrowBusinessError(resultCode);
+        return;
+    }
+    IAM_LOGD("success");
+    reporter.ReportSuccess();
+}
 }  // namespace
 
 TH_EXPORT_CPP_API_GetAvailableStatus(GetAvailableStatus);
@@ -418,3 +457,6 @@ TH_EXPORT_CPP_API_SendNotice(SendNotice);
 TH_EXPORT_CPP_API_QueryReusableAuthResult(QueryReusableAuthResult);
 TH_EXPORT_CPP_API_GetUserAuthWidgetMgr(GetUserAuthWidgetMgr);
 TH_EXPORT_CPP_API_getAuthLockStateSync(getAuthLockStateSync);
+TH_EXPORT_CPP_API_getAuthLockState(getAuthLockStateSync);
+TH_EXPORT_CPP_API_RegisterRemoteAuthCallback(RegisterRemoteAuthCallback);
+TH_EXPORT_CPP_API_UnregisterRemoteAuthCallback(UnregisterRemoteAuthCallback);

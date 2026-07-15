@@ -62,6 +62,8 @@ struct AuthParam {
     AuthIntent authIntent;
     /** Remote auth parameter. */
     std::optional<RemoteAuthParam> remoteAuthParam;
+    /** Additional info. */
+    std::string additionalInfo;
 };
 
 /**
@@ -134,6 +136,8 @@ struct WidgetAuthParam {
     AuthTrustLevel authTrustLevel;
     /** Reuse unlock authentication result. */
     ReuseUnlockResult reuseUnlockResult;
+    /** Remote token id */
+    std::optional<uint32_t> remoteTokenId;
 };
 
 /**

@@ -30,6 +30,7 @@
 #include "user_access_ctrl_client.h"
 
 #define LOG_TAG "USER_ACCESS_CTRL_ANI"
+#define LOG_FILE_ID LOG_FILE_USER_ACCESS_CTRL_ANI_IMPL
 
 namespace userAccessCtrl = ohos::userIAM::userAccessCtrl;
 namespace userAuth = ohos::userIAM::userAuth::userAuth;
@@ -322,3 +323,4 @@ userAccessCtrl::AuthToken verifyAuthTokenSync(array_view<uint8_t> authToken, dou
 }
 } // namespace
 TH_EXPORT_CPP_API_verifyAuthTokenSync(verifyAuthTokenSync);
+TH_EXPORT_CPP_API_verifyAuthToken(verifyAuthTokenSync);

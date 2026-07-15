@@ -32,6 +32,7 @@
 #include "user_auth_param_utils.h"
 
 #define LOG_TAG "USER_AUTH_NAPI"
+#define LOG_FILE_ID LOG_FILE_USER_AUTH_INSTANCE_V10_NAPI
 
 namespace OHOS {
 namespace UserIam {
@@ -52,9 +53,9 @@ UserAuthInstanceV10::UserAuthInstanceV10(napi_env env) : callback_(Common::MakeS
     authParam_.isUserIdSpecified = false;
     authParam_.skipLockedBiometricAuth = false;
     authParam_.reuseUnlockResult.isReuse = false;
-    widgetParam_.navigationButtonText = "";
-    widgetParam_.title = "";
-    widgetParam_.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
+    widgetParamExt_.navigationButtonText = "";
+    widgetParamExt_.title = "";
+    widgetParamExt_.windowMode = WindowModeType::UNKNOWN_WINDOW_MODE;
 }
 
 UserAuthResultCode UserAuthInstanceV10::Init(napi_env env, napi_callback_info info)
@@ -82,7 +83,7 @@ UserAuthResultCode UserAuthInstanceV10::Init(napi_env env, napi_callback_info in
         return errCode;
     }
 
-    errCode = UserAuthParamUtils::InitWidgetParam(env, argv[PARAM1], widgetParam_, context_);
+    errCode = UserAuthParamUtils::InitWidgetParam(env, argv[PARAM1], widgetParamExt_, context_, window_);
     if (errCode != UserAuthResultCode::SUCCESS) {
         IAM_LOGE("WidgetParam type error, errorCode: %{public}d", errCode);
         return errCode;
@@ -92,7 +93,7 @@ UserAuthResultCode UserAuthInstanceV10::Init(napi_env env, napi_callback_info in
     return UserAuthResultCode::SUCCESS;
 }
 
-std::shared_ptr<JsRefHolder> UserAuthInstanceV10::GetCallback(napi_env env, napi_value value, const char* propertyName)
+std::shared_ptr<JsRefHolder> UserAuthInstanceV10::GetCallback(napi_env env, napi_value value, const char *propertyName)
 {
     napi_status ret = UserAuthNapiHelper::CheckNapiType(env, value, napi_object);
     if (ret != napi_ok) {
@@ -276,9 +277,15 @@ UserAuthResultCode UserAuthInstanceV10::Start(napi_env env, napi_callback_info i
         IAM_LOGE("auth already started");
         return UserAuthResultCode::GENERAL_ERROR;
     }
-    modalCallback_ = Common::MakeShared<UserAuthModalCallback>(context_);
+    if (window_) {
+        IAM_LOGI("widget type is window");
+        modalCallback_ = Common::MakeShared<UserAuthModalCallback>(window_);
+    } else {
+        IAM_LOGI("widget type is context");
+        modalCallback_ = Common::MakeShared<UserAuthModalCallback>(context_);
+    }
     contextId_ = UserAuthNapiClientImpl::Instance().BeginWidgetAuth(API_VERSION_10,
-        authParam_, widgetParam_, callback_, modalCallback_);
+        authParam_, widgetParamExt_, callback_, modalCallback_);
     isAuthStarted_ = true;
     return UserAuthResultCode::SUCCESS;
 }

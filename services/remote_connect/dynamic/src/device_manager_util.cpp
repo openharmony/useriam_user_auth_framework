@@ -19,6 +19,7 @@
 #include "parameter.h"
 
 #define LOG_TAG "USER_AUTH_SA"
+#define LOG_FILE_ID LOG_FILE_DEVICE_MANAGER_UTIL_DYNAMIC
 
 namespace OHOS {
 namespace UserIam {
@@ -43,18 +44,17 @@ bool DeviceManagerUtil::GetNetworkIdByUdid(const std::string &udid, std::string 
 
 bool DeviceManagerUtil::GetLocalDeviceUdid(std::string &udid)
 {
-    constexpr int UDID_LENGTH = 65;
-    char udidDevice[UDID_LENGTH] = {0};
-    int udidRes = AclGetDevUdid(udidDevice, UDID_LENGTH);
-    if (udidRes == 0 && strlen(udidDevice) == UDID_LENGTH - 1) {
-        IAM_LOGI("GetDeviceUdid udidRes == 0");
-        std::string udidString(udidDevice, strlen(udidDevice));
-        udid = udidString;
+    constexpr uint32_t MAX_UDID_STR_LEN = 65;
+    char udidStr[MAX_UDID_STR_LEN] = {0};
+    auto udidRes = GetDevUdid(udidStr, MAX_UDID_STR_LEN);
+    if (udidRes == 0 && strnlen(udidStr, MAX_UDID_STR_LEN) <= MAX_UDID_STR_LEN - 1) {
+        IAM_LOGI("GetDevUdid success");
+        udid = udidStr;
         return true;
-    } else {
-        IAM_LOGE("GetDeviceUdid get udid failed %{public}d", udidRes);
-        return false;
     }
+
+    IAM_LOGI("GetDevUdid failed!");
+    return false;
 }
 
 bool DeviceManagerUtil::GetLocalDeviceNetWorkId(std::string &networkId)

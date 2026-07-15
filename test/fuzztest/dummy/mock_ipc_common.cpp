@@ -20,6 +20,7 @@
 #include "os_account_manager.h"
 #endif // HAS_OS_ACCOUNT_PART
 #define LOG_TAG "USER_AUTH_SA"
+#define LOG_FILE_ID LOG_FILE_IPC_COMMON
 
 namespace {
     const uint32_t TEST_USER_ID = 548781;
@@ -141,6 +142,13 @@ void IpcCommon::SetSkipUserFlag(bool isSkip)
 }
 
 bool IpcCommon::GetCallerName(IPCObjectStub &stub, std::string &callerName, int32_t &callerType)
+{
+    callerName = "";
+    callerType = 0;
+    return true;
+}
+
+bool IpcCommon::GetCallerNameByTokenId(uint32_t tokenId, std::string &callerName, int32_t &callerType)
 {
     callerName = "";
     callerType = 0;

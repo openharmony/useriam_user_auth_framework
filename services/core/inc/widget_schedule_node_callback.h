@@ -46,6 +46,7 @@ public:
     virtual void SendAuthTipInfo(int32_t authType, int32_t tipInfo) = 0;
     virtual void SendAuthResultInfo(int32_t resultCode, int32_t authType, const std::vector<uint8_t> &token) = 0;
     virtual void ClearSchedule() = 0;
+    virtual bool GetRemoteAuthParam() = 0;
 };
 } // namespace UserAuth
 } // namespace UserIam

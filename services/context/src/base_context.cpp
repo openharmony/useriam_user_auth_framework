@@ -24,6 +24,8 @@
 #include "widget_json.h"
 
 #define LOG_TAG "USER_AUTH_SA"
+#define LOG_FILE_ID LOG_FILE_BASE_CONTEXT
+
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
@@ -158,6 +160,13 @@ void BaseContext::OnScheduleStoped(int32_t resultCode, const std::shared_ptr<Att
 const char *BaseContext::GetDescription() const
 {
     return description_.c_str();
+}
+
+void BaseContext::SetRemoteAuthParam(const WidgetParamInner &widgetParam, const sptr<IModalCallback> &modalCallback)
+{
+    static_cast<void>(widgetParam);
+    static_cast<void>(modalCallback);
+    IAM_LOGE("not implemented");
 }
 } // namespace UserAuth
 } // namespace UserIam

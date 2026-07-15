@@ -35,6 +35,7 @@
         "ability_base",
         "ability_runtime",
         "ace_engine",
+        "bounds_checking_function",
         "bundle_framework",
         "hilog",
         "hicollie",
@@ -47,6 +48,8 @@
         "access_token",
         "os_account",
         "napi",
+        "node",
+        "libuv",
         "hdf_core",
         "hitrace",
         "c_utils",
@@ -62,7 +65,8 @@
         "preferences",
         "eventhandler",
         "config_policy",
-        "runtime_core"
+        "runtime_core",
+        "taihe_ffi_gen"
       ]
     },
     "build": {
@@ -129,6 +133,9 @@
         },
         {
           "name": "//base/useriam/user_auth_framework/frameworks/ets/ani/user_auth:userauth_ani"
+        },
+        {
+          "name": "//base/useriam/user_auth_framework/frameworks/ets/ani/user_auth:user_auth_copy_taihe_idl"
         }
       ],
       "test": [
