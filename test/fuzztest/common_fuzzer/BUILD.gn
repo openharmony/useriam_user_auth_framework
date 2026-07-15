@@ -72,13 +72,15 @@ ohos_source_set("dfx_fuzzer") {
 
 ohos_source_set("userauth_service_base_fuzzer") {
   branch_protector_ret = "pac_ret"
-  include_dirs = [ "../../../services/base/inc" ]
+  include_dirs = [ "../../../services/base/inc", "../../../services/engine/inc", "../../../services/engine/pub_inc" ]
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
   sources = [
     "../../../services/base/src/finite_state_machine_builder.cpp",
     "../../../services/base/src/finite_state_machine_impl.cpp",
+    "../../../services/engine/src/hdi_engine.cpp",
+    "../../../services/engine/src/hdi_type_convert.cpp",
     "../../../services/base/src/thread_handler_impl.cpp",
     "../../../services/base/src/thread_handler_manager.cpp",
     "../../../services/base/src/thread_handler_singleton_impl.cpp",
@@ -107,6 +109,7 @@ ohos_source_set("userauth_service_base_fuzzer") {
   configs = [
     "../../../common:iam_log_config",
     "../../../common:iam_utils_config",
+    "../../../frameworks/native/ipc:userauth_client_ipc_config",
   ]
 
   subsystem_name = "useriam"
@@ -127,7 +130,7 @@ ohos_source_set("userauth_service_core_fuzzer") {
     "../../../services/core/src/credential_info_impl.cpp",
     "../../../services/core/src/credential_updated_manager.cpp",
     "../../../services/core/src/delete_impl.cpp",
-    "../../../services/core/src/driver_state_manager.cpp",
+    "../../../services/core/src/engine_state_manager.cpp",
     "../../../services/core/src/enrolled_info_impl.cpp",
     "../../../services/core/src/enrollment_impl.cpp",
     "../../../services/core/src/event_listener_manager.cpp",
@@ -403,7 +406,7 @@ ohos_source_set("userauth_services_ipc_fuzzer") {
     "../../../frameworks/common/src/user_auth_helper.cpp",
     "../../../services/ipc/src/co_auth_service.cpp",
     "../../../services/ipc/src/executor_messenger_service.cpp",
-    "../../../services/ipc/src/hdi_message_callback_service.cpp",
+    "../../../services/ipc/src/message_callback_service.cpp",
     "../../../services/ipc/src/service_init_manager.cpp",
     "../../../services/ipc/src/template_cache_manager.cpp",
     "../../../services/ipc/src/user_auth_service.cpp",

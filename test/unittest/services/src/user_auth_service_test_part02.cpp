@@ -21,6 +21,7 @@
 #include "iam_ptr.h"
 
 #include "executor_messenger_service.h"
+#include "hdi_type_aliases.h"
 #include "mock_event_listener.h"
 #include "mock_context.h"
 #include "mock_iuser_auth_interface.h"
@@ -876,7 +877,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_024, TestSize.Level0)
     sptr<IModalCallback> testModalCallback(nullptr);
     uint64_t contextId = 0;
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, testCallback, testModalCallback, contextId);
-    EXPECT_EQ(ret, HDF_ERR_INVALID_PARAM);
+    EXPECT_EQ(ret, INVALID_PARAMETERS);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -1277,7 +1278,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceAuthWidget_CompanionDeviceHdiFail_0
     uint64_t contextId = 0;
     int32_t ret = service.AuthWidget(apiVersion, authParam, widgetParam, callbackInterface, testModalCallback,
         contextId);
-    EXPECT_EQ(ret, HDF_FAILURE);
+    EXPECT_EQ(ret, GENERAL_ERROR);
     IpcCommon::DeleteAllPermission();
 }
 

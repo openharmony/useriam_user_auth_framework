@@ -30,6 +30,7 @@
 #include "auth_widget_helper.h"
 #include "remote_auth_service.h"
 #include "mock_context.h"
+#include "hdi_type_aliases.h"
 #include "mock_iuser_auth_interface.h"
  
 #define LOG_TAG "USER_AUTH_SA"

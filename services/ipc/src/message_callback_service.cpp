@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-#include "hdi_message_callback_service.h"
+#include "message_callback_service.h"
 
 #include <mutex>
 
@@ -21,46 +21,44 @@
 #include "attributes.h"
 #include "iam_logger.h"
 #include "iam_check.h"
-#include "hdi_wrapper.h"
+#include "user_auth_engine.h"
+#include "iam_common_defines.h"
 
 #define LOG_TAG "USER_AUTH_SA"
-#define LOG_FILE_ID LOG_FILE_HDI_MESSAGE_CALLBACK_SERVICE
+#define LOG_FILE_ID LOG_FILE_MESSAGE_CALLBACK_SERVICE
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-sptr<HdiMessageCallbackService> HdiMessageCallbackService::GetInstance()
+sptr<MessageCallbackService> MessageCallbackService::GetInstance()
 {
-    static sptr<HdiMessageCallbackService> instance = new HdiMessageCallbackService();
+    static sptr<MessageCallbackService> instance = new (std::nothrow) MessageCallbackService();
     IF_FALSE_LOGE_AND_RETURN_VAL(instance != nullptr, nullptr);
     return instance;
 }
 
-void HdiMessageCallbackService::OnHdiConnect()
+void MessageCallbackService::OnEngineConnect()
 {
-    auto hdi = HdiWrapper::GetHdiInstance();
-    IF_FALSE_LOGE_AND_RETURN(hdi != nullptr);
-
-    int32_t ret = hdi->RegisterMessageCallback(GetInstance());
-    IF_FALSE_LOGE_AND_RETURN(ret == HDF_SUCCESS);
+    int32_t ret = GetUserAuthEngine().RegisterMessageCallback(GetInstance());
+    IF_FALSE_LOGE_AND_RETURN(ret == SUCCESS);
     IAM_LOGI("success");
 }
 
-int32_t HdiMessageCallbackService::OnMessage(uint64_t scheduleId, int32_t destRole, const std::vector<uint8_t> &msg)
+int32_t MessageCallbackService::OnMessage(uint64_t scheduleId, int32_t destRole, const std::vector<uint8_t> &msg)
 {
     std::shared_ptr<ScheduleNode> scheduleNode = ContextPool::Instance().SelectScheduleNodeByScheduleId(scheduleId);
-    IF_FALSE_LOGE_AND_RETURN_VAL(scheduleNode != nullptr, HDF_FAILURE);
+    IF_FALSE_LOGE_AND_RETURN_VAL(scheduleNode != nullptr, GENERAL_ERROR);
 
     Attributes attr;
     bool roleRet = attr.SetInt32Value(Attributes::ATTR_SRC_ROLE, SCHEDULER);
-    IF_FALSE_LOGE_AND_RETURN_VAL(roleRet, HDF_FAILURE);
+    IF_FALSE_LOGE_AND_RETURN_VAL(roleRet, GENERAL_ERROR);
     bool setExtraInfoRet = attr.SetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, msg);
-    IF_FALSE_LOGE_AND_RETURN_VAL(setExtraInfoRet, HDF_FAILURE);
+    IF_FALSE_LOGE_AND_RETURN_VAL(setExtraInfoRet, GENERAL_ERROR);
 
     bool ret = scheduleNode->SendMessage(static_cast<ExecutorRole>(destRole), attr.Serialize());
-    IF_FALSE_LOGE_AND_RETURN_VAL(ret == true, HDF_FAILURE);
+    IF_FALSE_LOGE_AND_RETURN_VAL(ret == true, GENERAL_ERROR);
 
-    return HDF_SUCCESS;
+    return SUCCESS;
 }
 } // namespace UserAuth
 } // namespace UserIam

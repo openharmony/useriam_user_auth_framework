@@ -19,21 +19,21 @@
 #include "nocopyable.h"
 
 #include "user_info_interface.h"
-#include "hdi_wrapper.h"
+#include "user_auth_engine_types.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 class UserInfoImpl final : public UserInfoInterface, public NoCopyable {
 public:
-    UserInfoImpl(const int32_t userId, const UserInfo &userInfo);
+    UserInfoImpl(const int32_t userId, const EngUserInfo &userInfo);
     ~UserInfoImpl() override = default;
     int32_t GetUserId() const override;
     uint64_t GetSecUserId() const override;
 
 private:
     int32_t userId_ {0};
-    UserInfo userInfo_;
+    EngUserInfo userInfo_;
 };
 } // namespace UserAuth
 } // namespace UserIam

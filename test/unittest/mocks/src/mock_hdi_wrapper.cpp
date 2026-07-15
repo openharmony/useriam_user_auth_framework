@@ -14,6 +14,7 @@
  */
 
 #include "hdi_wrapper.h"
+#include "hdi_type_aliases.h"
 
 namespace OHOS {
 namespace UserIam {

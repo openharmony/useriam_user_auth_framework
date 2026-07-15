@@ -89,7 +89,7 @@ ohos_fuzztest("WidgetContextFuzzTest") {
     "../../../../../services/context/src/widget_json.cpp",
     "../../../../../services/ipc/src/co_auth_service.cpp",
     "../../../../../services/ipc/src/executor_messenger_service.cpp",
-    "../../../../../services/ipc/src/hdi_message_callback_service.cpp",
+    "../../../../../services/ipc/src/message_callback_service.cpp",
     "../../../../../services/ipc/src/service_init_manager.cpp",
     "../../../../../services/ipc/src/template_cache_manager.cpp",
     "../../../../../services/ipc/src/user_auth_service.cpp",

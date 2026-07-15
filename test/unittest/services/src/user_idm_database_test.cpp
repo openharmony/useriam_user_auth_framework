@@ -15,6 +15,7 @@
 #include "user_idm_database_test.h"
 
 #include "mock_iuser_auth_interface.h"
+#include "hdi_type_aliases.h"
 #include "user_idm_database_impl.h"
 namespace OHOS {
 namespace UserIam {
@@ -117,7 +118,7 @@ HWTEST_F(UserIdmDatabaseTest, SuccessfulGetSecUserInfo, TestSize.Level0)
     };
 
     EXPECT_CALL(*mock, GetUserInfo(USER_ID, _, _, _))
-        .WillRepeatedly(DoAll(SetArgReferee<1>(SECURE_UID), SetArgReferee<2>(static_cast<HdiPinSubType>(PIN_SUB_TYPE)),
+        .WillRepeatedly(DoAll(SetArgReferee<1>(SECURE_UID), SetArgReferee<2>(static_cast<PinSubType>(PIN_SUB_TYPE)),
             WithArg<3>(fillUpInfos), Return(0)));
 
     auto &database = UserIdmDatabase::Instance();
@@ -146,7 +147,7 @@ HWTEST_F(UserIdmDatabaseTest, SuccessfulGetCredentialInfoVector, TestSize.Level0
 {
     auto mock = MockIUserAuthInterface::Holder::GetInstance().Get();
     constexpr int32_t USER_ID = 100;
-    HdiAuthType authType = HdiAuthType::PIN;
+    AuthType authType = AuthType::PIN;
     // mock hdi interface return 0
     auto fillUpInfos = [](std::vector<HdiCredentialInfo> &list) {
         std::vector<HdiCredentialInfo> infos = {};

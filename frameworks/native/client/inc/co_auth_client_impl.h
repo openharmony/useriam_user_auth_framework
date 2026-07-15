@@ -23,7 +23,6 @@
 #include "ico_auth.h"
 #include "co_auth_client.h"
 #include "co_auth_interface.h"
-#include "user_auth_types.h"
 
 namespace OHOS {
 namespace UserIam {

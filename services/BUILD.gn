@@ -40,8 +40,8 @@ ohos_shared_library("userauthservice") {
   sources = userauth_services_sources
   include_dirs = userauth_services_include_dirs
 
-  deps = userauth_services_deps
-  external_deps = userauth_services_external_deps
+  deps = userauth_services_deps + userauth_engine_deps
+  external_deps = userauth_services_external_deps + userauth_engine_external_deps
 
   defines = userauth_services_defines
 

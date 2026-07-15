@@ -35,8 +35,8 @@ public:
     void OnCredentialUpdated(AuthType authType) override;
     void OnPinAuthServiceReady() override;
     void OnPinAuthServiceStop() override;
-    void OnDriverStart() override;
-    void OnDriverStop() override;
+    void OnEngineReady() override;
+    void OnEngineUnavailable() override;
     void SubscribeCredentialUpdatedListener() override;
     void OnCommonEventSaStart() override;
     void StartCheckServiceReadyTimer() override;

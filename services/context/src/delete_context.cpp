@@ -57,7 +57,7 @@ bool DeleteContext::OnStart()
     IF_FALSE_LOGE_AND_RETURN_VAL(deletion_ != nullptr, false);
     bool isCredentilaDelete = false;
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList = {};
-    std::vector<HdiCredentialInfo> credentialInfos = {};
+    std::vector<EngCredentialInfo> credentialInfos = {};
     bool startRet = deletion_->Start(scheduleList, shared_from_this(), isCredentilaDelete, credentialInfos);
     if (!startRet) {
         HILOG_COMM_ERROR("%{public}s delete start fail", GetDescription());

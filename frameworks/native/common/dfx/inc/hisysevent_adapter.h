@@ -104,7 +104,7 @@ struct RemoteConnectFaultTrace {
     bool ack = false;
 };
 
-struct SaLoadDriverFailureTrace {
+struct SaLoadEngineFailureTrace {
     int32_t errCode = -1;
 };
 
@@ -128,7 +128,7 @@ void ReportSecurityUserAuthFwk(const UserAuthFwkTrace &info);
 void ReportRemoteExecuteProc(const RemoteExecuteTrace &info);
 void ReportRemoteConnectOpen(const RemoteConnectOpenTrace &info);
 void ReportConnectFaultTrace(const RemoteConnectFaultTrace &info);
-void ReportSaLoadDriverFailure(const SaLoadDriverFailureTrace &info);
+void ReportSaLoadEngineFailure(const SaLoadEngineFailureTrace &info);
 void ReportIsCredentialEnrolledMismatch(const IsCredentialEnrolledMismatchTrace &info);
 void ReportScreenLockStrongAuth(const ScreenLockStrongAuthTrace &info);
 } // namespace UserAuth

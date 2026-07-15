@@ -131,12 +131,12 @@ public:
         return SUCCESS;
     }
 
-    void DeleteFromDriver()
+    void DeleteFromEngine()
     {
         IAM_LOGI("start");
     }
 
-    void DetachFromDriver()
+    void DetachFromEngine()
     {
         IAM_LOGI("start");
     }

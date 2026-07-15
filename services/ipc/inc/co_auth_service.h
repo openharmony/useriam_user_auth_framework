@@ -44,8 +44,8 @@ public:
     int32_t ExecutorUnregister(uint64_t executorIndex) override;
     void SetIsReady(bool isReady);
     void SetAccessTokenReady(bool isReady);
-    void OnDriverStart();
-    void OnDriverStop();
+    void OnEngineReady();
+    void OnEngineUnavailable();
     ResultCode RegisterAccessTokenListener();
     ResultCode UnRegisterAccessTokenListener();
     int32_t CallbackEnter([[maybe_unused]] uint32_t code) override;

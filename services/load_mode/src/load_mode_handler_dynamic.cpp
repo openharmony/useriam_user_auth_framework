@@ -18,8 +18,8 @@
 #include "os_account_manager.h"
 #include "system_ability_definition.h"
 
-#include "driver_load_manager.h"
-#include "driver_state_manager.h"
+#include "engine_load_manager.h"
+#include "engine_state_manager.h"
 #include "hisysevent_adapter.h"
 #include "relative_timer.h"
 #include "service_unload_manager.h"
@@ -43,7 +43,7 @@ public:
     explicit CredentialUpdatedListener(const EventFwk::CommonEventSubscribeInfo &subscribeInfo)
         : EventFwk::CommonEventSubscriber(subscribeInfo) {}
     ~CredentialUpdatedListener() = default;
-    
+
     void OnReceiveEvent(const EventFwk::CommonEventData &eventData) override
     {
         IAM_LOGI("start");
@@ -64,14 +64,14 @@ public:
 LoadModeHandlerDynamic::LoadModeHandlerDynamic()
 {
     IAM_LOGI("sa load mode is dynamic");
-    
+
     SubscribeCommonEventServiceListener();
-    
-    DriverStateManager::GetInstance().RegisterDriverStartCallback([]() {
-        LoadModeHandler::GetInstance().OnDriverStart();
+
+    EngineStateManager::GetInstance().RegisterEngineReadyCallback([]() {
+        LoadModeHandler::GetInstance().OnEngineReady();
     });
-    DriverStateManager::GetInstance().RegisterDriverStopCallback([]() {
-        LoadModeHandler::GetInstance().OnDriverStop();
+    EngineStateManager::GetInstance().RegisterEngineUnavailableCallback([]() {
+        LoadModeHandler::GetInstance().OnEngineUnavailable();
     });
 }
 
@@ -118,7 +118,7 @@ void LoadModeHandlerDynamic::StartSubscribe()
         return;
     }
 
-    DriverLoadManager::GetInstance().StartSubscribe();
+    EngineLoadManager::GetInstance().StartSubscribe();
     ServiceUnloadManager::GetInstance().StartSubscribe();
 
     if (pinAuthServiceListener_ == nullptr) {
@@ -229,7 +229,8 @@ std::optional<bool> LoadModeHandlerDynamic::AnyUserHasPinCredential()
         if (getCredRet != SUCCESS) {
             // it's possible that the user has no credential
             IAM_LOGI("failed to get credential info ret %{public}d", getCredRet);
-            if (getCredRet == INVALID_HDI_INTERFACE) {
+            // Engine unreachable (e.g. early boot): keep the prior IS_PIN_ENROLLED value.
+            if (getCredRet == ENGINE_UNAVAILABLE) {
                 return std::nullopt;
             }
             continue;
@@ -271,16 +272,16 @@ void LoadModeHandlerDynamic::RefreshIsPinEnrolled(bool shouldReportBigData)
     SystemParamManager::GetInstance().SetParam(IS_PIN_ENROLLED_KEY, isPinEnrolled_ ? TRUE_STR : FALSE_STR);
 }
 
-void LoadModeHandlerDynamic::OnDriverStart()
+void LoadModeHandlerDynamic::OnEngineReady()
 {
-    IAM_LOGI("on driver start");
-    DriverLoadManager::GetInstance().OnDriverStart();
+    IAM_LOGI("on engine ready");
+    EngineLoadManager::GetInstance().OnEngineReady();
 }
 
-void LoadModeHandlerDynamic::OnDriverStop()
+void LoadModeHandlerDynamic::OnEngineUnavailable()
 {
-    IAM_LOGI("on driver stop");
-    DriverLoadManager::GetInstance().OnDriverStop();
+    IAM_LOGI("on engine unavailable");
+    EngineLoadManager::GetInstance().OnEngineUnavailable();
 }
 
 void LoadModeHandlerDynamic::StartCheckServiceReadyTimer()

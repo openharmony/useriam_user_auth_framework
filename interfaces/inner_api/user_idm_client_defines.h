@@ -51,16 +51,6 @@ struct CredentialInfo {
 };
 
 /**
- * @brief Define credential enrollment information.
- */
-struct EnrolledInfo {
-    /** Auth type supported by executor. */
-    AuthType authType {0};
-    /** Enrolled ID. */
-    uint64_t enrolledId {0};
-};
-
-/**
  * @brief Define security user information.
  */
 struct SecUserInfo {

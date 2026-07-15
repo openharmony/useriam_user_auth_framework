@@ -20,12 +20,15 @@
 
 #include "singleton.h"
 
+#include "hdi_type_aliases.h"
 #include "hdi_wrapper.h"
-#include "user_auth_hdi.h"
+#include "user_auth_engine_types.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+// Implements the HDI V4_1 IUserAuthInterface, so signatures use the real HDI
+// types via the engine-internal hdi_type_aliases.h.
 class MockIUserAuthInterface final : public IUserAuthInterface {
 public:
     class Holder;
@@ -126,12 +129,12 @@ public:
         return 0;
     }
 
-    int32_t GetAllUserInfo(std::vector<UserInfo> &userInfos)
+    int32_t GetAllUserInfo(std::vector<HdiUserInfo> &userInfos)
     {
         return 0;
     }
 
-    int32_t GetAllExtUserInfo(std::vector<ExtUserInfo> &userInfos)
+    int32_t GetAllExtUserInfo(std::vector<HdiExtUserInfo> &userInfos)
     {
         return 0;
     }
