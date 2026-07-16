@@ -908,7 +908,7 @@ void UserAuthExecutorFuzzTest(const uint8_t *data, size_t size)
     }
     parcel->WriteBuffer(data, size);
     parcel->RewindRead(0);
-    uint32_t index = parcel->ReadUint32() % (sizeof(g_fuzzFuncs)) / sizeof(FuzzFunc *);
+    uint32_t index = parcel->ReadUint32() % (sizeof(g_fuzzFuncs) / sizeof(FuzzFunc *));
     g_executorHdi->SetParcel(parcel);
     g_executorMessenger->SetParcel(parcel);
     auto fuzzFunc = g_fuzzFuncs[index];

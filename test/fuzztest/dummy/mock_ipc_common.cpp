@@ -129,6 +129,14 @@ void IpcCommon::DeleteAllPermission()
     permSet_.clear();
 }
 
+void IpcCommon::ResetAllState()
+{
+    permSet_.clear();
+    isSetTokenId_ = false;
+    tokenId_ = 0;
+    skipFlag_ = false;
+}
+
 uint32_t IpcCommon::GetTokenId(IPCObjectStub &stub)
 {
     uint32_t tokenId = stub.GetCallingTokenID();
