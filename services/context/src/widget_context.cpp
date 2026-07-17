@@ -40,7 +40,7 @@
 #include "set_widget_param_callback_service.h"
 #include "string_wrapper.h"
 #include "system_ability_definition.h"
-#include "user_auth_engine_types.h"
+#include "user_auth_engine.h"
 #include "want_params_wrapper.h"
 #include "widget_schedule_node_impl.h"
 #include "widget_context_callback_impl.h"
@@ -925,8 +925,8 @@ void WidgetContext::SendAuthResultInfo(int32_t resultCode, int32_t authType, con
     authResultInfo_.authType = static_cast<AuthType>(authType);
     authResultInfo_.resultUserId = para_.userId;
 
-    EngEnrolledState hdiEnrolledState = {};
-    resultCode = GetUserAuthEngine().GetEnrolledState(authResultInfo_.resultUserId, authResultInfo_.authType, hdiEnrolledState);
+    EngEnrolledState enrolledState = {};
+    resultCode = GetUserAuthEngine().GetEnrolledState(authResultInfo_.resultUserId, authResultInfo_.authType, enrolledState);
     if (resultCode != SUCCESS) {
         IAM_LOGE("GetEnrolledState fail, %{public}d", resultCode);
         return End(static_cast<ResultCode>(resultCode));
