@@ -79,6 +79,8 @@ void WidgetScheduleNodeImpl::BuildWaitingStateTransitions(std::shared_ptr<Finite
         [this](FiniteStateMachine &machine, uint32_t event) { OnStopSchedule(machine, event); });
     builder->MakeTransition(S_WIDGET_WAITING, E_NAVI_PIN_AUTH, S_WIDGET_AUTH_FINISHED,
         [this](FiniteStateMachine &machine, uint32_t event) { OnNaviPinAuth(machine, event); });
+    builder->MakeTransition(S_WIDGET_WAITING, E_NOTICE_COMPLETE_AUTH, S_WIDGET_AUTH_FINISHED,
+        [this](FiniteStateMachine &machine, uint32_t event) { OnSendAuthResult(machine, event); });
     builder->MakeTransition(S_WIDGET_WAITING, E_WIDGET_PARA_INVALID, S_WIDGET_AUTH_FINISHED,
         [this](FiniteStateMachine &machine, uint32_t event) { OnWidgetParaInvalid(machine, event); });
     builder->MakeTransition(S_WIDGET_WAITING, E_WIDGET_RELOAD, S_WIDGET_RELOAD_WAITING,
@@ -387,6 +389,17 @@ void WidgetScheduleNodeImpl::OnWidgetRelease(FiniteStateMachine &machine, uint32
     callback->ClearSchedule();
 }
 
+void WidgetScheduleNodeImpl::OnSendAuthResult(FiniteStateMachine &machine, uint32_t event)
+{
+    auto callback = callback_.lock();
+    IF_FALSE_LOGE_AND_RETURN(callback != nullptr);
+    if (resultCode_ == SUCCESS) {
+        callback->SendAuthResultInfo(resultCode_, successAuthType_, authToken_);
+    } else {
+        callback->SendAuthResultInfo(resultCode_, failAuthType_, authToken_);
+    }
+}
+
 void WidgetScheduleNodeImpl::SendAuthTipInfo(const std::vector<AuthType> &authTypeList, int32_t tipCode)
 {
     auto callback = callback_.lock();
@@ -394,6 +407,22 @@ void WidgetScheduleNodeImpl::SendAuthTipInfo(const std::vector<AuthType> &authTy
     IAM_LOGI("send mid auth result");
     for (auto &authType : authTypeList) {
         callback->SendAuthTipInfo(authType, tipCode);
+    }
+}
+
+void WidgetScheduleNodeImpl::SendAuthResultInfo(int32_t resultCode, int32_t authType, const std::vector<uint8_t> &token)
+{
+    IAM_LOGI("send auth result from widget");
+    std::lock_guard<std::mutex> lock(mutex_);
+    resultCode_ = resultCode;
+    authToken_ = std::move(token);
+    if (resultCode == SUCCESS) {
+        successAuthType_ = static_cast<AuthType>(authType);
+    } else {
+        failAuthType_ = static_cast<AuthType>(authType);
+    }
+    if (!TryKickMachine(E_NOTICE_COMPLETE_AUTH)) {
+        IAM_LOGE("TryKickMachine fail");
     }
 }
 } // namespace UserAuth

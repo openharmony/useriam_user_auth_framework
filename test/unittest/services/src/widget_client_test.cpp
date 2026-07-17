@@ -640,6 +640,51 @@ HWTEST_F(WidgetClientTest, WidgetClientTestSetPinSubType_003, TestSize.Level0)
     EXPECT_NO_THROW(WidgetClient::Instance().WidgetLoad(contextId, authTypeList));
     WidgetClient::Instance().WidgetRelease(contextId, authTypeList);
 }
+
+HWTEST_F(WidgetClientTest, WidgetClientTestCompleteAuth_001, TestSize.Level0)
+{
+    WidgetNotice notice = {};
+    notice.widgetContextId = 1;
+    std::vector<AuthType> authTypeList = {AuthType::PIN, AuthType::FACE};
+    
+    WidgetClient widgetClient = {};
+    auto mockScheduleNode = Common::MakeShared<MockWidgetScheduleNode>();
+    EXPECT_CALL(*mockScheduleNode, SendAuthResultInfo(_, _, _)).Times(0);
+    uint64_t contextId = 1;
+    std::shared_ptr<WidgetScheduleNode> baseNode = mockScheduleNode;
+    widgetClient.InsertScheduleNode(contextId, baseNode);
+
+    widgetClient.WidgetCompleteAuth(notice, authTypeList);
+}
+
+HWTEST_F(WidgetClientTest, WidgetClientTestCompleteAuth_002, TestSize.Level0)
+{
+    WidgetNotice notice = {};
+    notice.widgetContextId = 2;
+    std::vector<AuthType> authTypeList = {AuthType::PIN};
+    
+    WidgetClient widgetClient = {};
+    auto mockScheduleNode = Common::MakeShared<MockWidgetScheduleNode>();
+    EXPECT_CALL(*mockScheduleNode, SendAuthResultInfo(_, _, _)).Times(0);
+    uint64_t contextId = 1;
+    std::shared_ptr<WidgetScheduleNode> baseNode = mockScheduleNode;
+    widgetClient.InsertScheduleNode(contextId, baseNode);
+
+    widgetClient.WidgetCompleteAuth(notice, authTypeList);
+}
+
+HWTEST_F(WidgetClientTest, WidgetClientTestCompleteAuth_003, TestSize.Level0)
+{
+    WidgetNotice notice = {};
+    notice.widgetContextId = 1;
+    std::vector<AuthType> authTypeList = {AuthType::PIN};
+    
+    WidgetClient widgetClient = {};
+    auto mockScheduleNode = Common::MakeShared<MockWidgetScheduleNode>();
+    EXPECT_CALL(*mockScheduleNode, SendAuthResultInfo(_, _, _)).Times(0);
+
+    widgetClient.WidgetCompleteAuth(notice, authTypeList);
+}
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

@@ -1898,6 +1898,10 @@ HWTEST_F(WidgetContextTest, WidgetContextTestProcAuthTipInfo_NavigationAuth_Navi
 
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask([]() {});
+
+    std::vector<uint8_t> token = {};
+    testableContext->SendAuthResultInfo(ResultCode::GENERAL_ERROR, PIN, token);
+    testableContext->SendAuthResultInfo(ResultCode::SUCCESS, PIN, token);
 }
 
 HWTEST_F(WidgetContextTest, WidgetContextCreateWithRemoteAuthCallback_001, TestSize.Level0)

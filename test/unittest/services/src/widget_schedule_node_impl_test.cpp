@@ -583,6 +583,18 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImpl_OnStartDirectAuthDup
     handler->EnsureTask([]() {});
 }
 
+HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImpl_SendAuthResultInfo_001, TestSize.Level0)
+{
+    auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
+    std::vector<uint8_t> token = {};
+    schedule->SendAuthResultInfo(0, PIN, token);
+
+    auto callback = std::make_shared<MockWidgetScheduleNodeCallback>();
+    schedule->SetCallback(callback);
+    schedule->SendAuthResultInfo(0, PIN, token);
+    EXPECT_CALL(*callback, SendAuthResultInfo(_, _, _)).Times(0);
+}
+
 HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImpl_GetRemoteAuthParam_001, TestSize.Level0)
 {
     auto schedule = std::make_shared<WidgetScheduleNodeImpl>();
@@ -625,7 +637,6 @@ HWTEST_F(WidgetScheduleNodeImplTest, WidgetScheduleNodeImpl_GetRemoteAuthParam_0
     auto handler = ThreadHandler::GetSingleThreadInstance();
     handler->EnsureTask([]() {});
 }
-
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS

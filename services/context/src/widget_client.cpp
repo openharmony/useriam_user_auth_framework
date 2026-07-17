@@ -107,8 +107,8 @@ ResultCode WidgetClient::OnNotice(NoticeType type, const std::string &eventData)
 
 void WidgetClient::ProcessNotice(const WidgetNotice &notice, std::vector<AuthType> &authTypeList)
 {
-    HILOG_COMM_INFO("widget client, event:%{public}s, authTypeSize: %{public}zu",
-        notice.event.c_str(), authTypeList.size());
+    HILOG_COMM_INFO("widget client, event:%{public}s, authTypeSize: %{public}zu, tokenSize: %{public}zu",
+        notice.event.c_str(), authTypeList.size(), notice.authToken.size());
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     if (notice.event == NOTICE_EVENT_AUTH_READY) {
         schedule_->StartAuthList(authTypeList, notice.endAfterFirstFail, notice.authIntent);
@@ -142,6 +142,8 @@ void WidgetClient::ProcessNotice(const WidgetNotice &notice, std::vector<AuthTyp
         ClearSchedule(notice.widgetContextId);
     } else if (notice.event == NOTICE_EVENT_AUTH_SEND_TIP) {
         schedule_->SendAuthTipInfo(authTypeList, notice.tipCode);
+    } else if (notice.event == NOTICE_EVENT_COMPLETE_AUTH) {
+        WidgetCompleteAuth(notice, authTypeList);
     }
 }
 
@@ -350,7 +352,8 @@ bool WidgetClient::IsValidNoticeType(const WidgetNotice &notice)
         notice.event != NOTICE_EVENT_AUTH_WIDGET_LOADED &&
         notice.event != NOTICE_EVENT_AUTH_WIDGET_RELEASED &&
         notice.event != NOTICE_EVENT_PROCESS_TERMINATE &&
-        notice.event != NOTICE_EVENT_AUTH_SEND_TIP) {
+        notice.event != NOTICE_EVENT_AUTH_SEND_TIP &&
+        notice.event != NOTICE_EVENT_COMPLETE_AUTH) {
         return false;
     }
     return true;
@@ -443,6 +446,29 @@ void WidgetClient::WidgetRelease(uint64_t contextId, std::vector<AuthType> &auth
         }
         loadedAuthTypeList_.clear();
     }
+}
+
+void WidgetClient::WidgetCompleteAuth(const WidgetNotice &notice, std::vector<AuthType> &authTypeList)
+{
+    IAM_LOGI("start, contextId:%{public}hx", static_cast<uint16_t>(notice.widgetContextId));
+    if (authTypeList.empty()) {
+        IAM_LOGE("bad authTypeList:%{public}zu", authTypeList.size());
+        return;
+    }
+
+    {
+        std::lock_guard<std::recursive_mutex> lock(mutex_);
+        if (notice.widgetContextId != widgetContextId_) {
+            IAM_LOGI("widgetContextId_:%{public}hx", static_cast<uint16_t>(widgetContextId_));
+            return;
+        }
+    }
+    auto schedule = GetScheduleNode(notice.widgetContextId);
+    if (schedule == nullptr) {
+        IAM_LOGE("schedule is null");
+        return;
+    }
+    schedule->SendAuthResultInfo(notice.resultCode, authTypeList[0], notice.authToken);
 }
 } // namespace UserAuth
 } // namespace UserIam

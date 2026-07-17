@@ -35,6 +35,7 @@ const std::string AUTH_TYPE_FINGER_PRINT = "fingerprint";
 const std::string AUTH_TYPE_ALL = "all";
 const std::string AUTH_TYPE_PRIVATE_PIN = "privatePin";
 const std::string AUTH_TYPE_COMPANION_DEVICE = "companionDevice";
+const std::string AUTH_TYPE_ENTERPRISE_ACCOUNT = "enterpriseAccount";
 
 const std::string WINDOW_MODE_DIALOG = "DIALOG_BOX";
 const std::string WINDOW_MODE_FULLSCREEN = "FULLSCREEN";
@@ -54,8 +55,10 @@ const std::string JSON_AUTH_EVENT = "event";
 const std::string JSON_AUTH_VERSION = "version";
 const std::string JSON_AUTH_PAYLOAD = "payload";
 const std::string JSON_AUTH_END_AFTER_FIRST_FAIL = "endAfterFirstFail";
-const std::string JSON_AUTH_INTENT = "authIntent";
+const std::string JSON_AUTH_PURPOSE = "authIntent";
 const std::string JSON_AUTH_TIP_CODE = "tipCode";
+const std::string JSON_AUTH_TOKEN = "authToken";
+const std::string JSON_RESULT_CODE = "resultCode";
 const std::string JSON_ORIENTATION = "orientation";
 const std::string JSON_NEED_ROTATE = "needRotate";
 const std::string JSON_ALREADY_LOAD = "alreadyLoad";
@@ -269,6 +272,8 @@ AuthType Str2AuthType(const std::string &strAuthType)
         authType = AuthType::PRIVATE_PIN;
     } else if (strAuthType.compare(AUTH_TYPE_COMPANION_DEVICE) == 0) {
         authType = AuthType::COMPANION_DEVICE;
+    } else if (strAuthType.compare(AUTH_TYPE_ENTERPRISE_ACCOUNT) == 0) {
+        authType = AuthType::PIN;
     } else {
         IAM_LOGE("strAuthType: %{public}s", strAuthType.c_str());
     }
@@ -301,6 +306,10 @@ std::string AuthType2Str(const AuthType &authType)
         }
         case AuthType::COMPANION_DEVICE: {
             strAuthType = AUTH_TYPE_COMPANION_DEVICE;
+            break;
+        }
+        case AuthType::ENTERPRISE_ACCOUNT: {
+            strAuthType = AUTH_TYPE_ENTERPRISE_ACCOUNT;
             break;
         }
         default: {
@@ -381,7 +390,7 @@ void to_json(nlohmann::json &jsonNotice, const WidgetNotice &notice)
 {
     auto type = nlohmann::json({{JSON_AUTH_TYPE, notice.typeList},
         {JSON_AUTH_END_AFTER_FIRST_FAIL, notice.endAfterFirstFail},
-        {JSON_AUTH_INTENT, notice.authIntent},
+        {JSON_AUTH_PURPOSE, notice.authIntent},
         {JSON_AUTH_TIP_CODE, notice.tipCode}});
     jsonNotice = nlohmann::json({{JSON_WIDGET_CTX_ID, notice.widgetContextId},
         {JSON_AUTH_EVENT, notice.event},
@@ -398,6 +407,34 @@ bool isNumberItem(const nlohmann::json &jsonNotice, const std::string &item)
         return true;
     }
     return false;
+}
+
+static void getPayloadFromJson(const nlohmann::json &jsonNotice, WidgetNotice &notice)
+{
+    if (jsonNotice.find(JSON_AUTH_PAYLOAD) == jsonNotice.end()) {
+        return;
+    }
+    if (jsonNotice[JSON_AUTH_PAYLOAD].find(JSON_AUTH_TYPE) != jsonNotice[JSON_AUTH_PAYLOAD].end() &&
+        jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].is_array()) {
+        for (size_t index = 0; index < jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].size(); index++) {
+            if (!jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].at(index).is_string()) {
+                notice.typeList.clear();
+                break;
+            }
+            notice.typeList.emplace_back(jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].at(index).get<std::string>());
+        }
+    }
+    if ((jsonNotice[JSON_AUTH_PAYLOAD].find(JSON_AUTH_END_AFTER_FIRST_FAIL) !=
+            jsonNotice[JSON_AUTH_PAYLOAD].end()) &&
+        jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_END_AFTER_FIRST_FAIL].is_boolean()) {
+        jsonNotice[JSON_AUTH_PAYLOAD].at(JSON_AUTH_END_AFTER_FIRST_FAIL).get_to(notice.endAfterFirstFail);
+    }
+    if (isNumberItem(jsonNotice[JSON_AUTH_PAYLOAD], JSON_AUTH_PURPOSE)) {
+        jsonNotice[JSON_AUTH_PAYLOAD].at(JSON_AUTH_PURPOSE).get_to(notice.authIntent);
+    }
+    if (isNumberItem(jsonNotice[JSON_AUTH_PAYLOAD], JSON_AUTH_TIP_CODE)) {
+        jsonNotice[JSON_AUTH_PAYLOAD].at(JSON_AUTH_TIP_CODE).get_to(notice.tipCode);
+    }
 }
 
 void from_json(const nlohmann::json &jsonNotice, WidgetNotice &notice)
@@ -420,30 +457,15 @@ void from_json(const nlohmann::json &jsonNotice, WidgetNotice &notice)
     if (jsonNotice.find(JSON_AUTH_VERSION) != jsonNotice.end() && jsonNotice[JSON_AUTH_VERSION].is_string()) {
         jsonNotice.at(JSON_AUTH_VERSION).get_to(notice.version);
     }
-    if (jsonNotice.find(JSON_AUTH_PAYLOAD) == jsonNotice.end()) {
-        return;
-    }
-    if (jsonNotice[JSON_AUTH_PAYLOAD].find(JSON_AUTH_TYPE) != jsonNotice[JSON_AUTH_PAYLOAD].end() &&
-        jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].is_array()) {
-        for (size_t index = 0; index < jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].size(); index++) {
-            if (!jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].at(index).is_string()) {
-                notice.typeList.clear();
-                break;
-            }
-            notice.typeList.emplace_back(jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].at(index).get<std::string>());
+    if (jsonNotice.find(JSON_AUTH_TOKEN) != jsonNotice.end() && jsonNotice[JSON_AUTH_TOKEN].is_object()) {
+        for (auto &item : jsonNotice[JSON_AUTH_TOKEN].items()) {
+            notice.authToken.push_back(jsonNotice[JSON_AUTH_TOKEN].at(item.key()).get<uint8_t>());
         }
     }
-    if ((jsonNotice[JSON_AUTH_PAYLOAD].find(JSON_AUTH_END_AFTER_FIRST_FAIL) !=
-            jsonNotice[JSON_AUTH_PAYLOAD].end()) &&
-        jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_END_AFTER_FIRST_FAIL].is_boolean()) {
-        jsonNotice[JSON_AUTH_PAYLOAD].at(JSON_AUTH_END_AFTER_FIRST_FAIL).get_to(notice.endAfterFirstFail);
+    if (isNumberItem(jsonNotice, JSON_RESULT_CODE)) {
+        jsonNotice.at(JSON_RESULT_CODE).get_to(notice.resultCode);
     }
-    if (isNumberItem(jsonNotice[JSON_AUTH_PAYLOAD], JSON_AUTH_INTENT)) {
-        jsonNotice[JSON_AUTH_PAYLOAD].at(JSON_AUTH_INTENT).get_to(notice.authIntent);
-    }
-    if (isNumberItem(jsonNotice[JSON_AUTH_PAYLOAD], JSON_AUTH_TIP_CODE)) {
-        jsonNotice[JSON_AUTH_PAYLOAD].at(JSON_AUTH_TIP_CODE).get_to(notice.tipCode);
-    }
+    getPayloadFromJson(jsonNotice, notice);
 }
 
 std::string GetConfigRealPath()

@@ -71,6 +71,7 @@ private:
     std::shared_ptr<WidgetScheduleNode> GetScheduleNode(uint64_t contextId);
     void WidgetLoad(uint64_t contextId, std::vector<AuthType> &authTypeList);
     void WidgetRelease(uint64_t contextId, std::vector<AuthType> &authTypeList);
+    void WidgetCompleteAuth(const WidgetNotice &notice, std::vector<AuthType> &authTypeList);
 
 private:
     std::shared_ptr<WidgetScheduleNode> schedule_ {nullptr};
