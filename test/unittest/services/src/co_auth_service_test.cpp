@@ -21,6 +21,7 @@
 #include "iam_ptr.h"
 #include "mock_executor_callback.h"
 #include "mock_ipc_common.h"
+#include "hdi_type_aliases.h"
 #include "mock_iuser_auth_interface.h"
 #include "mock_resource_node.h"
 #include "resource_node_pool.h"
@@ -191,7 +192,7 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTestRegisterAccessTokenListener, TestSi
 {
     auto service = Common::MakeShared<CoAuthService>();
     EXPECT_NE(service, nullptr);
-    service->OnDriverStart();
+    service->OnEngineReady();
     service->SetIsReady(true);
     service->SetAccessTokenReady(true);
     EXPECT_EQ(service->RegisterAccessTokenListener(), SUCCESS);
@@ -210,14 +211,14 @@ HWTEST_F(CoAuthServiceTest, CoAuthServiceTestNotifyFwkReady, TestSize.Level0)
     EXPECT_NO_THROW(service->NotifyFwkReady());
 }
 
-HWTEST_F(CoAuthServiceTest, CoAuthServiceTestOnDriverStop, TestSize.Level0)
+HWTEST_F(CoAuthServiceTest, CoAuthServiceTestOnEngineUnavailable, TestSize.Level0)
 {
     auto service = Common::MakeShared<CoAuthService>();
     EXPECT_NE(service, nullptr);
     service->SetIsReady(true);
-    EXPECT_NO_THROW(service->OnDriverStart());
-    EXPECT_NO_THROW(service->OnDriverStop());
-    EXPECT_NO_THROW(service->OnDriverStop());
+    EXPECT_NO_THROW(service->OnEngineReady());
+    EXPECT_NO_THROW(service->OnEngineUnavailable());
+    EXPECT_NO_THROW(service->OnEngineUnavailable());
 }
 
 HWTEST_F(CoAuthServiceTest, CoAuthServiceTestIsFwkReady, TestSize.Level0)

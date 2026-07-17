@@ -23,7 +23,7 @@
 #include "context_pool.h"
 #include "credential_updated_manager.h"
 #include "event_listener_manager.h"
-#include "hdi_wrapper.h"
+#include "user_auth_engine.h"
 #include "iam_callback_proxy.h"
 #include "iam_check.h"
 #include "iam_logger.h"
@@ -97,14 +97,9 @@ int32_t UserIdmService::OpenSession(int32_t userId, std::vector<uint8_t> &challe
     }
     CancelCurrentEnrollIfExist();
 
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (hdi == nullptr) {
-        IAM_LOGE("bad hdi");
-        return GENERAL_ERROR;
-    }
     std::lock_guard<std::mutex> lock(mutex_);
-    int32_t ret = hdi->OpenSession(userId, challenge);
-    if (ret != HDF_SUCCESS) {
+    int32_t ret = GetUserAuthEngine().OpenSession(userId, challenge);
+    if (ret != SUCCESS) {
         IAM_LOGE("failed to open session, error code:%{public}d", ret);
         return GENERAL_ERROR;
     }
@@ -123,14 +118,9 @@ int32_t UserIdmService::CloseSession(int32_t userId)
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
     }
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (hdi == nullptr) {
-        IAM_LOGE("bad hdi");
-        return GENERAL_ERROR;
-    }
     std::lock_guard<std::mutex> lock(mutex_);
-    int32_t ret = hdi->CloseSession(userId);
-    if (ret != HDF_SUCCESS) {
+    int32_t ret = GetUserAuthEngine().CloseSession(userId);
+    if (ret != SUCCESS) {
         IAM_LOGE("failed to close session, error code:%{public}d", ret);
         return GENERAL_ERROR;
     }
@@ -752,8 +742,8 @@ int32_t UserIdmService::ClearRedundancyCredentialInner(const std::string &caller
     std::vector<std::shared_ptr<UserInfoInterface>> userInfos;
     ret = UserIdmDatabase::Instance().GetAllExtUserInfo(userInfos);
     if (ret != SUCCESS) {
-        IAM_LOGE("GetAllExtUserInfo failed");
-        return INVALID_HDI_INTERFACE;
+        IAM_LOGE("GetAllExtUserInfo failed, ret:%{public}d", ret);
+        return ret;
     }
 
     if (userInfos.empty()) {

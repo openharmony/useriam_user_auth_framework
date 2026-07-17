@@ -28,7 +28,6 @@
 #include "context_pool.h"
 #include "context_death_recipient.h"
 #include "hisysevent_adapter.h"
-#include "hdi_wrapper.h"
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_para2str.h"
@@ -41,6 +40,7 @@
 #include "set_widget_param_callback_service.h"
 #include "string_wrapper.h"
 #include "system_ability_definition.h"
+#include "user_auth_engine_types.h"
 #include "want_params_wrapper.h"
 #include "widget_schedule_node_impl.h"
 #include "widget_context_callback_impl.h"
@@ -925,13 +925,8 @@ void WidgetContext::SendAuthResultInfo(int32_t resultCode, int32_t authType, con
     authResultInfo_.authType = static_cast<AuthType>(authType);
     authResultInfo_.resultUserId = para_.userId;
 
-    HdiEnrolledState enrolledState = {};
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (hdi == nullptr) {
-        IAM_LOGE("bad hdi");
-        return End(ResultCode::GENERAL_ERROR);
-    }
-    resultCode = hdi->GetEnrolledState(authResultInfo_.resultUserId, authType, enrolledState);
+    EngEnrolledState hdiEnrolledState = {};
+    int32_t resultCode = GetUserAuthEngine().GetEnrolledState(userId, static_cast<AuthType>(authType), hdiEnrolledState);
     if (resultCode != SUCCESS) {
         IAM_LOGE("GetEnrolledState fail, %{public}d", resultCode);
         return End(static_cast<ResultCode>(resultCode));

@@ -28,7 +28,7 @@
 #include "resource_node_pool.h"
 #include "user_idm_database.h"
 #include "attributes.h"
-#include "user_auth_types.h"
+#include "user_auth_engine_types.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -142,7 +142,7 @@ private:
     int32_t DoPrepareRemoteAuth(const std::string &networkId);
     int32_t GetAvailableStatusInner(int32_t apiVersion, int32_t userId, AuthType authType,
         AuthTrustLevel authTrustLevel);
-    bool GetAuthTokenAttr(const HdiUserAuthTokenPlain &tokenPlain, const std::vector<uint8_t> &rootSecret,
+    bool GetAuthTokenAttr(const EngUserAuthTokenPlain &tokenPlain, const std::vector<uint8_t> &rootSecret,
         Attributes &extraInfo);
     std::shared_ptr<ResourceNode> GetResourseNode(AuthType authType);
     void ProcessPinExpired(int32_t ret, const AuthParamInner &authParam, std::vector<AuthType> &validType,

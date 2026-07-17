@@ -18,7 +18,7 @@
 
 #include "context_factory.h"
 #include "user_auth_common_defines.h"
-#include "user_auth_hdi.h"
+#include "user_auth_engine_types.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -34,14 +34,14 @@ public:
     static bool GetUserAuthProfile(int32_t userId, const AuthType &authType,
         ContextFactory::AuthProfile &profile, std::vector<uint64_t> credentialIdList);
     static int32_t QueryReusableAuthResult(const int32_t userId, const AuthParamInner &authParam,
-        HdiReuseUnlockInfo &reuseResultInfo);
+        EngReuseUnlockInfo &reuseResultInfo);
 
 #ifndef IAM_TEST_ENABLE
 private:
 #endif
     static bool ParseAttributes(const Attributes &values, const AuthType &authType,
         ContextFactory::AuthProfile &profile);
-    static int32_t SetReuseUnlockResult(int32_t apiVersion, const HdiReuseUnlockInfo &info,
+    static int32_t SetReuseUnlockResult(int32_t apiVersion, const EngReuseUnlockInfo &info,
         Attributes &extraInfo);
     static bool GetAuthCredentialList(int32_t userId, const AuthType &authType,
         const std::vector<uint64_t> &credentialIdList,

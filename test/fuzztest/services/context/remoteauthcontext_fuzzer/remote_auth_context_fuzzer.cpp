@@ -276,7 +276,7 @@ void FuzzSetReuseUnlockResult(Parcel &parcel)
     int32_t apiVersion = parcel.ReadInt32();
     Attributes extraInfo;
     FillIAttributes(parcel, extraInfo);
-    HdiReuseUnlockInfo info;
+    EngReuseUnlockInfo info;
     AuthWidgetHelper::SetReuseUnlockResult(apiVersion, info, extraInfo);
 }
 

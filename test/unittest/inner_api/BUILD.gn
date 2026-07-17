@@ -38,6 +38,7 @@ ohos_unittest("iam_inner_api_test") {
     "../../../interfaces/inner_api",
     "../../../frameworks/common/inc",
     "../../../frameworks/native/client/inc",
+    "../../../services/engine/pub_inc",
   ]
 
   sources = [

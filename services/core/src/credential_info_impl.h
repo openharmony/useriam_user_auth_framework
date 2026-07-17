@@ -19,14 +19,14 @@
 #include "nocopyable.h"
 
 #include "credential_info_interface.h"
-#include "hdi_wrapper.h"
+#include "user_auth_engine_types.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 class CredentialInfoImpl final : public CredentialInfoInterface, public NoCopyable {
 public:
-    CredentialInfoImpl(int32_t userId, const HdiCredentialInfo &info);
+    CredentialInfoImpl(int32_t userId, const EngCredentialInfo &info);
     ~CredentialInfoImpl() override = default;
     uint64_t GetCredentialId() const override;
     int32_t GetUserId() const override;
@@ -41,7 +41,7 @@ public:
 
 private:
     int32_t userId_;
-    HdiCredentialInfo info_;
+    EngCredentialInfo info_;
 };
 } // namespace UserAuth
 } // namespace UserIam

@@ -66,7 +66,7 @@ HWTEST_F(AuthWidgetHelperTest, BadHdiTest, TestSize.Level0)
     authParam.reuseUnlockResult.isReuse = true;
     authParam.reuseUnlockResult.reuseDuration = 1;
     authParam.reuseUnlockResult.reuseMode = AUTH_TYPE_RELEVANT;
-    HdiReuseUnlockInfo reuseResultInfo = {};
+    EngReuseUnlockInfo reuseResultInfo = {};
     EXPECT_NE(AuthWidgetHelper::QueryReusableAuthResult(userId, authParam, reuseResultInfo), SUCCESS);
 }
 } // namespace UserAuth

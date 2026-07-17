@@ -27,6 +27,7 @@
 #include "iam_ptr.h"
 #include "resource_node.h"
 #include "resource_node_pool.h"
+#include "thread_handler.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 #define LOG_FILE_ID LOG_FILE_CO_AUTH_SERVICE
@@ -151,7 +152,7 @@ void FuzzOther(Parcel &parcel)
     }
     g_coAuthService->SetIsReady(true);
     g_coAuthService->SetAccessTokenReady(true);
-    g_coAuthService->OnDriverStart();
+    g_coAuthService->OnEngineReady();
 
     auto callback = Common::MakeShared<CoAuthServiceFuzzer>(parcel.ReadInt32(), parcel.ReadInt32(),
         parcel.ReadInt32(), parcel.ReadInt32(), parcel.ReadInt32());
@@ -296,12 +297,17 @@ FuzzFunc *g_fuzzFuncs[] = {
 
 void CoAuthFuzzTest(const uint8_t *data, size_t size)
 {
+    IpcCommon::ResetAllState();
     Parcel parcel;
     parcel.WriteBuffer(data, size);
     parcel.RewindRead(0);
     uint32_t index = parcel.ReadUint32() % (sizeof(g_fuzzFuncs) / sizeof(FuzzFunc *));
     auto fuzzFunc = g_fuzzFuncs[index];
     fuzzFunc(parcel);
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    if (handler != nullptr) {
+        handler->EnsureTask([]() {});
+    }
     return;
 }
 } // namespace

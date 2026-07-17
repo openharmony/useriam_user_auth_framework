@@ -13,24 +13,24 @@
  * limitations under the License.
  */
 
-#ifndef HDI_MESSAGE_CALLBACK_IMPL_H
-#define HDI_MESSAGE_CALLBACK_IMPL_H
+#ifndef MESSAGE_CALLBACK_SERVICE_H
+#define MESSAGE_CALLBACK_SERVICE_H
 
-#include "user_auth_hdi.h"
+#include "user_auth_engine.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-class HdiMessageCallbackService : public HdiIMessageCallback {
+class MessageCallbackService : public IMessageCallback {
 public:
-    static sptr<HdiMessageCallbackService> GetInstance();
-    void OnHdiConnect();
+    static sptr<MessageCallbackService> GetInstance();
+    void OnEngineConnect();
 
     int32_t OnMessage(uint64_t scheduleId, int32_t destRole, const std::vector<uint8_t> &msg) override;
 private:
-    ~HdiMessageCallbackService() override = default;
+    ~MessageCallbackService() override = default;
 };
 } // namespace UserAuth
 } // namespace UserIam
 } // namespace OHOS
-#endif // HDI_MESSAGE_CALLBACK_IMPL_H
+#endif // MESSAGE_CALLBACK_SERVICE_H

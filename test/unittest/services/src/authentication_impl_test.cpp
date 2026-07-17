@@ -15,10 +15,12 @@
 
 #include <memory>
 
+#include "accesstoken_kit.h"
 #include "iam_ptr.h"
 
 #include "authentication_impl.h"
 #include "resource_node_pool.h"
+#include "hdi_type_aliases.h"
 #include "mock_iuser_auth_interface.h"
 #include "mock_resource_node.h"
 #include "mock_schedule_node_callback.h"
@@ -114,7 +116,7 @@ HWTEST_F(AuthenticationImplTest, AuthenticationInvalidExecutor, TestSize.Level0)
         scheduleInfo.templateIds = {0, 1, 2};
         scheduleInfo.authType = HdiAuthType::FACE;
         scheduleInfo.executorMatcher = 0;
-        scheduleInfo.scheduleMode = HdiScheduleMode::ENROLL;
+        scheduleInfo.scheduleMode = ScheduleMode::ENROLL;
         scheduleInfo.executorIndexes.push_back(executorInfoIndex);
         std::vector<uint8_t> executorMessages;
         executorMessages.resize(1);
@@ -271,7 +273,7 @@ HWTEST_F(AuthenticationImplTest, AuthenticationImplTestStart, TestSize.Level0)
                 scheduleInfo.executorMatcher = 10;
                 scheduleInfo.executorIndexes.push_back(60);
                 scheduleInfo.scheduleId = 20;
-                scheduleInfo.scheduleMode = HdiScheduleMode::AUTH;
+                scheduleInfo.scheduleMode = ScheduleMode::AUTH;
                 scheduleInfo.templateIds.push_back(30);
                 scheduleInfos.push_back(scheduleInfo);
                 return HDF_SUCCESS;
@@ -352,7 +354,7 @@ HWTEST_F(AuthenticationImplTest, AuthenticationImplGetAuthParamFail_001, TestSiz
     auto authentication = std::make_shared<AuthenticationImpl>(contextId, para);
     ASSERT_NE(authentication, nullptr);
 
-    HdiAuthParamExt param = {};
+    EngAuthParamExt param = {};
     bool result = authentication->GetAuthParam(param);
     EXPECT_FALSE(result);
 }
@@ -381,7 +383,7 @@ HWTEST_F(AuthenticationImplTest, AuthenticationImplUpdateFail_001, TestSize.Leve
     EXPECT_FALSE(result); // Update returns false when HDI fails
 
     int32_t latestError = authentication->GetLatestError();
-    EXPECT_EQ(latestError, HDF_FAILURE); // latestError is set correctly
+    EXPECT_EQ(latestError, GENERAL_ERROR); // latestError is set correctly
 }
 
 HWTEST_F(AuthenticationImplTest, AuthenticationImplCancel_001, TestSize.Level0)

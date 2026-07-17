@@ -14,10 +14,11 @@
  */
 #include "enrollment_impl.h"
 
+#include "accesstoken_kit.h"
 #include "credential_info_impl.h"
 #include "credential_updated_manager.h"
 #include "event_listener_manager.h"
-#include "hdi_wrapper.h"
+#include "user_auth_engine.h"
 #include "iam_hitrace_helper.h"
 #include "iam_logger.h"
 #include "iam_para2str.h"
@@ -96,9 +97,9 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
 {
     IAM_LOGE("UserId:%{public}d, AuthType:%{public}d, pinSubType:%{public}d, additionalInfo:%{public}zu",
         enrollPara_.userId, enrollPara_.authType, enrollPara_.pinType, enrollPara_.additionalInfo.size());
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (!hdi) {
-        IAM_LOGE("bad hdi");
+    auto callerType = IpcCommon::GetEngCallerType(enrollPara_.callerType);
+    if (!callerType.has_value()) {
+        IAM_LOGE("invalid callerType %{public}d", enrollPara_.callerType);
         return false;
     }
     // cache secUserId first in case of update
@@ -107,22 +108,17 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
         return false;
     }
 
-    HdiScheduleInfo info = {};
+    EngScheduleInfo info = {};
     int32_t userType;
     if (IpcCommon::GetUserTypeByUserId(enrollPara_.userId, userType) != SUCCESS) {
         IAM_LOGE("failed to get userType");
         return false;
     }
-    HdiCallerType callerType = ConvertATokenTypeToCallerType(enrollPara_.callerType);
-    if (callerType == HDI_CALLER_TYPE_INVALID) {
-        IAM_LOGE("ConvertATokenTypeToCallerType failed, ATokenType:%{public}d", enrollPara_.callerType);
-        return false;
-    }
-    HdiEnrollParamExt param = {
-        .authType = static_cast<HdiAuthType>(enrollPara_.authType),
+    EngEnrollParamExt param = {
+        .authType = static_cast<AuthType>(enrollPara_.authType),
         .executorSensorHint = executorSensorHint_,
         .callerName = enrollPara_.callerName,
-        .callerType = callerType,
+        .callerType = static_cast<int32_t>(callerType.value()),
         .apiVersion = enrollPara_.sdkVersion,
         .userId = enrollPara_.userId,
         .userType = userType,
@@ -130,9 +126,9 @@ bool EnrollmentImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleL
         .additionalInfo = enrollPara_.additionalInfo,
     };
     IamHitraceHelper traceHelper("hdi BeginEnrollment");
-    auto result = hdi->BeginEnrollmentExt(authToken_, param, info);
-    if (result != HDF_SUCCESS) {
-        IAM_LOGE("hdi BeginEnrollment failed, err is %{public}d", result);
+    auto result = GetUserAuthEngine().BeginEnrollmentExt(authToken_, param, info);
+    if (result != SUCCESS) {
+        IAM_LOGE("BeginEnrollment failed, err is %{public}d", result);
         SetLatestError(result);
         return false;
     }
@@ -175,15 +171,9 @@ bool EnrollmentImpl::Update(const std::vector<uint8_t> &scheduleResult, uint64_t
     std::shared_ptr<CredentialInfoInterface> &info, std::shared_ptr<UpdatePinParamInterface> &pinInfo,
     std::optional<uint64_t> &secUserId)
 {
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (!hdi) {
-        IAM_LOGE("bad hdi");
-        return false;
-    }
-
-    HdiEnrollResultInfo resultInfo = {};
-    auto result = hdi->UpdateEnrollmentResult(enrollPara_.userId, scheduleResult, resultInfo);
-    if (result != HDF_SUCCESS) {
+    EngEnrollResultInfo resultInfo = {};
+    auto result = GetUserAuthEngine().UpdateEnrollmentResult(enrollPara_.userId, scheduleResult, resultInfo);
+    if (result != SUCCESS) {
         HILOG_COMM_ERROR("hdi update enroll result failed, err is %{public}d, userId is %{public}d,"
             " credentialId: %{public}s", result, enrollPara_.userId, Common::GetMaskedString(credentialId).c_str());
         SetLatestError(result);
@@ -225,14 +215,8 @@ bool EnrollmentImpl::Cancel()
     }
     running_ = false;
 
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (!hdi) {
-        IAM_LOGE("bad hdi");
-        return false;
-    }
-
-    auto result = hdi->CancelEnrollment(enrollPara_.userId);
-    if (result != HDF_SUCCESS) {
+    auto result = GetUserAuthEngine().CancelEnrollment(enrollPara_.userId);
+    if (result != SUCCESS) {
         HILOG_COMM_ERROR("hdi cancel enrollment failed, err is %{public}d", result);
         SetLatestError(result);
         return false;
@@ -240,11 +224,11 @@ bool EnrollmentImpl::Cancel()
     return true;
 }
 
-bool EnrollmentImpl::StartSchedule(int32_t userId, HdiScheduleInfo &info,
+bool EnrollmentImpl::StartSchedule(int32_t userId, EngScheduleInfo &info,
     std::vector<std::shared_ptr<ScheduleNode>> &scheduleList, std::shared_ptr<ScheduleNodeCallback> callback)
 {
     IAM_LOGI("start");
-    std::vector<HdiScheduleInfo> infos = {};
+    std::vector<EngScheduleInfo> infos = {};
     infos.emplace_back(info);
 
     ScheduleNodeHelper::NodeOptionalPara para;

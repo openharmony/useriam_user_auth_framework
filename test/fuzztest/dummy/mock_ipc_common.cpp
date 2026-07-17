@@ -129,6 +129,14 @@ void IpcCommon::DeleteAllPermission()
     permSet_.clear();
 }
 
+void IpcCommon::ResetAllState()
+{
+    permSet_.clear();
+    isSetTokenId_ = false;
+    tokenId_ = 0;
+    skipFlag_ = false;
+}
+
 uint32_t IpcCommon::GetTokenId(IPCObjectStub &stub)
 {
     uint32_t tokenId = stub.GetCallingTokenID();
@@ -174,6 +182,17 @@ bool IpcCommon::IsOsAccountVerified(int32_t userId)
 int32_t IpcCommon::GetDirectCallerType(IPCObjectStub &stub)
 {
     return 0;
+}
+
+std::optional<EngCallerType> IpcCommon::GetEngCallerType(int32_t callerType)
+{
+    if (callerType == Security::AccessToken::TOKEN_HAP) {
+        return ENG_CALLER_TYPE_HAP;
+    }
+    if (callerType == Security::AccessToken::TOKEN_NATIVE) {
+        return ENG_CALLER_TYPE_NATIVE;
+    }
+    return std::nullopt;
 }
 } // namespace UserAuth
 } // namespace UserIam

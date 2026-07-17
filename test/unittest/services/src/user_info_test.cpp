@@ -43,7 +43,7 @@ void UserInfoTest::TearDown()
 HWTEST_F(UserInfoTest, GetUserId, TestSize.Level0)
 {
     constexpr int32_t userId = 100;
-    UserInfo info = {};
+    EngUserInfo info = {};
     UserInfoImpl UserInfoImpl(userId, info);
     int32_t ret = UserInfoImpl.GetUserId();
     EXPECT_EQ(ret, userId);
@@ -53,7 +53,7 @@ HWTEST_F(UserInfoTest, GetSecUserId, TestSize.Level0)
 {
     constexpr int32_t userId = 100;
     constexpr uint64_t secUserId = 200;
-    UserInfo info = {
+    EngUserInfo info = {
         .secureUid = secUserId,
     };
     UserInfoImpl UserInfoImpl(userId, info);

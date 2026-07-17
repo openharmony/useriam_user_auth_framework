@@ -22,7 +22,7 @@
 
 #include "credential_info_interface.h"
 #include "update_pin_param_interface.h"
-#include "user_auth_hdi.h"
+#include "user_auth_engine_types.h"
 #include "schedule_node.h"
 
 namespace OHOS {
@@ -43,7 +43,7 @@ public:
 
     virtual bool Start(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
         std::shared_ptr<ScheduleNodeCallback> callback, bool &isCredentialDelete,
-        std::vector<HdiCredentialInfo> &credentialInfos) = 0;
+        std::vector<EngCredentialInfo> &credentialInfos) = 0;
     virtual bool Update(const std::vector<uint8_t> &scheduleResult,
         std::shared_ptr<CredentialInfoInterface> &info) = 0;
     virtual bool Cancel() = 0;

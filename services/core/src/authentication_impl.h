@@ -20,8 +20,8 @@
 #include <memory>
 
 #include "authentication.h"
-#include "hdi_wrapper.h"
 #include "schedule_node.h"
+#include "user_auth_engine_types.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -51,7 +51,7 @@ protected:
     void SetLatestError(int32_t error) override;
 
 private:
-    bool GetAuthParam(HdiAuthParamExt &param);
+    bool GetAuthParam(EngAuthParamExt &param);
     uint64_t contextId_;
     AuthenticationPara authPara_;
     bool endAfterFirstFail_ {false};

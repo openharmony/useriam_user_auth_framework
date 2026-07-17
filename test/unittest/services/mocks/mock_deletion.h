@@ -27,7 +27,7 @@ public:
     virtual ~MockDeletion() = default;
     MOCK_METHOD4(Start, bool(std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
         std::shared_ptr<ScheduleNodeCallback> callback, bool &isCredentialDelete,
-        std::vector<HdiCredentialInfo> &credentialInfos));
+        std::vector<EngCredentialInfo> &credentialInfos));
     MOCK_METHOD2(Update, bool(const std::vector<uint8_t> &scheduleResult,
         std::shared_ptr<CredentialInfoInterface> &info));
     MOCK_METHOD0(Cancel, bool());

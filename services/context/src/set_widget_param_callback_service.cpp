@@ -21,7 +21,7 @@
 #include "iam_logger.h"
 #include "iam_check.h"
 #include "user_auth_common_defines.h"
-#include "user_auth_types.h"
+#include "user_auth_engine_types.h"
 #include "context.h"
 #include "context_pool.h"
 
