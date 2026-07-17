@@ -27,6 +27,7 @@
 #include "iam_ptr.h"
 #include "resource_node.h"
 #include "resource_node_pool.h"
+#include "thread_handler.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 #define LOG_FILE_ID LOG_FILE_CO_AUTH_SERVICE
@@ -303,6 +304,10 @@ void CoAuthFuzzTest(const uint8_t *data, size_t size)
     uint32_t index = parcel.ReadUint32() % (sizeof(g_fuzzFuncs) / sizeof(FuzzFunc *));
     auto fuzzFunc = g_fuzzFuncs[index];
     fuzzFunc(parcel);
+    auto handler = ThreadHandler::GetSingleThreadInstance();
+    if (handler != nullptr) {
+        handler->EnsureTask([]() {});
+    }
     return;
 }
 } // namespace
