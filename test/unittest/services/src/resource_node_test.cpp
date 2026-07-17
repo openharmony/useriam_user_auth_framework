@@ -206,7 +206,7 @@ HWTEST_F(ResourceNodeTest, MakeNewResourceTest_002, TestSize.Level0)
     EXPECT_EQ(node->SendData(scheduleId, data), ResultCode::SUCCESS);
 }
 
-HWTEST_F(ResourceNodeTest, DeleteFromDriverTest_002, TestSize.Level0)
+HWTEST_F(ResourceNodeTest, DeleteFromEngineTest_002, TestSize.Level0)
 {
     ExecutorRegisterInfo info {};
     std::vector<uint64_t> templateIdList {};
@@ -215,7 +215,7 @@ HWTEST_F(ResourceNodeTest, DeleteFromDriverTest_002, TestSize.Level0)
 
     auto node = ResourceNode::MakeNewResource(info, testCallback, templateIdList, fwkPublicKey);
     ASSERT_NE(node, nullptr);
-    EXPECT_NO_THROW(node->DeleteFromDriver());
+    EXPECT_NO_THROW(node->DeleteFromEngine());
 }
 } // namespace UserAuth
 } // namespace UserIam

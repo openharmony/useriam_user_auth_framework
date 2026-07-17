@@ -21,10 +21,10 @@
 #include "string_ex.h"
 
 #include "device_manager_util.h"
-#include "driver_state_manager.h"
+#include "engine_state_manager.h"
 #include "executor_messenger_service.h"
-#include "hdi_message_callback_service.h"
-#include "hdi_wrapper.h"
+#include "message_callback_service.h"
+#include "user_auth_engine.h"
 #include "hisysevent_adapter.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
@@ -243,10 +243,10 @@ int32_t CoAuthService::ExecutorUnregister(uint64_t executorIndex)
     return SUCCESS;
 }
 
-void CoAuthService::OnDriverStart()
+void CoAuthService::OnEngineReady()
 {
     std::lock_guard<std::recursive_mutex> guard(mutex_);
-    IAM_LOGI("process driver start begin");
+    IAM_LOGI("process engine ready begin");
     if (isReady_) {
         IAM_LOGI("already ready");
         return;
@@ -254,29 +254,27 @@ void CoAuthService::OnDriverStart()
     std::string localUdid;
     bool getLocalUdidRet = DeviceManagerUtil::GetInstance().GetLocalDeviceUdid(localUdid);
     IF_FALSE_LOGE_AND_RETURN(getLocalUdidRet);
-    auto service = HdiWrapper::GetHdiInstance();
-    IF_FALSE_LOGE_AND_RETURN(service != nullptr);
-    int32_t initRet = service->Init(localUdid);
-    IF_FALSE_LOGE_AND_RETURN(initRet == HDF_SUCCESS);
-    auto callbackService = HdiMessageCallbackService::GetInstance();
+    int32_t initRet = GetUserAuthEngine().Init(localUdid);
+    IF_FALSE_LOGE_AND_RETURN(initRet == SUCCESS);
+    auto callbackService = MessageCallbackService::GetInstance();
     IF_FALSE_LOGE_AND_RETURN(callbackService != nullptr);
-    callbackService->OnHdiConnect();
+    callbackService->OnEngineConnect();
     SetIsReady(true);
     NotifyFwkReady();
-    IAM_LOGI("process driver start success");
+    IAM_LOGI("process engine ready success");
 }
 
-void CoAuthService::OnDriverStop()
+void CoAuthService::OnEngineUnavailable()
 {
     std::lock_guard<std::recursive_mutex> guard(mutex_);
-    IAM_LOGE("process driver stop begin");
+    IAM_LOGE("process engine unavailable begin");
     if (isReady_) {
         IAM_LOGI("service is ready, clear status");
         ResourceNodePool::Instance().DeleteAll();
         UserIam::UserAuth::ReportSystemFault(Common::GetNowTimeString(), "user_auth_hdi host");
         SetIsReady(false);
     }
-    IAM_LOGI("process driver stop success");
+    IAM_LOGI("process engine unavailable success");
 }
 
 int CoAuthService::Dump(int fd, const std::vector<std::u16string> &args)

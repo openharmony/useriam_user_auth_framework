@@ -30,6 +30,8 @@ ohos_fuzztest("UserIdmServiceFuzzTest") {
 
   include_dirs = [
     "../../../../services/base/inc",
+    "../../../../services/engine/inc",
+    "../../../../services/engine/pub_inc",
     "../../../../services/core/inc",
     "../../../../services/core/src",
     "../../../../services/context/inc",

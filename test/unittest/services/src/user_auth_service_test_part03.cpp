@@ -21,6 +21,7 @@
 #include "iam_ptr.h"
 
 #include "executor_messenger_service.h"
+#include "hdi_type_aliases.h"
 #include "mock_event_listener.h"
 #include "mock_context.h"
 #include "mock_iuser_auth_interface.h"
@@ -151,7 +152,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceCheckValidSolution_002, TestSize.Le
     EXPECT_NE(mockHdi, nullptr);
     EXPECT_CALL(*mockHdi, GetValidSolution(_, _, _, _)).WillOnce(Return(HDF_ERR_INVALID_PARAM));
     int32_t ret = service.CheckValidSolution(para, authParam, widgetParam, validTypeList);
-    EXPECT_EQ(ret, HDF_ERR_INVALID_PARAM);
+    EXPECT_EQ(ret, INVALID_PARAMETERS);
     MockIUserAuthInterface::Holder::GetInstance().Reset();
 }
 
@@ -376,7 +377,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceSetGlobalConfigParam001, TestSize.L
                 return HDF_SUCCESS;
             }
         );
-    EXPECT_EQ(service.SetGlobalConfigParam(param), HDF_SUCCESS);
+    EXPECT_EQ(service.SetGlobalConfigParam(param), SUCCESS);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -405,7 +406,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceSetGlobalConfigParam002, TestSize.L
                 return HDF_FAILURE;
             }
         );
-    EXPECT_EQ(service.SetGlobalConfigParam(param), HDF_FAILURE);
+    EXPECT_EQ(service.SetGlobalConfigParam(param), GENERAL_ERROR);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -517,7 +518,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceVerifyAuthToken004, TestSize.Level0
     IpcCommon::AddPermission(USE_USER_ACCESS_MANAGER);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     sptr<IVerifyTokenCallback> callbackInterface = testCallback;
-    EXPECT_EQ(service.VerifyAuthToken(testTokenIn, allowableDuration, callbackInterface), HDF_FAILURE);
+    EXPECT_EQ(service.VerifyAuthToken(testTokenIn, allowableDuration, callbackInterface), GENERAL_ERROR);
     IpcCommon::DeleteAllPermission();
 }
 
@@ -647,7 +648,7 @@ HWTEST_F(UserAuthServiceTest, QueryReusableAuthResult004, TestSize.Level0)
     IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     std::vector<uint8_t> token;
-    EXPECT_EQ(service.QueryReusableAuthResult(ipcAuthParamInner, token), HDF_FAILURE);
+    EXPECT_EQ(service.QueryReusableAuthResult(ipcAuthParamInner, token), GENERAL_ERROR);
     IpcCommon::DeleteAllPermission();
 }
 

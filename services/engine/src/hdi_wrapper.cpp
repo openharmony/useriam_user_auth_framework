@@ -17,8 +17,14 @@
 
 #include <mutex>
 
+#include "iam_check.h"
+#include "iam_logger.h"
 #include "iam_ptr.h"
 #include "iproxy_broker.h"
+#include "hdi_type_aliases.h"
+
+#define LOG_TAG "USER_AUTH_SA"
+#define LOG_FILE_ID LOG_FILE_HDI_WRAPPER
 
 namespace OHOS {
 namespace UserIam {
@@ -26,18 +32,14 @@ namespace UserAuth {
 std::shared_ptr<IUserAuthInterface> HdiWrapper::GetHdiInstance()
 {
     auto hdi = IUserAuthInterface::Get();
-    if (!hdi) {
-        return nullptr;
-    }
+    IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, nullptr);
     return Common::SptrToStdSharedPtr<IUserAuthInterface>(hdi);
 }
 
 sptr<IRemoteObject> HdiWrapper::GetHdiRemoteObjInstance()
 {
     auto hdi = IUserAuthInterface::Get();
-    if (!hdi) {
-        return sptr<IRemoteObject>(nullptr);
-    }
+    IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, sptr<IRemoteObject>(nullptr));
     return HDI::hdi_objcast<IUserAuthInterface>(hdi);
 }
 } // namespace UserAuth

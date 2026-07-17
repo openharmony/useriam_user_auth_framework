@@ -17,6 +17,7 @@
 
 #include "load_mode_handler_default.h"
 
+#include "hdi_type_aliases.h"
 #include "mock_iuser_auth_interface.h"
 #include "system_param_manager.h"
 #include "user_idm_database_impl.h"
@@ -530,29 +531,29 @@ HWTEST_F(LoadModeHandlerDefaultTest, OnPinAuthServiceStop_001, TestSize.Level0)
 }
 
 /**
- * @tc.name: OnDriverStart_001
- * @tc.desc: Test OnDriverStart basic functionality
+ * @tc.name: OnEngineReady_001
+ * @tc.desc: Test OnEngineReady basic functionality
  * @tc.type: FUNC
  */
-HWTEST_F(LoadModeHandlerDefaultTest, OnDriverStart_001, TestSize.Level0)
+HWTEST_F(LoadModeHandlerDefaultTest, OnEngineReady_001, TestSize.Level0)
 {
     auto handler = std::make_unique<LoadModeHandlerDefault>();
     EXPECT_NE(handler, nullptr);
 
-    EXPECT_NO_THROW(handler->OnDriverStart());
+    EXPECT_NO_THROW(handler->OnEngineReady());
 }
 
 /**
- * @tc.name: OnDriverStop_001
- * @tc.desc: Test OnDriverStop basic functionality
+ * @tc.name: OnEngineUnavailable_001
+ * @tc.desc: Test OnEngineUnavailable basic functionality
  * @tc.type: FUNC
  */
-HWTEST_F(LoadModeHandlerDefaultTest, OnDriverStop_001, TestSize.Level0)
+HWTEST_F(LoadModeHandlerDefaultTest, OnEngineUnavailable_001, TestSize.Level0)
 {
     auto handler = std::make_unique<LoadModeHandlerDefault>();
     EXPECT_NE(handler, nullptr);
 
-    EXPECT_NO_THROW(handler->OnDriverStop());
+    EXPECT_NO_THROW(handler->OnEngineUnavailable());
 }
 
 /**

@@ -21,6 +21,7 @@
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "resource_node_pool.h"
+#include "user_auth_engine.h"
 #include "user_idm_database.h"
 #include "widget_client.h"
 
@@ -154,18 +155,13 @@ int32_t AuthWidgetHelper::CheckValidSolution(int32_t userId,
     const std::vector<AuthType> &authTypeList, const AuthTrustLevel &atl, std::vector<AuthType> &validTypeList)
 {
     IAM_LOGI("start userId:%{public}d atl:%{public}u typeSize:%{public}zu", userId, atl, authTypeList.size());
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (hdi == nullptr) {
-        IAM_LOGE("hdi interface is nullptr");
-        return GENERAL_ERROR;
-    }
     std::vector<int32_t> inputAuthType;
     std::vector<int32_t> validTypes;
     uint32_t inputAtl = atl;
     for (auto &type : authTypeList) {
         inputAuthType.emplace_back(static_cast<int32_t>(type));
     }
-    int32_t result = hdi->GetValidSolution(userId, inputAuthType, inputAtl, validTypes);
+    int32_t result = GetUserAuthEngine().GetValidSolution(userId, inputAuthType, inputAtl, validTypes);
     if (result != SUCCESS) {
         IAM_LOGE("GetValidSolution failed result:%{public}d userId:%{public}d", result, userId);
         return result;
@@ -178,7 +174,7 @@ int32_t AuthWidgetHelper::CheckValidSolution(int32_t userId,
     return result;
 }
 
-int32_t AuthWidgetHelper::SetReuseUnlockResult(int32_t apiVersion, const HdiReuseUnlockInfo &info,
+int32_t AuthWidgetHelper::SetReuseUnlockResult(int32_t apiVersion, const EngReuseUnlockInfo &info,
     Attributes &extraInfo)
 {
     bool setSignatureResult = extraInfo.SetUint8ArrayValue(Attributes::ATTR_SIGNATURE, info.token);
@@ -201,7 +197,7 @@ int32_t AuthWidgetHelper::SetReuseUnlockResult(int32_t apiVersion, const HdiReus
 }
 
 int32_t AuthWidgetHelper::QueryReusableAuthResult(const int32_t userId, const AuthParamInner &authParam,
-    HdiReuseUnlockInfo &reuseResultInfo)
+    EngReuseUnlockInfo &reuseResultInfo)
 {
     IAM_LOGI("start userId:%{public}d, reuseMode:%{public}u, reuseDuration: %{public}" PRIu64 ".",
         userId, authParam.reuseUnlockResult.reuseMode, authParam.reuseUnlockResult.reuseDuration);
@@ -214,23 +210,18 @@ int32_t AuthWidgetHelper::QueryReusableAuthResult(const int32_t userId, const Au
         IAM_LOGE("CheckReuseUnlockResult invalid param");
         return INVALID_PARAMETERS;
     }
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (hdi == nullptr) {
-        IAM_LOGE("hdi interface is nullptr");
-        return GENERAL_ERROR;
-    }
 
-    HdiReuseUnlockParam unlockParam = {};
+    EngReuseUnlockParam unlockParam = {};
     unlockParam.baseParam.userId = userId;
     unlockParam.baseParam.authTrustLevel = authParam.authTrustLevel;
     for (auto &type : authParam.authTypes) {
-        unlockParam.authTypes.emplace_back(static_cast<HdiAuthType>(type));
+        unlockParam.authTypes.emplace_back(static_cast<AuthType>(type));
     }
     unlockParam.baseParam.challenge = authParam.challenge;
     unlockParam.reuseUnlockResultMode = authParam.reuseUnlockResult.reuseMode;
     unlockParam.reuseUnlockResultDuration = authParam.reuseUnlockResult.reuseDuration;
 
-    return hdi->CheckReuseUnlockResult(unlockParam, reuseResultInfo);
+    return GetUserAuthEngine().CheckReuseUnlockResult(unlockParam, reuseResultInfo);
 }
 
 int32_t AuthWidgetHelper::CheckReuseUnlockResult(const ContextFactory::AuthWidgetContextPara &para,
@@ -238,7 +229,7 @@ int32_t AuthWidgetHelper::CheckReuseUnlockResult(const ContextFactory::AuthWidge
 {
     IAM_LOGI("start userId:%{public}d, reuseMode:%{public}u, reuseDuration: %{public}" PRIu64 ".",
         para.userId, authParam.reuseUnlockResult.reuseMode, authParam.reuseUnlockResult.reuseDuration);
-    HdiReuseUnlockInfo reuseResultInfo = {};
+    EngReuseUnlockInfo reuseResultInfo = {};
     int32_t result = QueryReusableAuthResult(para.userId, authParam, reuseResultInfo);
     if (result != SUCCESS) {
         IAM_LOGE("QueryReusableAuthResult failed result:%{public}d userId:%{public}d", result, para.userId);

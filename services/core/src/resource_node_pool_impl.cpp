@@ -71,7 +71,7 @@ bool ResourceNodePoolImpl::Insert(const std::shared_ptr<ResourceNode> &resource)
         }
         nodeParam.count = iter->second.count + 1;
         if (iter->second.node != nullptr) {
-            iter->second.node->DetachFromDriver();
+            iter->second.node->DetachFromEngine();
         }
     }
 
@@ -117,7 +117,7 @@ bool ResourceNodePoolImpl::Delete(uint64_t executorIndex)
         tempResource = iter->second.node;
         resourceNodeMap_.erase(iter);
         IF_FALSE_LOGE_AND_RETURN_VAL(tempResource != nullptr, false);
-        tempResource->DeleteFromDriver();
+        tempResource->DeleteFromEngine();
 
         tempListenerSet = listenerSet_;
     }
@@ -140,7 +140,7 @@ void ResourceNodePoolImpl::DeleteAll()
         for (const auto &pair : resourceNodeMap_) {
             auto node = pair.second.node;
             if (node != nullptr) {
-                node->DeleteFromDriver();
+                node->DeleteFromEngine();
             }
         }
         tempMap = resourceNodeMap_;

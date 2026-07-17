@@ -23,10 +23,10 @@
 #include "iservice_registry.h"
 #include "system_ability_definition.h"
 #include "tokenid_kit.h"
+#include "user_auth_engine_types.h"
 #ifdef HAS_OS_ACCOUNT_PART
 #include "os_account_manager.h"
 #include "os_account_info.h"
-#include "user_auth_hdi.h"
 #endif // HAS_OS_ACCOUNT_PART
 #define LOG_TAG "USER_AUTH_SA"
 #define LOG_FILE_ID LOG_FILE_IPC_COMMON
@@ -131,14 +131,14 @@ int32_t IpcCommon::GetAllUserId(std::vector<int32_t> &userIds)
     return SUCCESS;
 }
 
-static HdiUserType MapOsAccountTypeToUserType(int32_t userId, AccountSA::OsAccountType osAccountType)
+static EngUserType MapOsAccountTypeToUserType(int32_t userId, AccountSA::OsAccountType osAccountType)
 {
     if (osAccountType == AccountSA::OsAccountType::PRIVATE) {
-        return HdiUserType::PRIVATE;
+        return EngUserType::PRIVATE;
     } else if (userId == MAIN_USER_ID) {
-        return HdiUserType::MAIN;
+        return EngUserType::MAIN;
     } else {
-        return HdiUserType::SUB;
+        return EngUserType::SUB;
     }
 }
 
@@ -352,6 +352,17 @@ bool IpcCommon::GetCallerNameByTokenId(uint32_t tokenId, std::string &callerName
     }
     IAM_LOGI("caller is not a hap or a native");
     return false;
+}
+
+std::optional<EngCallerType> IpcCommon::GetEngCallerType(int32_t callerType)
+{
+    if (callerType == Security::AccessToken::TOKEN_HAP) {
+        return ENG_CALLER_TYPE_HAP;
+    }
+    if (callerType == Security::AccessToken::TOKEN_NATIVE) {
+        return ENG_CALLER_TYPE_NATIVE;
+    }
+    return std::nullopt;
 }
 
 bool IpcCommon::GetCallingAppID(IPCObjectStub &stub, std::string &callingAppID)

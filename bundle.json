@@ -66,7 +66,8 @@
         "eventhandler",
         "config_policy",
         "runtime_core",
-        "taihe_ffi_gen"
+        "taihe_ffi_gen",
+        "user_auth_framework_ext"
       ]
     },
     "build": {
@@ -136,6 +137,9 @@
         },
         {
           "name": "//base/useriam/user_auth_framework/frameworks/ets/ani/user_auth:user_auth_copy_taihe_idl"
+        },
+        {
+          "name": "//base/useriam/user_auth_framework/services/engine:userauth_engine_api"
         }
       ],
       "test": [

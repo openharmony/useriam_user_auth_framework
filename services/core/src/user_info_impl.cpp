@@ -18,7 +18,7 @@
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
-UserInfoImpl::UserInfoImpl(const int32_t userId, const UserInfo &userInfo) : userId_(userId), userInfo_(userInfo)
+UserInfoImpl::UserInfoImpl(const int32_t userId, const EngUserInfo &userInfo) : userId_(userId), userInfo_(userInfo)
 {
 }
 

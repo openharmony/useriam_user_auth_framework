@@ -14,9 +14,12 @@
  */
 #include "authentication_impl.h"
 
+#include "accesstoken_kit.h"
 #include "iam_hitrace_helper.h"
 #include "iam_logger.h"
+#include "ipc_common.h"
 #include "schedule_node_helper.h"
+#include "user_auth_engine.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 #define LOG_FILE_ID LOG_FILE_AUTHENTICATION_IMPL
@@ -91,11 +94,11 @@ std::vector<Authentication::AuthExecutorMsg> AuthenticationImpl::GetAuthExecutor
     return authExecutorMsgs_;
 }
 
-bool AuthenticationImpl::GetAuthParam(HdiAuthParamExt &param)
+bool AuthenticationImpl::GetAuthParam(EngAuthParamExt &param)
 {
-    HdiCallerType callerType = ConvertATokenTypeToCallerType(authPara_.callerType);
-    if (callerType == HDI_CALLER_TYPE_INVALID) {
-        IAM_LOGE("ConvertATokenTypeToCallerType failed, ATokenType:%{public}d", authPara_.callerType);
+    auto callerType = IpcCommon::GetEngCallerType(authPara_.callerType);
+    if (!callerType.has_value()) {
+        IAM_LOGE("invalid callerType %{public}d", authPara_.callerType);
         return false;
     }
     param = {
@@ -105,7 +108,7 @@ bool AuthenticationImpl::GetAuthParam(HdiAuthParamExt &param)
             .executorSensorHint = executorSensorHint_,
             .challenge = challenge_,
             .callerName = authPara_.callerName,
-            .callerType = callerType,
+            .callerType = static_cast<int32_t>(callerType.value()),
             .apiVersion = authPara_.sdkVersion,
         },
         .authType = authPara_.authType,
@@ -122,27 +125,22 @@ bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &sched
 {
     IAM_LOGI("UserId:%{public}d AuthType:%{public}d ATL:%{public}u authIntent:%{public}d",
         authPara_.userId, authPara_.authType, authPara_.atl, authPara_.authIntent);
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (!hdi) {
-        IAM_LOGE("bad hdi");
-        return false;
-    }
-    HdiAuthParamExt param = {};
+    EngAuthParamExt param = {};
     if (!GetAuthParam(param)) {
         IAM_LOGE("GetAuthParam failed");
         return false;
     }
 
-    std::vector<HdiScheduleInfo> infos;
+    std::vector<EngScheduleInfo> infos;
     IamHitraceHelper traceHelper("hdi BeginAuthentication");
-    auto result = hdi->BeginAuthenticationExt(contextId_, param, infos);
-    if (result != HDF_SUCCESS) {
-        IAM_LOGE("hdi BeginAuthentication failed, err is %{public}d", result);
+    auto result = GetUserAuthEngine().BeginAuthenticationExt(contextId_, param, infos);
+    if (result != SUCCESS) {
+        IAM_LOGE("BeginAuthentication failed, err is %{public}d", result);
         SetLatestError(result);
         return false;
     }
     if (infos.empty()) {
-        IAM_LOGE("hdi BeginAuthentication failed, infos is empty");
+        IAM_LOGE("BeginAuthentication failed, infos is empty");
         return false;
     }
 
@@ -166,16 +164,10 @@ bool AuthenticationImpl::Start(std::vector<std::shared_ptr<ScheduleNode>> &sched
 
 bool AuthenticationImpl::Update(const std::vector<uint8_t> &scheduleResult, AuthResultInfo &resultInfo)
 {
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (!hdi) {
-        IAM_LOGE("bad hdi");
-        return false;
-    }
-
-    HdiAuthResultInfo info;
-    HdiEnrolledState enrolledState;
-    auto result = hdi->UpdateAuthenticationResult(contextId_, scheduleResult, info, enrolledState);
-    if (result != HDF_SUCCESS) {
+    EngAuthResultInfo info;
+    EngEnrolledState enrolledState;
+    auto result = GetUserAuthEngine().UpdateAuthenticationResult(contextId_, scheduleResult, info, enrolledState);
+    if (result != SUCCESS) {
         HILOG_COMM_ERROR("hdi update auth result failed, err is %{public}d", result);
         SetLatestError(result);
     }
@@ -203,7 +195,7 @@ bool AuthenticationImpl::Update(const std::vector<uint8_t> &scheduleResult, Auth
         SetLatestError(resultInfo.result);
     }
 
-    return result == HDF_SUCCESS && resultInfo.result == SUCCESS;
+    return result == SUCCESS && resultInfo.result == SUCCESS;
 }
 
 bool AuthenticationImpl::Cancel()
@@ -213,14 +205,8 @@ bool AuthenticationImpl::Cancel()
     }
     running_ = false;
 
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (!hdi) {
-        IAM_LOGE("bad hdi");
-        return false;
-    }
-
-    auto result = hdi->CancelAuthentication(contextId_);
-    if (result != HDF_SUCCESS) {
+    auto result = GetUserAuthEngine().CancelAuthentication(contextId_);
+    if (result != SUCCESS) {
         HILOG_COMM_ERROR("hdi cancel authentication failed, err is %{public}d", result);
         SetLatestError(result);
         return false;

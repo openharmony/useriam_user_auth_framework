@@ -22,8 +22,10 @@
 #include <string>
 #include <set>
 
+#include "accesstoken_kit.h"
 #include "iam_common_defines.h"
 #include "nocopyable.h"
+#include "user_auth_engine_types.h"
 
 namespace OHOS {
 namespace UserIam {
@@ -57,11 +59,13 @@ public:
     static void SetAccessTokenId(uint32_t tokenId, bool isSetTokenId);
     static void AddPermission(Permission perm);
     static void DeleteAllPermission();
+    static void ResetAllState();
     static uint32_t GetTokenId(IPCObjectStub &stub);
     static void SetSkipUserFlag(bool isSkip);
     static bool CheckForegroundApplication(const std::string &bundleName);
     static bool IsOsAccountVerified(int32_t userId);
     static int32_t GetDirectCallerType(IPCObjectStub &stub);
+    static std::optional<EngCallerType> GetEngCallerType(int32_t callerType);
 
 private:
     static std::set<Permission> permSet_;

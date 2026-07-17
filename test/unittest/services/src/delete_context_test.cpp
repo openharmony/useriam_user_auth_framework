@@ -125,7 +125,7 @@ HWTEST_F(DeleteContextTest, DeleteContextTest_Start_001, TestSize.Level0)
         .Times(Exactly(1))
         .WillOnce([](std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
             std::shared_ptr<ScheduleNodeCallback> callback, bool &isCredentialDelete,
-            std::vector<HdiCredentialInfo> &credentialInfos) {
+            std::vector<EngCredentialInfo> &credentialInfos) {
             isCredentialDelete = false;
             return false;
         });
@@ -147,7 +147,7 @@ HWTEST_F(DeleteContextTest, DeleteContextTest_Start_002, TestSize.Level0)
         .Times(Exactly(1))
         .WillOnce([](std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
             std::shared_ptr<ScheduleNodeCallback> callback, bool &isCredentialDelete,
-            std::vector<HdiCredentialInfo> &credentialInfos) {
+            std::vector<EngCredentialInfo> &credentialInfos) {
             isCredentialDelete = false;
             return true;
         });
@@ -169,7 +169,7 @@ HWTEST_F(DeleteContextTest, DeleteContextTest_Start_003, TestSize.Level0)
         .Times(Exactly(1))
         .WillOnce([](std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
             std::shared_ptr<ScheduleNodeCallback> callback, bool &isCredentialDelete,
-            std::vector<HdiCredentialInfo> &credentialInfos) {
+            std::vector<EngCredentialInfo> &credentialInfos) {
             scheduleList.push_back(Common::MakeShared<MockScheduleNode>());
             scheduleList.push_back(Common::MakeShared<MockScheduleNode>());
             return true;
@@ -192,7 +192,7 @@ HWTEST_F(DeleteContextTest, DeleteContextTest_Start_004, TestSize.Level0)
         .Times(Exactly(1))
         .WillOnce([](std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
             std::shared_ptr<ScheduleNodeCallback> callback, bool &isCredentialDelete,
-            std::vector<HdiCredentialInfo> &credentialInfos) {
+            std::vector<EngCredentialInfo> &credentialInfos) {
             auto scheduleNode = Common::MakeShared<MockScheduleNode>();
             EXPECT_NE(scheduleNode, nullptr);
 
@@ -219,7 +219,7 @@ HWTEST_F(DeleteContextTest, DeleteContextTest_Start_005, TestSize.Level0)
         .Times(Exactly(1))
         .WillOnce([](std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
             std::shared_ptr<ScheduleNodeCallback> callback, bool &isCredentialDelete,
-            std::vector<HdiCredentialInfo> &credentialInfos) {
+            std::vector<EngCredentialInfo> &credentialInfos) {
             EXPECT_EQ(scheduleList.size(), 0U);
             auto scheduleNode = Common::MakeShared<MockScheduleNode>();
             EXPECT_NE(scheduleNode, nullptr);
@@ -284,7 +284,7 @@ HWTEST_F(DeleteContextTest, DeleteContextTest_Stop_003, TestSize.Level0)
         .WillByDefault(
             [](std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
                 std::shared_ptr<ScheduleNodeCallback> callback, bool &isCredentialDelete,
-                std::vector<HdiCredentialInfo> &credentialInfos) {
+                std::vector<EngCredentialInfo> &credentialInfos) {
                 scheduleList.push_back(nullptr);
                 return true;
             }
@@ -312,7 +312,7 @@ HWTEST_F(DeleteContextTest, DeleteContextTest_Stop_004, TestSize.Level0)
         .WillByDefault(
             [](std::vector<std::shared_ptr<ScheduleNode>> &scheduleList,
                 std::shared_ptr<ScheduleNodeCallback> callback, bool &isCredentialDelete,
-                std::vector<HdiCredentialInfo> &credentialInfos) {
+                std::vector<EngCredentialInfo> &credentialInfos) {
                 auto scheduleNode = Common::MakeShared<MockScheduleNode>();
                 EXPECT_NE(scheduleNode, nullptr);
                 EXPECT_CALL(*scheduleNode, StartSchedule()).Times(1);

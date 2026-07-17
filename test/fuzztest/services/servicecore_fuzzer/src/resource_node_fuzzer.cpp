@@ -90,10 +90,6 @@ public:
 std::shared_ptr<ResourceNode> GetResourceNode(Parcel &parcel)
 {
     IAM_LOGI("start");
-    static std::shared_ptr<ResourceNode> g_ResourceNode;
-    if (g_ResourceNode != nullptr) {
-        return g_ResourceNode;
-    }
     CoAuthInterface::ExecutorRegisterInfo info = {};
     info.authType = static_cast<AuthType>(parcel.ReadInt32());
     info.esl = static_cast<ExecutorSecureLevel>(parcel.ReadInt32());
@@ -107,8 +103,7 @@ std::shared_ptr<ResourceNode> GetResourceNode(Parcel &parcel)
     Common::FillFuzzUint64Vector(parcel, templateIdList);
     std::vector<uint8_t> fwkPublicKey;
     Common::FillFuzzUint8Vector(parcel, fwkPublicKey);
-    g_ResourceNode = ResourceNode::MakeNewResource(info, callback, templateIdList, fwkPublicKey);
-    return g_ResourceNode;
+    return ResourceNode::MakeNewResource(info, callback, templateIdList, fwkPublicKey);
 }
 
 void FuzzResourceNodeGetExecutorIndex(Parcel &parcel)
@@ -287,7 +282,7 @@ void FuzzResourceNodeDetach(Parcel &parcel)
     IAM_LOGI("start");
     auto node = GetResourceNode(parcel);
     if (node != nullptr) {
-        node->DetachFromDriver();
+        node->DetachFromEngine();
     }
     IAM_LOGI("end");
 }

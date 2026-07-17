@@ -69,7 +69,7 @@ HWTEST_F(CredentialUpdatedManagerTest, ProcessCredentialEnrolledTest, TestSize.L
     enrollPara.callerName = TEST_CALLER_NAME;
     enrollPara.callerType = TEST_CALLER_TYPE;
 
-    HdiEnrollResultInfo resultInfo;
+    EngEnrollResultInfo resultInfo;
     resultInfo.oldInfo.credentialId = TEST_CREDENTIAL_ID;
 
     auto &instance = CredentialUpdatedManager::GetInstance();

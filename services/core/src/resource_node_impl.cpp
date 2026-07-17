@@ -20,12 +20,12 @@
 #include <unordered_map>
 
 #include "device_manager_util.h"
-#include "hdi_wrapper.h"
 #include "iam_check.h"
 #include "iam_common_defines.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
 #include "remote_msg_util.h"
+#include "user_auth_engine.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 #define LOG_FILE_ID LOG_FILE_RESOURCE_NODE_IMPL
@@ -55,19 +55,19 @@ public:
     int32_t SetProperty(const Attributes &properties) override;
     int32_t GetProperty(const Attributes &condition, Attributes &values) override;
     int32_t SendData(uint64_t scheduleId, const Attributes &data) override;
-    void DeleteFromDriver() override;
-    void DetachFromDriver() override;
+    void DeleteFromEngine() override;
+    void DetachFromEngine() override;
     friend ResourceNode;
 
 private:
-    int32_t AddToDriver(std::vector<uint64_t> &templateIdList, std::vector<uint8_t> &fwkPublicKey);
-    static void DeleteExecutorFromDriver(uint64_t executorIndex);
+    int32_t AddToEngine(std::vector<uint64_t> &templateIdList, std::vector<uint8_t> &fwkPublicKey);
+    static void DeleteExecutorFromEngine(uint64_t executorIndex);
 
     ExecutorRegisterInfo info_;
     std::shared_ptr<IExecutorCallback> callback_;
     uint64_t executorIndex_ {0};
     std::recursive_mutex mutex_;
-    bool addedToDriver_ {false};
+    bool addedToEngine_ {false};
 };
 
 ResourceNodeImpl::ResourceNodeImpl(ExecutorRegisterInfo info, std::shared_ptr<IExecutorCallback> callback)
@@ -82,11 +82,11 @@ ResourceNodeImpl::ResourceNodeImpl(ExecutorRegisterInfo info, std::shared_ptr<IE
 
 ResourceNodeImpl::~ResourceNodeImpl()
 {
-    if (!addedToDriver_) {
+    if (!addedToEngine_) {
         return;
     }
 
-    DeleteExecutorFromDriver(executorIndex_);
+    DeleteExecutorFromEngine(executorIndex_);
 }
 
 uint64_t ResourceNodeImpl::GetExecutorIndex() const
@@ -191,66 +191,54 @@ int32_t ResourceNodeImpl::SendData(uint64_t scheduleId, const Attributes &data)
     return GENERAL_ERROR;
 }
 
-void ResourceNodeImpl::DeleteFromDriver()
+void ResourceNodeImpl::DeleteFromEngine()
 {
     IAM_LOGI("start");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    if (addedToDriver_) {
-        DeleteExecutorFromDriver(executorIndex_);
+    if (addedToEngine_) {
+        DeleteExecutorFromEngine(executorIndex_);
     }
-    addedToDriver_ = false;
+    addedToEngine_ = false;
 }
 
-void ResourceNodeImpl::DetachFromDriver()
+void ResourceNodeImpl::DetachFromEngine()
 {
     IAM_LOGI("start");
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    addedToDriver_ = false;
+    addedToEngine_ = false;
 }
 
-int32_t ResourceNodeImpl::AddToDriver(std::vector<uint64_t> &templateIdList, std::vector<uint8_t> &fwkPublicKey)
+int32_t ResourceNodeImpl::AddToEngine(std::vector<uint64_t> &templateIdList, std::vector<uint8_t> &fwkPublicKey)
 {
-    HdiExecutorRegisterInfo hdiInfo = {
-        .authType = static_cast<HdiAuthType>(info_.authType),
-        .executorRole = static_cast<HdiExecutorRole>(info_.executorRole),
+    CoAuthInterface::ExecutorRegisterInfo hdiInfo = {
+        .authType = static_cast<AuthType>(info_.authType),
+        .executorRole = static_cast<ExecutorRole>(info_.executorRole),
         .executorSensorHint = info_.executorSensorHint,
         .executorMatcher = info_.executorMatcher,
-        .esl = static_cast<HdiExecutorSecureLevel>(info_.esl),
+        .esl = static_cast<ExecutorSecureLevel>(info_.esl),
         .maxTemplateAcl = info_.maxTemplateAcl,
         .publicKey = info_.publicKey,
         .deviceUdid = info_.deviceUdid,
         .signedRemoteExecutorInfo = info_.signedRemoteExecutorInfo,
     };
 
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (!hdi) {
-        IAM_LOGE("bad hdi");
-        return GENERAL_ERROR;
-    }
-
-    int32_t result = hdi->AddExecutor(hdiInfo, executorIndex_, fwkPublicKey, templateIdList);
-    if (result != HDF_SUCCESS) {
+    int32_t result = GetUserAuthEngine().AddExecutor(hdiInfo, executorIndex_, fwkPublicKey, templateIdList);
+    if (result != SUCCESS) {
         HILOG_COMM_ERROR("hdi add executor failed with code %{public}d, authType: %{public}d,"
             " executorRole: %{public}d, esl: %{public}d, acl: %{public}d", result, info_.authType,
             info_.executorRole, info_.esl, info_.maxTemplateAcl);
         return GENERAL_ERROR;
     }
     std::lock_guard<std::recursive_mutex> lock(mutex_);
-    addedToDriver_ = true;
+    addedToEngine_ = true;
     IAM_LOGI("hdi AddExecutor ****%{public}hx success", static_cast<uint16_t>(executorIndex_));
     return SUCCESS;
 }
 
-void ResourceNodeImpl::DeleteExecutorFromDriver(uint64_t executorIndex)
+void ResourceNodeImpl::DeleteExecutorFromEngine(uint64_t executorIndex)
 {
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (!hdi) {
-        IAM_LOGE("bad hdi");
-        return;
-    }
-
-    auto result = hdi->DeleteExecutor(executorIndex);
-    if (result != HDF_SUCCESS) {
+    auto result = GetUserAuthEngine().DeleteExecutor(executorIndex);
+    if (result != SUCCESS) {
         HILOG_COMM_ERROR("hdi delete executor ****%{public}hx with %{public}d",
             static_cast<uint16_t>(executorIndex), result);
         return;
@@ -268,9 +256,9 @@ std::shared_ptr<ResourceNode> ResourceNode::MakeNewResource(const ExecutorRegist
         return nullptr;
     }
 
-    int32_t result = node->AddToDriver(templateIdList, fwkPublicKey);
+    int32_t result = node->AddToEngine(templateIdList, fwkPublicKey);
     if (result != 0) {
-        IAM_LOGE("hdi error with %{public}d", result);
+        IAM_LOGE("error with %{public}d", result);
         return nullptr;
     }
 

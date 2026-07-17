@@ -22,7 +22,6 @@
 
 #include "event_listener_callback_service.h"
 #include "iuser_idm.h"
-#include "user_auth_types.h"
 #include "user_idm_client.h"
 
 namespace OHOS {

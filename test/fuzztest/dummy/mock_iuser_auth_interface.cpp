@@ -23,7 +23,15 @@ namespace UserAuth {
 
 std::shared_ptr<IUserAuthInterface> HdiWrapper::GetHdiInstance()
 {
-    return MockIUserAuthInterface::Holder::GetInstance().Get();
+    // A single stateless mock for the whole process, intentionally leaked.
+    // Avoids a use-after-free at fuzzer teardown: the static ResourceNodePool is
+    // destroyed at exit and its ~ResourceNodeImpl -> DeleteExecutor ->
+    // GetHdiInstance chain would otherwise recreate/reach the mock after global
+    // singletons have begun being torn down. The mock is stateless (every method
+    // returns 0), so a process-wide instance is equivalent to the previous
+    // on-demand weak_ptr one.
+    static MockIUserAuthInterface *leaky = new (std::nothrow) MockIUserAuthInterface();
+    return std::shared_ptr<MockIUserAuthInterface>(leaky, [](MockIUserAuthInterface *) {});
 }
 
 sptr<IRemoteObject> HdiWrapper::GetHdiRemoteObjInstance()

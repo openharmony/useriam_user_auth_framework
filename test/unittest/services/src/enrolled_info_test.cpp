@@ -41,9 +41,9 @@ void EnrolledInfoTest::TearDown()
 HWTEST_F(EnrolledInfoTest, GetUserId, TestSize.Level0)
 {
     int32_t userId = 100;
-    HdiEnrolledInfo info = {
+    EnrolledInfo info = {
         .enrolledId = 200,
-        .authType = static_cast<HdiAuthType>(1),
+        .authType = static_cast<AuthType>(1),
     };
     EnrolledInfoImpl enrolledInfoImpl(userId, info);
     int32_t ret = enrolledInfoImpl.GetUserId();
@@ -53,9 +53,9 @@ HWTEST_F(EnrolledInfoTest, GetUserId, TestSize.Level0)
 HWTEST_F(EnrolledInfoTest, GetAuthType, TestSize.Level0)
 {
     int32_t userId = 100;
-    HdiEnrolledInfo info = {
+    EnrolledInfo info = {
         .enrolledId = 200,
-        .authType = static_cast<HdiAuthType>(1),
+        .authType = static_cast<AuthType>(1),
     };
     EnrolledInfoImpl enrolledInfoImpl(userId, info);
     AuthType ret = enrolledInfoImpl.GetAuthType();
@@ -65,9 +65,9 @@ HWTEST_F(EnrolledInfoTest, GetAuthType, TestSize.Level0)
 HWTEST_F(EnrolledInfoTest, GetEnrolledId, TestSize.Level0)
 {
     int32_t userId = 100;
-    HdiEnrolledInfo info = {
+    EnrolledInfo info = {
         .enrolledId = 200,
-        .authType = static_cast<HdiAuthType>(1),
+        .authType = static_cast<AuthType>(1),
     };
     EnrolledInfoImpl enrolledInfoImpl(userId, info);
     uint64_t ret = enrolledInfoImpl.GetEnrolledId();

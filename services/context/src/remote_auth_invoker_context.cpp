@@ -18,16 +18,16 @@
 #include <sstream>
 
 #include "device_manager_util.h"
-#include "hdi_wrapper.h"
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_para2str.h"
 #include "iam_ptr.h"
 #include "relative_timer.h"
 #include "remote_connect_manager.h"
+#include "user_auth_engine.h"
 #include "thread_handler.h"
 #include "thread_handler_manager.h"
-#include "user_auth_hdi.h"
+#include "user_auth_engine_types.h"
 
 #define LOG_TAG "USER_AUTH_SA"
 #define LOG_FILE_ID LOG_FILE_REMOTE_AUTH_INVOKER_CONTEXT
@@ -342,11 +342,9 @@ int32_t RemoteAuthInvokerContext::ProcAuthResultMsgInner(Attributes &message, in
     std::vector<uint8_t> remoteAuthResult;
     bool getRemoteAuthResultRet = message.GetUint8ArrayValue(Attributes::ATTR_SIGNED_AUTH_RESULT, remoteAuthResult);
     if (getRemoteAuthResultRet) {
-        auto hdi = HdiWrapper::GetHdiInstance();
-        IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, ResultCode::GENERAL_ERROR);
-        HdiAuthResultInfo authResultInfo;
-        int32_t hdiRet = hdi->GetAuthResultFromMessage(verifierUdid_, remoteAuthResult, authResultInfo);
-        IF_FALSE_LOGE_AND_RETURN_VAL(hdiRet == SUCCESS, ResultCode::GENERAL_ERROR);
+        EngAuthResultInfo authResultInfo;
+        int32_t ret = GetUserAuthEngine().GetAuthResultFromMessage(verifierUdid_, remoteAuthResult, authResultInfo);
+        IF_FALSE_LOGE_AND_RETURN_VAL(ret == SUCCESS, ResultCode::GENERAL_ERROR);
 
         resultCode = authResultInfo.result;
         if (resultCode == ResultCode::FAIL || resultCode == ResultCode::LOCKED || resultCode == ResultCode::SUCCESS) {

@@ -59,7 +59,7 @@ HWTEST_F(DeleteImplTest, BadHdiTest, TestSize.Level0)
     auto abandon = std::make_shared<DeleteImpl>(para);
     std::vector<std::shared_ptr<ScheduleNode>> scheduleList;
     bool isCredentialDelete = false;
-    std::vector<HdiCredentialInfo> credentialInfos = {};
+    std::vector<EngCredentialInfo> credentialInfos = {};
     EXPECT_FALSE(abandon->Start(scheduleList, nullptr, isCredentialDelete, credentialInfos));
 
     std::vector<uint8_t> scheduleResult = {1, 2, 3};

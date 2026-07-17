@@ -20,8 +20,8 @@
 #include "nocopyable.h"
 
 #include "attributes.h"
-#include "hdi_wrapper.h"
 #include "iam_check.h"
+#include "user_auth_engine.h"
 #include "iam_logger.h"
 #include "iam_ptr.h"
 #include "iam_para2str.h"
@@ -211,10 +211,8 @@ bool ScheduleNodeImpl::SendMessage(ExecutorRole dstRole, const std::vector<uint8
             IF_FALSE_LOGE_AND_RETURN_VAL(getAcquireRet, false);
             bool getExtraInfoRet = attr.GetUint8ArrayValue(Attributes::ATTR_EXTRA_INFO, message);
             IF_FALSE_LOGE_AND_RETURN_VAL(getExtraInfoRet, false);
-            auto hdi = HdiWrapper::GetHdiInstance();
-            IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, false);
-            int sendMsgRet = hdi->SendMessage(GetScheduleId(), srcRole, message);
-            IF_FALSE_LOGE_AND_RETURN_VAL(sendMsgRet == HDF_SUCCESS, false);
+            int sendMsgRet = GetUserAuthEngine().SendMessage(GetScheduleId(), srcRole, message);
+            IF_FALSE_LOGE_AND_RETURN_VAL(sendMsgRet == SUCCESS, false);
             return true;
         }
     }

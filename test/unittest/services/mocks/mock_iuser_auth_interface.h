@@ -22,12 +22,15 @@
 
 #include "singleton.h"
 
+#include "hdi_type_aliases.h"
 #include "hdi_wrapper.h"
-#include "user_auth_hdi.h"
+#include "user_auth_engine_types.h"
 
 namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
+// Implements the HDI V4_1 IUserAuthInterface, so MOCK_METHOD signatures use the
+// real HDI types via the engine-internal hdi_type_aliases.h.
 class MockIUserAuthInterface final : public IUserAuthInterface {
 public:
     class Holder;
@@ -61,8 +64,8 @@ public:
     MOCK_METHOD5(BeginIdentification,
         int32_t(uint64_t contextId, int32_t authType, const std::vector<uint8_t> &challenge, uint32_t executorId,
             HdiScheduleInfo &scheduleInfo));
-    MOCK_METHOD1(GetAllUserInfo, int32_t(std::vector<UserInfo> &userInfos));
-    MOCK_METHOD1(GetAllExtUserInfo, int32_t(std::vector<ExtUserInfo> &userInfos));
+    MOCK_METHOD1(GetAllUserInfo, int32_t(std::vector<HdiUserInfo> &userInfos));
+    MOCK_METHOD1(GetAllExtUserInfo, int32_t(std::vector<HdiExtUserInfo> &userInfos));
     MOCK_METHOD3(BeginEnrollment,
         int32_t(const std::vector<uint8_t> &authToken, const HdiEnrollParam &param, HdiScheduleInfo &info));
     MOCK_METHOD3(BeginEnrollmentExt,
@@ -98,10 +101,14 @@ class MockIUserAuthInterface::Holder : public Singleton<MockIUserAuthInterface::
 public:
     void Reset();
     std::shared_ptr<MockIUserAuthInterface> Get();
+    // Test-only mock injection. Set(nullptr) disables lazy creation so Get()
+    // returns nullptr — simulating an unavailable engine (ENGINE_UNAVAILABLE).
+    void Set(std::shared_ptr<MockIUserAuthInterface> mock);
 
 private:
     std::mutex mutex_;
     std::shared_ptr<MockIUserAuthInterface> mock_;
+    bool disabled_ = false;
 };
 } // namespace UserAuth
 } // namespace UserIam

@@ -19,6 +19,7 @@
 
 #include <gtest/gtest.h>
 #include "iam_common_defines.h"
+#include "hdi_type_aliases.h"
 #include "mock_iuser_auth_interface.h"
 #include "mock_schedule_node.h"
 #include "mock_resource_node.h"
@@ -218,7 +219,7 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestCheckReuseUnlockResult002, Te
     EXPECT_CALL(*mockHdi, CheckReuseUnlockResult(_, _)).Times(5);
     ON_CALL(*mockHdi, CheckReuseUnlockResult)
         .WillByDefault(Return(HDF_FAILURE));
-    EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), HDF_FAILURE);
+    EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), GENERAL_ERROR);
     ON_CALL(*mockHdi, CheckReuseUnlockResult)
         .WillByDefault(
             [](const HdiReuseUnlockParam &info, HdiReuseUnlockInfo &reuseInfo) {
@@ -227,7 +228,7 @@ HWTEST_F(AuthWidgetHelperTest, AuthWidgetHelperTestCheckReuseUnlockResult002, Te
                 return HDF_SUCCESS;
             }
         );
-    EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), HDF_SUCCESS);
+    EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), SUCCESS);
     ON_CALL(*mockHdi, CheckReuseUnlockResult)
         .WillByDefault(Return(HDF_SUCCESS));
     EXPECT_EQ(AuthWidgetHelper::CheckReuseUnlockResult(para, authParam, extraInfo), SUCCESS);

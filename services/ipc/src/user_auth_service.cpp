@@ -25,7 +25,7 @@
 #include "auth_widget_helper.h"
 #include "context_factory.h"
 #include "context_helper.h"
-#include "hdi_wrapper.h"
+#include "user_auth_engine.h"
 #include "iam_check.h"
 #include "iam_common_defines.h"
 #include "iam_logger.h"
@@ -260,15 +260,10 @@ int32_t UserAuthService::GetAvailableStatusInner(int32_t apiVersion, int32_t use
         IAM_LOGE("authTrustLevel is not in correct range");
         return TRUST_LEVEL_NOT_SUPPORT;
     }
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (hdi == nullptr) {
-        IAM_LOGE("hdi interface is nullptr");
-        return GENERAL_ERROR;
-    }
     int32_t checkRet = GENERAL_ERROR;
-    int32_t result = hdi->GetAvailableStatus(userId, authType, authTrustLevel, checkRet);
+    int32_t result = GetUserAuthEngine().GetAvailableStatus(userId, authType, authTrustLevel, checkRet);
     if (result != SUCCESS) {
-        IAM_LOGE("hdi GetAvailableStatus failed");
+        IAM_LOGE("GetAvailableStatus failed");
         return GENERAL_ERROR;
     }
     IAM_LOGI("GetAvailableStatus result:%{public}d", checkRet);
@@ -788,15 +783,12 @@ int32_t UserAuthService::DoPrepareRemoteAuth(const std::string &networkId)
     bool getUdidRet = DeviceManagerUtil::GetInstance().GetUdidByNetworkId(networkId, udid);
     IF_FALSE_LOGE_AND_RETURN_VAL(getUdidRet, GENERAL_ERROR);
 
-    auto hdi = HdiWrapper::GetHdiInstance();
-    IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, GENERAL_ERROR);
-
-    int32_t hdiRet = hdi->PrepareRemoteAuth(udid);
-    if (hdiRet == DEVICE_CAPABILITY_NOT_SUPPORT || hdiRet == REMOTE_DEVICE_CONNECTION_FAIL) {
-        IAM_LOGE("prepare remote auth failed, ret: %{public}d", hdiRet);
-        return hdiRet;
+    int32_t ret = GetUserAuthEngine().PrepareRemoteAuth(udid);
+    if (ret == DEVICE_CAPABILITY_NOT_SUPPORT || ret == REMOTE_DEVICE_CONNECTION_FAIL) {
+        IAM_LOGE("prepare remote auth failed, ret: %{public}d", ret);
+        return ret;
     }
-    IF_FALSE_LOGE_AND_RETURN_VAL(hdiRet == SUCCESS, GENERAL_ERROR);
+    IF_FALSE_LOGE_AND_RETURN_VAL(ret == SUCCESS, GENERAL_ERROR);
 
     IAM_LOGI("success");
     return SUCCESS;
@@ -1662,13 +1654,8 @@ int32_t UserAuthService::GetEnrolledStateImpl(int32_t apiVersion, int32_t authTy
         return GENERAL_ERROR;
     }
 
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (hdi == nullptr) {
-        IAM_LOGE("hdi interface is nullptr");
-        return GENERAL_ERROR;
-    }
-    HdiEnrolledState hdiEnrolledState = {};
-    int32_t result = hdi->GetEnrolledState(userId, static_cast<HdiAuthType>(authType), hdiEnrolledState);
+    EngEnrolledState hdiEnrolledState = {};
+    int32_t result = GetUserAuthEngine().GetEnrolledState(userId, static_cast<AuthType>(authType), hdiEnrolledState);
     if (result == NOT_ENROLLED) {
         IAM_LOGI("credential is not enrolled, userId:%{public}d authType:%{public}d", userId, authType);
         return result;
@@ -1760,7 +1747,7 @@ int32_t UserAuthService::UnRegistUserAuthSuccessEventListener(const sptr<IEventL
     return SUCCESS;
 }
 
-int32_t SetPinAlgorithmsProperty(const IpcGlobalConfigParam &ipcGlobalConfigParam, HdiGlobalConfigParam &paramConfig)
+int32_t SetPinAlgorithmsProperty(const IpcGlobalConfigParam &ipcGlobalConfigParam, EngGlobalConfigParam &paramConfig)
 {
     if (ipcGlobalConfigParam.authTypes.size() != 1 || ipcGlobalConfigParam.authTypes[0] != PIN) {
         IAM_LOGE("bad authTypes for PIN_EXPIRED_PERIOD");
@@ -1795,7 +1782,7 @@ int32_t UserAuthService::SetGlobalConfigParam(const IpcGlobalConfigParam &ipcGlo
         return INVALID_PARAMETERS;
     }
 
-    HdiGlobalConfigParam paramConfig = {};
+    EngGlobalConfigParam paramConfig = {};
     switch (static_cast<GlobalConfigType>(ipcGlobalConfigParam.type)) {
         case GlobalConfigType::PIN_EXPIRED_PERIOD:
             if (ipcGlobalConfigParam.authTypes.size() != 1 || ipcGlobalConfigParam.authTypes[0] != PIN) {
@@ -1817,15 +1804,13 @@ int32_t UserAuthService::SetGlobalConfigParam(const IpcGlobalConfigParam &ipcGlo
             return INVALID_PARAMETERS;
     }
     if (static_cast<GlobalConfigType>(ipcGlobalConfigParam.type) != GlobalConfigType::PIN_ALGO_TYPE) {
-        paramConfig.type = static_cast<HdiGlobalConfigType>(ipcGlobalConfigParam.type);
+        paramConfig.type = static_cast<int32_t>(ipcGlobalConfigParam.type);
     }
     paramConfig.userIds = ipcGlobalConfigParam.userIds;
     for (const auto authType : ipcGlobalConfigParam.authTypes) {
         paramConfig.authTypes.push_back(static_cast<AuthType>(authType));
     }
-    auto hdi = HdiWrapper::GetHdiInstance();
-    IF_FALSE_LOGE_AND_RETURN_VAL(hdi != nullptr, GENERAL_ERROR);
-    int32_t result = hdi->SetGlobalConfigParam(paramConfig);
+    int32_t result = GetUserAuthEngine().SetGlobalConfigParam(paramConfig);
     IF_FALSE_LOGE_AND_RETURN_VAL(result == SUCCESS, result);
 
     return SUCCESS;
@@ -1887,7 +1872,7 @@ bool UserAuthService::CompleteRemoteAuthParam(RemoteAuthParam &remoteAuthParam, 
     return true;
 }
 
-bool UserAuthService::GetAuthTokenAttr(const HdiUserAuthTokenPlain &tokenPlain, const std::vector<uint8_t> &rootSecret,
+bool UserAuthService::GetAuthTokenAttr(const EngUserAuthTokenPlain &tokenPlain, const std::vector<uint8_t> &rootSecret,
     Attributes &extraInfo)
 {
     bool setTokenVersionRet = extraInfo.SetUint32Value(Attributes::ATTR_TOKEN_VERSION, tokenPlain.version);
@@ -1942,16 +1927,9 @@ int32_t UserAuthService::VerifyAuthToken(const std::vector<uint8_t> &tokenIn, ui
         return CHECK_SYSTEM_APP_FAILED;
     }
 
-    auto hdi = HdiWrapper::GetHdiInstance();
-    if (hdi == nullptr) {
-        IAM_LOGE("hdi interface is nullptr");
-        verifyTokenCallback->OnVerifyTokenResult(GENERAL_ERROR, extraInfo.Serialize());
-        return GENERAL_ERROR;
-    }
-
-    HdiUserAuthTokenPlain tokenPlain = {};
+    EngUserAuthTokenPlain tokenPlain = {};
     std::vector<uint8_t> rootSecret = {};
-    int32_t result = hdi->VerifyAuthToken(tokenIn, allowableDuration, tokenPlain, rootSecret);
+    int32_t result = GetUserAuthEngine().VerifyAuthToken(tokenIn, allowableDuration, tokenPlain, rootSecret);
     if (result != SUCCESS) {
         IAM_LOGE("VerifyAuthToken failed result:%{public}d", result);
         verifyTokenCallback->OnVerifyTokenResult(result, extraInfo.Serialize());
@@ -1989,7 +1967,7 @@ int32_t UserAuthService::QueryReusableAuthResult(const IpcAuthParamInner &ipcAut
         }
     }
 
-    HdiReuseUnlockInfo reuseResultInfo = {};
+    EngReuseUnlockInfo reuseResultInfo = {};
     int32_t result = AuthWidgetHelper::QueryReusableAuthResult(authParam.userId, authParam, reuseResultInfo);
     if (result != SUCCESS) {
         IAM_LOGE("CheckReuseUnlockResult failed result:%{public}d userId:%{public}d", result,
@@ -2009,7 +1987,7 @@ int32_t UserAuthService::RegisterRemoteAuthCallback(const sptr<IRemoteAuthCallba
         return CHECK_SYSTEM_APP_FAILED;
     }
 
-    if (!IpcCommon::CheckPermission(*this, SUPPORT_USER_AUTH)) {
+    if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         IAM_LOGE("CheckPermission failed, no permission");
         return CHECK_PERMISSION_FAILED;
     }
@@ -2032,7 +2010,7 @@ int32_t UserAuthService::UnregisterRemoteAuthCallback()
         return CHECK_SYSTEM_APP_FAILED;
     }
 
-    if (!IpcCommon::CheckPermission(*this, SUPPORT_USER_AUTH)) {
+    if (!IpcCommon::CheckPermission(*this, ACCESS_USER_AUTH_INTERNAL_PERMISSION)) {
         IAM_LOGE("CheckPermission failed, no permission");
         return CHECK_PERMISSION_FAILED;
     }
