@@ -926,7 +926,7 @@ void WidgetContext::SendAuthResultInfo(int32_t resultCode, int32_t authType, con
     authResultInfo_.resultUserId = para_.userId;
 
     EngEnrolledState enrolledState = {};
-    resultCode = GetUserAuthEngine().GetEnrolledState(authResultInfo_.resultUserId, authResultInfo_.authType, enrolledState);
+    resultCode = GetUserAuthEngine().GetEnrolledState(para_.userId, authType, enrolledState);
     if (resultCode != SUCCESS) {
         IAM_LOGE("GetEnrolledState fail, %{public}d", resultCode);
         return End(static_cast<ResultCode>(resultCode));
