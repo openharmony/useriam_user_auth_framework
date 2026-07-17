@@ -28,6 +28,7 @@
 #include "context_pool.h"
 #include "context_death_recipient.h"
 #include "hisysevent_adapter.h"
+#include "hdi_wrapper.h"
 #include "iam_check.h"
 #include "iam_logger.h"
 #include "iam_para2str.h"
@@ -44,7 +45,6 @@
 #include "widget_schedule_node_impl.h"
 #include "widget_context_callback_impl.h"
 #include "widget_client.h"
-#include "user_auth_hdi.h"
 #include <sys/stat.h>
 #ifdef SCENE_BOARD_ENABLE
 #include "display_manager_lite.h"
