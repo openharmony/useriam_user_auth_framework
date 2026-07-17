@@ -56,6 +56,7 @@ public:
         E_WIDGET_RELEASE = 9,
         E_START_DIRECT_AUTH = 10,
         E_GET_REMOTE_AUTH_PARAM = 11,
+        E_NOTICE_COMPLETE_AUTH = 12,
     };
 
     virtual ~WidgetScheduleNode() = default;
@@ -73,6 +74,7 @@ public:
         AuthType &rotateAuthType) = 0;
     virtual void SetCallback(std::shared_ptr<WidgetScheduleNodeCallback> callback) = 0;
     virtual void SendAuthTipInfo(const std::vector<AuthType> &authTypeList, int32_t tipCode) = 0;
+    virtual void SendAuthResultInfo(int32_t resultCode, int32_t authType, const std::vector<uint8_t> &token) = 0;
     virtual bool ClearSchedule() = 0;
     virtual bool GetRemoteAuthParam() = 0;
 };

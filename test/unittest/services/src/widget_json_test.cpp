@@ -111,6 +111,12 @@ HWTEST_F(WidgetJsonTest, WidgetJsonStr2AuthType_006, TestSize.Level0)
     EXPECT_EQ(Str2AuthType(strAt), PRIVATE_PIN);
 }
 
+HWTEST_F(WidgetJsonTest, WidgetJsonStr2AuthType_007, TestSize.Level0)
+{
+    std::string strAt = "enterpriseAccount";
+    EXPECT_EQ(Str2AuthType(strAt), PIN);
+}
+
 HWTEST_F(WidgetJsonTest, WidgetJsonAuthType2Str_001, TestSize.Level0)
 {
     AuthType authType = static_cast<AuthType>(100);
@@ -120,9 +126,39 @@ HWTEST_F(WidgetJsonTest, WidgetJsonAuthType2Str_001, TestSize.Level0)
 
 HWTEST_F(WidgetJsonTest, WidgetJsonAuthType2Str_002, TestSize.Level0)
 {
-    AuthType authType = static_cast<AuthType>(16);
-    std::string type = AuthType2Str(authType);
+    std::string type = AuthType2Str(PRIVATE_PIN);
     EXPECT_EQ(type, "privatePin");
+}
+
+HWTEST_F(WidgetJsonTest, WidgetJsonAuthType2Str_003, TestSize.Level0)
+{
+    std::string type = AuthType2Str(PIN);
+    EXPECT_EQ(type, "pin");
+}
+
+HWTEST_F(WidgetJsonTest, WidgetJsonAuthType2Str_004, TestSize.Level0)
+{
+    std::string type = AuthType2Str(FACE);
+    EXPECT_EQ(type, "face");
+}
+
+HWTEST_F(WidgetJsonTest, WidgetJsonAuthType2Str_005, TestSize.Level0)
+{
+    std::string type = AuthType2Str(FINGERPRINT);
+    EXPECT_EQ(type, "fingerprint");
+}
+
+HWTEST_F(WidgetJsonTest, WidgetJsonAuthType2Str_006, TestSize.Level0)
+{
+    std::string type = AuthType2Str(ALL);
+    EXPECT_EQ(type, "all");
+}
+
+HWTEST_F(WidgetJsonTest, WidgetJsonAuthType2Str_007, TestSize.Level0)
+{
+    const int32_t enterpriseAccount = 1024;
+    std::string type = AuthType2Str(static_cast<AuthType>(enterpriseAccount));
+    EXPECT_EQ(type, "enterpriseAccount");
 }
 
 HWTEST_F(WidgetJsonTest, WidgetJsonWinModeType2Str_001, TestSize.Level0)

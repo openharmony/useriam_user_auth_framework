@@ -65,6 +65,8 @@ enum AuthType : int32_t {
     COMPANION_DEVICE = 64,
     /** Custom authentication. */
     CUSTOM_AUTH = 128,
+    /** Enterprise account authentication. */
+    ENTERPRISE_ACCOUNT = 1024,
 };
 
 /**

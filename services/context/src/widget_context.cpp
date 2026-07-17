@@ -40,6 +40,7 @@
 #include "set_widget_param_callback_service.h"
 #include "string_wrapper.h"
 #include "system_ability_definition.h"
+#include "user_auth_engine.h"
 #include "want_params_wrapper.h"
 #include "widget_schedule_node_impl.h"
 #include "widget_context_callback_impl.h"
@@ -228,7 +229,6 @@ std::shared_ptr<Context> WidgetContext::BuildTask(const std::vector<uint8_t> &ch
     }
     widgetCallback->SetTraceAuthContextId(context->GetContextId());
     widgetCallback->SetCleaner(ContextHelper::Cleaner(context));
-    std::lock_guard<std::recursive_mutex> lock(mutex_);
     return context;
 }
 
@@ -914,6 +914,28 @@ void WidgetContext::SendAuthTipInfo(int32_t authType, int32_t tipCode)
     IF_FALSE_LOGE_AND_RETURN(callerCallback_ != nullptr);
 
     callerCallback_->OnAcquireInfo(ALL_IN_ONE, authType, attr.Serialize());
+}
+
+void WidgetContext::SendAuthResultInfo(int32_t resultCode, int32_t authType, const std::vector<uint8_t> &token)
+{
+    if (resultCode != ResultCode::SUCCESS) {
+        return End(static_cast<ResultCode>(resultCode));
+    }
+    authResultInfo_.token = std::move(token);
+    authResultInfo_.authType = static_cast<AuthType>(authType);
+    authResultInfo_.resultUserId = para_.userId;
+
+    EngEnrolledState enrolledState = {};
+    resultCode = GetUserAuthEngine().GetEnrolledState(para_.userId, authType, enrolledState);
+    if (resultCode != SUCCESS) {
+        IAM_LOGE("GetEnrolledState fail, %{public}d", resultCode);
+        return End(static_cast<ResultCode>(resultCode));
+    }
+
+    callerCallback_->SetTraceAuthType(authType);
+    authResultInfo_.credentialCount = enrolledState.credentialCount;
+    authResultInfo_.credentialDigest = enrolledState.credentialDigest & UINT16_MAX;
+    End(static_cast<ResultCode>(resultCode));
 }
 
 UserAuthTipCode WidgetContext::GetAuthTipCode(int32_t authResult, int32_t freezingTime)

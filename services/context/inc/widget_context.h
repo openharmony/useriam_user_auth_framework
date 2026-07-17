@@ -88,6 +88,7 @@ public:
     void AuthTipInfo(int32_t tipInfo, int32_t authType, const Attributes &extraInfo);
     void ClearSchedule() override;
     void SendAuthTipInfo(int32_t authType, int32_t tipInfo) override;
+    void SendAuthResultInfo(int32_t resultCode, int32_t authType, const std::vector<uint8_t> &token) override;
 
 protected:
     virtual bool OnStart();

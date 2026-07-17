@@ -1398,7 +1398,8 @@ int32_t UserAuthService::CheckValidSolution(ContextFactory::AuthWidgetContextPar
     if (!IpcCommon::IsOsAccountVerified(para.userId)) {
         IAM_LOGI("auth userId: %{public}u, biometric authentication has been filtered.", para.userId);
         validType.erase(std::remove_if(validType.begin(), validType.end(), [](AuthType authType) {
-            return authType != AuthType::PIN && authType != AuthType::PRIVATE_PIN;
+            return authType != AuthType::PIN && authType != AuthType::PRIVATE_PIN &&
+                authType != AuthType::ENTERPRISE_ACCOUNT;
             }), validType.end());
     }
     return CheckSkipLockedBiometricAuth(para, authParam, widgetParam, validType);
