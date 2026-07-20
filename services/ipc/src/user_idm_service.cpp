@@ -296,11 +296,6 @@ int32_t UserIdmService::GetSecInfo(int32_t userId, const sptr<IIdmGetSecureUserI
 int32_t UserIdmService::StartEnroll(Enrollment::EnrollmentPara &para,
     const std::shared_ptr<ContextCallback> &contextCallback, Attributes &extraInfo, bool needSubscribeAppState)
 {
-    if (!para.isUpdate && para.authType == PIN && !para.token.empty()) {
-        IAM_LOGI("auth type is pin, clear token");
-        para.token.clear();
-    }
-
     auto context = ContextFactory::CreateEnrollContext(para, contextCallback, needSubscribeAppState);
     if (context == nullptr || !ContextPool::Instance().Insert(context)) {
         IAM_LOGE("failed to insert context");
