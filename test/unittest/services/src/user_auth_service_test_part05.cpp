@@ -182,7 +182,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceRegisterRemoteAuthCallback004, Test
     sptr<MockRemoteAuthCallback> mockCallback = new (std::nothrow) MockRemoteAuthCallback();
     EXPECT_NE(mockCallback, nullptr);
 
-    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    IpcCommon::AddPermission(SUPPORT_USER_AUTH);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     EXPECT_EQ(service.RegisterRemoteAuthCallback(mockCallback), ResultCode::CHECK_PERMISSION_FAILED);
     IpcCommon::DeleteAllPermission();
@@ -201,7 +201,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceUnregisterRemoteAuthCallback001, Te
 HWTEST_F(UserAuthServiceTest, UserAuthServiceUnregisterRemoteAuthCallback002, TestSize.Level0)
 {
     UserAuthService service;
-    IpcCommon::AddPermission(ACCESS_USER_AUTH_INTERNAL_PERMISSION);
+    IpcCommon::AddPermission(SUPPORT_USER_AUTH);
     IpcCommon::AddPermission(IS_SYSTEM_APP);
 
     sptr<MockRemoteAuthCallback> mockCallback = new (std::nothrow) MockRemoteAuthCallback();
