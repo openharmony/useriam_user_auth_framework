@@ -159,6 +159,7 @@ void RemoteAuthInvokerContext::OnConnectStatus(const std::string &connectionName
 {
     std::lock_guard<std::recursive_mutex> lock(mutex_);
     IAM_LOGI("%{public}s start", GetDescription());
+    IF_FALSE_LOGE_AND_RETURN(connectionName_ == connectionName);
     IF_FALSE_LOGE_AND_RETURN(callback_ != nullptr);
 
     Attributes attr;

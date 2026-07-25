@@ -112,7 +112,9 @@ void StrongAuthStatusManagerImpl::RegisterStrongAuthListener()
         sptr<StrongAuthListener>(new (std::nothrow) UserIamStrongAuthListener(ALL_USER_ID));
     IF_FALSE_LOGE_AND_RETURN(strongAuthListener_ != nullptr);
 
-    ScreenLockManager::GetInstance()->RegisterStrongAuthListener(strongAuthListener_);
+    auto screenLockManager = ScreenLockManager::GetInstance();
+    IF_FALSE_LOGE_AND_RETURN(screenLockManager != nullptr);
+    screenLockManager->RegisterStrongAuthListener(strongAuthListener_);
     IF_FALSE_LOGE_AND_RETURN(strongAuthListener_ != nullptr);
     SyncStrongAuthStatusForAllAccounts();
 }

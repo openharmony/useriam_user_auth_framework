@@ -102,7 +102,7 @@ HWTEST_F(WidgetJsonTest, WidgetJsonStr2AuthType_004, TestSize.Level0)
 HWTEST_F(WidgetJsonTest, WidgetJsonStr2AuthType_005, TestSize.Level0)
 {
     std::string strAt = "asdf";
-    EXPECT_EQ(Str2AuthType(strAt), ALL);
+    EXPECT_EQ(Str2AuthType(strAt), INVALID_AUTH_TYPE);
 }
 
 HWTEST_F(WidgetJsonTest, WidgetJsonStr2AuthType_006, TestSize.Level0)
