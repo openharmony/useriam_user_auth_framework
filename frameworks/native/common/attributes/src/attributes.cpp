@@ -1200,7 +1200,7 @@ bool Attributes::SetInt32ArrayValue(AttributeKey key, const std::vector<int32_t>
 
 bool Attributes::SetAttributesValue(AttributeKey key, const Attributes &value)
 {
-    if (!impl_) {
+    if (!impl_ || !value.impl_) {
         return false;
     }
     return impl_->SetAttributesValue(key, *value.impl_);
@@ -1384,7 +1384,7 @@ bool Attributes::GetInt32ArrayValue(AttributeKey key, std::vector<int32_t> &valu
 
 bool Attributes::GetAttributesValue(AttributeKey key, Attributes &value) const
 {
-    if (!impl_) {
+    if (!impl_ || !value.impl_) {
         return false;
     }
     return impl_->GetAttributesValue(key, *value.impl_);

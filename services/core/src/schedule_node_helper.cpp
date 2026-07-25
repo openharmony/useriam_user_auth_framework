@@ -29,7 +29,7 @@ namespace UserAuth {
 bool ScheduleNodeHelper::BuildFromHdi(const std::vector<EngScheduleInfo> &infos,
     std::shared_ptr<ScheduleNodeCallback> callback, std::vector<std::shared_ptr<ScheduleNode>> &nodes)
 {
-    NodeOptionalPara para;
+    NodeOptionalPara para = {};
     return BuildFromHdi(infos, callback, nodes, para);
 }
 

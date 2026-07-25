@@ -610,7 +610,7 @@ std::string UserAuthNapiHelper::GetStringFromValueUtf8(napi_env env, napi_value 
     std::string result;
     std::vector<char> str(MAX_STRING_LENGTH + 1, '\0');
     size_t length = 0;
-    NAPI_CALL(env, napi_get_value_string_utf8(env, value, &str[0], MAX_STRING_LENGTH, &length));
+    NAPI_CALL_BASE(env, napi_get_value_string_utf8(env, value, &str[0], MAX_STRING_LENGTH, &length), "");
     if (length > 0) {
         return result.append(&str[0], length);
     }
@@ -645,23 +645,6 @@ bool UserAuthNapiHelper::SetStringPropertyUtf8(
     napi_valuetype valueType = napi_undefined;
     NAPI_CALL_BASE(env, napi_typeof(env, jsValue, &valueType), napi_undefined);
     napi_set_named_property(env, object, name.c_str(), jsValue);
-    return true;
-}
-
-bool UserAuthNapiHelper::GetInt32Array(napi_env env, napi_value obj, std::vector<uint32_t> vec)
-{
-    vec.clear();
-    uint32_t len;
-    napi_get_array_length(env, obj, &len);
-    IAM_LOGI("GetInt32Array length: %{public}d", len);
-    for (uint32_t index = 0; index < len; index++) {
-        napi_value value;
-        uint32_t getValue;
-        NAPI_CALL_BASE(env, napi_get_element(env, obj, index, &value), napi_undefined);
-        NAPI_CALL_BASE(env, napi_get_value_uint32(env, value, &getValue), napi_undefined);
-        IAM_LOGI("vec[%{public}d]: %{public}d", index, len);
-        vec.emplace_back(getValue);
-    }
     return true;
 }
 
