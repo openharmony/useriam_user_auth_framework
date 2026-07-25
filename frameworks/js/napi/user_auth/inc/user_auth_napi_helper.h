@@ -73,7 +73,6 @@ public:
     static int32_t GetResultCodeV9(int32_t result);
     static bool SetStringPropertyUtf8(
         napi_env env, napi_value object, const std::string &name, const std::string &value);
-    static bool GetInt32Array(napi_env env, napi_value obj, std::vector<uint32_t> vec);
     static bool ConvertSizeToUint32(size_t in, uint32_t &out);
     static napi_status SetResultInfoProperty(napi_env env, napi_value obj, const ResultInfo &resultInfo);
 private:

@@ -53,6 +53,10 @@ int32_t RemoteAuthCallbackService::OnGetRemoteAuthWidgetParam(const std::vector<
     }
 
     auto callbackWrapper = Common::MakeShared<SetWidgetParamClientCallback>(setWidgetParamCallback);
+    if (callbackWrapper == nullptr) {
+        IAM_LOGE("callbackWrapper is nullptr");
+        return GENERAL_ERROR;
+    }
     callback_->OnGetRemoteAuthWidgetParam(challenge, callbackWrapper);
     return SUCCESS;
 }

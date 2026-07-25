@@ -483,8 +483,9 @@ napi_value UserAuthImpl::RegisterRemoteAuthCallback(napi_env env, napi_callback_
     auto widgetParamCallback = Common::MakeShared<JsRefHolder>(env, onGetRemoteAuthWidgetParam);
     auto resultCallback = Common::MakeShared<JsRefHolder>(env, onRemoteAuthResult);
     auto remoteAuthCallback = Common::MakeShared<RemoteAuthCallback>(env, widgetParamCallback, resultCallback);
-    if (widgetParamCallback == nullptr || resultCallback == nullptr || remoteAuthCallback == nullptr) {
-        IAM_LOGE("widgetParamCallback or resultCallback or remoteAuthCallback is null");
+    if (widgetParamCallback == nullptr || !widgetParamCallback->IsValid() ||
+        resultCallback == nullptr || !resultCallback->IsValid() || remoteAuthCallback == nullptr) {
+        IAM_LOGE("widgetParamCallback or resultCallback or remoteAuthCallback is invalid");
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env, UserAuthResultCode::GENERAL_ERROR));
         reporter.ReportFailed(UserAuthResultCode::GENERAL_ERROR);
         return nullptr;

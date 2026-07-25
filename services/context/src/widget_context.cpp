@@ -458,8 +458,9 @@ void WidgetContext::StopAuthList(const std::vector<AuthType> &authTypeList)
         });
         if (it != runTaskInfoList_.end()) {
             if (it->task == nullptr) {
-                IAM_LOGE("task is nullptr");
-                return;
+                IAM_LOGE("task is nullptr, authType: %{public}d", static_cast<int32_t>(authType));
+                runTaskInfoList_.erase(it);
+                continue;
             }
             it->task->Stop();
             IAM_LOGI("stop task, authType: %{public}d", static_cast<int32_t>(authType));
@@ -829,9 +830,9 @@ std::string WidgetContext::BuildStartCommand(const WidgetRotatePara &widgetRotat
 
 std::string WidgetContext::ProcessCmdData(WidgetCmdParameters &widgetCmdParameters)
 {
-    nlohmann::json root = widgetCmdParameters;
     std::string cmdData;
     try {
+        nlohmann::json root = widgetCmdParameters;
         cmdData = root.dump();
     } catch (const nlohmann::json::exception &e) {
         cmdData = "";

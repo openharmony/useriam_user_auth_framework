@@ -108,29 +108,28 @@ void ModalExtensionCallback::ReleaseOrErrorHandle(int32_t code)
         Ace::UIContent *uiContent = abilityContext_->GetUIContent();
         if (uiContent == nullptr) {
             IAM_LOGE("uiContent is null");
-            return;
+        } else {
+            uiContent->CloseModalUIExtension(sessionId_);
         }
-        uiContent->CloseModalUIExtension(sessionId_);
     }
     if (uiHolderContext_ != nullptr) {
         Ace::UIContent *uiContent = uiHolderContext_->GetUIContent();
         if (uiContent == nullptr) {
             IAM_LOGE("uiContent is null");
-            return;
+        } else {
+            uiContent->CloseModalUIExtension(sessionId_);
         }
-        uiContent->CloseModalUIExtension(sessionId_);
     }
     if (window_ != nullptr) {
         Ace::UIContent *uiContent = window_->GetUIContent();
         if (uiContent == nullptr) {
             IAM_LOGE("uiContent is null");
-            return;
+        } else {
+            uiContent->CloseModalUIExtension(sessionId_);
         }
-        uiContent->CloseModalUIExtension(sessionId_);
     }
     IAM_LOGI("ReleaseOrErrorHandle end");
     isDestroy_ = true;
-    return;
 }
 
 bool ModalExtensionCallback::IsModalDestroy()

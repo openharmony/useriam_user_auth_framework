@@ -213,22 +213,28 @@ bool GetStringArrayFromJson(const nlohmann::json &jsonObject,
         IAM_LOGE("jsonObject is null");
         return false;
     }
-    if (jsonObject.is_array() && !jsonObject.is_discarded()) {
-        for (const auto &object : jsonObject) {
-            if (!object.is_object()) {
-                IAM_LOGE("is not object");
+    if (!jsonObject.is_array() || jsonObject.is_discarded()) {
+        IAM_LOGE("getStringFromJson error");
+        return false;
+    }
+    for (const auto &object : jsonObject) {
+        if (!object.is_object()) {
+            IAM_LOGE("is not object");
+            return false;
+        }
+        const auto &objectEnd = object.end();
+        if (object.find(key) != objectEnd && object[key].is_array()) {
+            try {
+                exemptedBundleInfos = object.at(key).get<std::vector<std::string>>();
+            } catch (nlohmann::json::exception &e) {
+                IAM_LOGE("get string array from json failed, key: %{public}s, error: %{public}s",
+                    key.c_str(), e.what());
                 return false;
             }
-            const auto &objectEnd = object.end();
-            if (object.find(key) != objectEnd && object[key].is_array()) {
-                exemptedBundleInfos = object.at(key).get<std::vector<std::string>>();
-                break;
-            }
+            break;
         }
-        return true;
     }
-    IAM_LOGE("getStringArrayFromJson error");
-    return false;
+    return true;
 }
 
 bool GetStringFromJson(const nlohmann::json &jsonObject, std::string &exemptedBundleInfo,
@@ -259,7 +265,7 @@ bool GetStringFromJson(const nlohmann::json &jsonObject, std::string &exemptedBu
 // utils
 AuthType Str2AuthType(const std::string &strAuthType)
 {
-    AuthType authType = AuthType::ALL;
+    AuthType authType = AuthType::INVALID_AUTH_TYPE;
     if (strAuthType.compare(AUTH_TYPE_ALL) == 0) {
         authType = AuthType::ALL;
     } else if (strAuthType.compare(AUTH_TYPE_PIN) == 0) {
