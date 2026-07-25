@@ -376,8 +376,8 @@ UserAuthResultCode UserAuthParamUtils::ProcessContext(napi_env env, napi_value v
     }
     bool stageMode = false;
     ret = OHOS::AbilityRuntime::IsStageContext(env, napi_uiContext, stageMode);
-    if (ret != napi_ok) {
-        IAM_LOGE("uiContext must be stage mode: %{public}d", ret);
+    if (ret != napi_ok || !stageMode) {
+        IAM_LOGE("uiContext must be stage mode: %{public}d, stageMode: %{public}d", ret, stageMode);
         std::string msgStr = "Parameter error. The type of \"uiContext\" must be stage mode.";
         return UserAuthNapiHelper::ThrowErrorMsg(env, UserAuthResultCode::OHOS_INVALID_PARAM, msgStr);
     }

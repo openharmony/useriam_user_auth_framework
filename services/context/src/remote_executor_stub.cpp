@@ -137,7 +137,7 @@ public:
     {
         std::lock_guard<std::recursive_mutex> lock(mutex_);
         auto callback = callback_.lock();
-        IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, GENERAL_ERROR);
+        IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, false);
         int32_t ret = callback->OnMessage(dstRole, msg);
         return ret == ResultCode::SUCCESS;
     }
@@ -145,7 +145,7 @@ public:
     {
         std::lock_guard<std::recursive_mutex> lock(mutex_);
         auto callback = callback_.lock();
-        IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, GENERAL_ERROR);
+        IF_FALSE_LOGE_AND_RETURN_VAL(callback != nullptr, false);
         int32_t ret = callback->ContinueSchedule(resultCode, finalResult);
         return ret == ResultCode::SUCCESS;
     }

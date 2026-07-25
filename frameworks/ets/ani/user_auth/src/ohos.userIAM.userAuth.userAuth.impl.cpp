@@ -48,11 +48,6 @@ public:
     UserAuthInstanceImpl(AuthParam const &authParam, WidgetParam const &widgetParam)
     {
         userAuthInstanceV10_ = MakeShared<UserAuth::UserAuthInstanceV10>();
-        init(authParam, widgetParam);
-    }
-
-    void init(AuthParam const &authParam, WidgetParam const &widgetParam)
-    {
         if (userAuthInstanceV10_ == nullptr) {
             IAM_LOGE("userAuthInstanceV10_ is null");
             UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::GENERAL_ERROR);
@@ -62,8 +57,14 @@ public:
         if (initResult != UserAuth::UserAuthResultCode::SUCCESS) {
             IAM_LOGE("userAuthInstanceV10_ init fail");
             UserAuth::UserAuthAniHelper::ThrowBusinessError(initResult);
+            userAuthInstanceV10_ = nullptr;
             return;
         }
+    }
+
+    bool IsValid()
+    {
+        return userAuthInstanceV10_ != nullptr;
     }
 
     void onResult(IAuthCallback const &callback)
@@ -275,7 +276,11 @@ UserAuthInstance GetUserAuthInstance(AuthParam const &authParam, WidgetParam con
     IAM_LOGI("GetUserAuthInstance begin");
     UserAuth::UserAuthApiEventReporter reporter("getUserAuthInstance");
     auto userAuthInstance = make_holder<UserAuthInstanceImpl, UserAuthInstance>(authParam, widgetParam);
-    reporter.ReportSuccess();
+    if (!userAuthInstance->IsValid()) {
+        reporter.ReportFailed(UserAuth::UserAuthResultCode::GENERAL_ERROR);
+    } else {
+        reporter.ReportSuccess();
+    }
     return userAuthInstance;
 }
 

@@ -68,6 +68,10 @@ UserAuthResultCode UserAuthParamUtils::InitAuthParam(userAuth::AuthParam const &
 {
     IAM_LOGI("InitAuthParam start");
     std::vector<uint8_t> challenge(authParam.challenge.begin(), authParam.challenge.end());
+    if (challenge.size() > MAX_CHALLENG_LEN) {
+        IAM_LOGE("challenge len %{public}zu", challenge.size());
+        return UserAuthResultCode::OHOS_INVALID_PARAM;
+    }
     authParamInner.challenge = challenge;
 
     UserAuthResultCode errorCode = InitAuthType(authParam, authParamInner);
@@ -164,12 +168,12 @@ UserAuthResultCode UserAuthParamUtils::InitUserId(userAuth::AuthParam const &aut
 {
     IAM_LOGI("InitUserId start.");
     if (authParam.userId.has_value()) {
-        authParamInner.userId = authParam.userId.value();
-        authParamInner.isUserIdSpecified = true;
-        if (authParamInner.userId < 0) {
+        if (authParam.userId.value() < 0) {
             IAM_LOGE("userId error.");
             return UserAuthResultCode::OHOS_INVALID_PARAM;
         }
+        authParamInner.userId = authParam.userId.value();
+        authParamInner.isUserIdSpecified = true;
         IAM_LOGI("InitUserId userId: %{public}d", authParamInner.userId);
     } else {
         IAM_LOGI("propertyName: %{public}s not exists.", AUTH_PARAM_USER_ID.c_str());
