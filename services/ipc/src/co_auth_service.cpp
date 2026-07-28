@@ -155,6 +155,7 @@ int32_t CoAuthService::ProcExecutorRegisterSuccess(std::shared_ptr<ResourceNode>
         auto resourceNode = weakNode.lock();
         IF_FALSE_LOGE_AND_RETURN(resourceNode != nullptr);
         sptr<IExecutorMessenger> messenger = ExecutorMessengerService::GetInstance();
+        IF_FALSE_LOGE_AND_RETURN(messenger != nullptr);
         callback->OnMessengerReady(messenger, fwkPublicKey, templateIdList);
         IAM_LOGI("register successful, executorType is %{public}d, executorRole is %{public}d, "
             "executorIndex is ****%{public}hx",

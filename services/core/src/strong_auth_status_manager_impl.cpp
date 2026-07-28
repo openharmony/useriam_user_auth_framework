@@ -84,7 +84,9 @@ void UserIamStrongAuthListener::OnStrongAuthChanged(int32_t userId, int32_t stro
             UserIam::UserAuth::ReportScreenLockStrongAuth(screenLockStrongAuthTraceInfo);
         }
         int32_t reasonFlag = static_cast<int32_t>(StrongAuthReasonFlags::NONE);
-        ScreenLockManager::GetInstance()->GetStrongAuth(userId, reasonFlag);
+        auto screenLockManager = ScreenLockManager::GetInstance();
+        IF_FALSE_LOGE_AND_RETURN(screenLockManager != nullptr);
+        screenLockManager->GetStrongAuth(userId, reasonFlag);
         if (reasonFlag != static_cast<int32_t>(StrongAuthReasonFlags::SECURITY_ENHANCEMENT)) {
             IAM_LOGI("screenlock not in security enhancement");
             return;
@@ -127,7 +129,9 @@ void StrongAuthStatusManagerImpl::UnRegisterStrongAuthListener()
         return;
     }
 
-    int32_t ret = ScreenLockManager::GetInstance()->UnRegisterStrongAuthListener(strongAuthListener_);
+    auto screenLockManager = ScreenLockManager::GetInstance();
+    IF_FALSE_LOGE_AND_RETURN(screenLockManager != nullptr);
+    int32_t ret = screenLockManager->UnRegisterStrongAuthListener(strongAuthListener_);
     if (ret != SUCCESS) {
         IAM_LOGE("UnRegisterStrongAuthListener fail");
     }
