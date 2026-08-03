@@ -36,7 +36,7 @@ public:
 
 private:
     EngineLoadManager() = default;
-    ~EngineLoadManager() = default;
+    ~EngineLoadManager();
 
     void ProcessServiceStatus();
     bool Load();
