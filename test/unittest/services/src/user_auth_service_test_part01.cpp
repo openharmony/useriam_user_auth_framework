@@ -2130,6 +2130,7 @@ HWTEST_F(UserAuthServiceTest, UserAuthServiceQueryReusableAuthResultTest, TestSi
     IpcCommon::AddPermission(IS_SYSTEM_APP);
     ipcAuthParamInner.isUserIdSpecified = false;
     ipcAuthParamInner.userId = 110;
+    ipcAuthParamInner.authTrustLevel = ATL3;
     IpcCommon::SetSkipUserFlag(true);
     EXPECT_EQ(service->QueryReusableAuthResult(ipcAuthParamInner, token), GENERAL_ERROR);
     IpcCommon::SetSkipUserFlag(false);

@@ -994,6 +994,8 @@ void WidgetContext::ProcAuthResult(int32_t resultCode, AuthType authType, int32_
                 schedule_->FailAuth(authType);
             } else if (IsNavigationAuth()) {
                 schedule_->NaviPinAuth();
+            } else {
+                schedule_->StopAuthList({authType});
             }
         } else {
             schedule_->StopAuthList({authType});

@@ -497,7 +497,7 @@ napi_value UserAuthImpl::RegisterRemoteAuthCallback(napi_env env, napi_callback_
         auto resultCode = UserAuthHelper::GetResultCodeV21(ret);
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env,
             static_cast<UserAuthResultCode>(resultCode)));
-        reporter.ReportFailed(static_cast<UserAuthResultCode>(ret));
+        reporter.ReportFailed(static_cast<UserAuthResultCode>(resultCode));
         return nullptr;
     }
 
@@ -516,7 +516,7 @@ napi_value UserAuthImpl::UnregisterRemoteAuthCallback(napi_env env, napi_callbac
         auto resultCode = UserAuthHelper::GetResultCodeV21(ret);
         napi_throw(env, UserAuthNapiHelper::GenerateBusinessErrorV9(env,
             static_cast<UserAuthResultCode>(resultCode)));
-        reporter.ReportFailed(static_cast<UserAuthResultCode>(ret));
+        reporter.ReportFailed(static_cast<UserAuthResultCode>(resultCode));
         return nullptr;
     }
     IAM_LOGI("success");
