@@ -54,7 +54,7 @@ config("iam_utils_config") {
   include_dirs = [ "utils" ]
 }
 
-ohos_source_set("iam_utils") {
+ohos_static_library("iam_utils") {
   sanitize = {
     integer_overflow = true
     ubsan = true

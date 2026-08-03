@@ -47,7 +47,10 @@ ohos_fuzztest("HdiEngineFuzzTest") {
 
   remove_configs = [ "//build/config/compiler:no_exceptions" ]
 
-  deps = [ "../../../common_fuzzer:iam_test_fuzzer" ]
+  deps = [ 
+    "../../../common_fuzzer:iam_test_fuzzer",
+    "../../../common_fuzzer:iam_utils_fuzzer",
+  ]
 
   external_deps = [
     "access_token:libaccesstoken_sdk",
