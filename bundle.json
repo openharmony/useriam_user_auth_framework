@@ -140,6 +140,9 @@
         },
         {
           "name": "//base/useriam/user_auth_framework/services/engine:userauth_engine_api"
+        },
+        {
+          "name": "//base/useriam/user_auth_framework/common:iam_utils"
         }
       ],
       "test": [
