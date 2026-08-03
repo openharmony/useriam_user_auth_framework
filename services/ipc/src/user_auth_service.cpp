@@ -1960,6 +1960,16 @@ int32_t UserAuthService::QueryReusableAuthResult(const IpcAuthParamInner &ipcAut
 
     AuthParamInner authParam = {};
     InitAuthParam(ipcAuthParamInner, authParam);
+    if (!UserAuthHelper::CheckAuthTrustLevel(static_cast<uint32_t>(authParam.authTrustLevel))) {
+        IAM_LOGE("invalid authTrustLevel: %{public}u", static_cast<uint32_t>(authParam.authTrustLevel));
+        return TRUST_LEVEL_NOT_SUPPORT;
+    }
+    for (const auto &type : authParam.authTypes) {
+        if (!UserAuthHelper::CheckUserAuthType(static_cast<int32_t>(type))) {
+            IAM_LOGE("invalid authType: %{public}d", static_cast<int32_t>(type));
+            return TYPE_NOT_SUPPORT;
+        }
+    }
     if (!authParam.isUserIdSpecified) {
         if (IpcCommon::GetCallingUserId(*this, authParam.userId) != SUCCESS) {
             IAM_LOGE("failed to get callingUserId");

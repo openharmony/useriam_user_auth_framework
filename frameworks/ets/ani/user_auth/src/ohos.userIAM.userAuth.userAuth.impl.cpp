@@ -119,10 +119,10 @@ public:
             UserAuth::UserAuthAniHelper::ThrowBusinessError(UserAuth::UserAuthResultCode::GENERAL_ERROR);
             return;
         }
-        UserAuth::UserAuthResultCode canelResult = userAuthInstanceV10_->Cancel();
-        if (canelResult != UserAuth::UserAuthResultCode::SUCCESS) {
+        UserAuth::UserAuthResultCode cancelResult = userAuthInstanceV10_->Cancel();
+        if (cancelResult != UserAuth::UserAuthResultCode::SUCCESS) {
             IAM_LOGE("userAuthInstanceV10_ cancel fail");
-            UserAuth::UserAuthAniHelper::ThrowBusinessError(canelResult);
+            UserAuth::UserAuthAniHelper::ThrowBusinessError(cancelResult);
             return;
         }
     }
