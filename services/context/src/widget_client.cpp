@@ -83,7 +83,13 @@ ResultCode WidgetClient::OnNotice(NoticeType type, const std::string &eventData)
         IAM_LOGE("type check failed.");
         return ResultCode::INVALID_PARAMETERS;
     }
-    WidgetNotice notice = root.get<WidgetNotice>();
+    WidgetNotice notice = {};
+    try {
+        notice = root.get<WidgetNotice>();
+    } catch (nlohmann::json::exception &e) {
+        IAM_LOGE("parse WidgetNotice failed: %{public}s", e.what());
+        return ResultCode::INVALID_PARAMETERS;
+    }
     if (notice.widgetContextId == 0) {
         IAM_LOGE("Invalid widget context id");
         return ResultCode::INVALID_PARAMETERS;
