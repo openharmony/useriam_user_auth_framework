@@ -115,10 +115,9 @@ bool IdentificationImpl::Update(const std::vector<uint8_t> &scheduleResult, Iden
 
 bool IdentificationImpl::Cancel()
 {
-    if (!running_) {
+    if (!running_.exchange(false)) {
         return false;
     }
-    running_ = false;
 
     auto result = GetUserAuthEngine().CancelIdentification(contextId_);
     if (result != SUCCESS) {

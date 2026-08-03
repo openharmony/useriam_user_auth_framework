@@ -95,9 +95,9 @@ int32_t UserIdmService::OpenSession(int32_t userId, std::vector<uint8_t> &challe
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;
     }
-    CancelCurrentEnrollIfExist();
 
     std::lock_guard<std::mutex> lock(mutex_);
+    CancelCurrentEnrollIfExist();
     int32_t ret = GetUserAuthEngine().OpenSession(userId, challenge);
     if (ret != SUCCESS) {
         IAM_LOGE("failed to open session, error code:%{public}d", ret);
