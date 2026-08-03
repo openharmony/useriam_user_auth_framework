@@ -420,8 +420,17 @@ static void getPayloadFromJson(const nlohmann::json &jsonNotice, WidgetNotice &n
     if (jsonNotice.find(JSON_AUTH_PAYLOAD) == jsonNotice.end()) {
         return;
     }
+    if (!jsonNotice[JSON_AUTH_PAYLOAD].is_object()) {
+        IAM_LOGE("payload is not object");
+        return;
+    }
     if (jsonNotice[JSON_AUTH_PAYLOAD].find(JSON_AUTH_TYPE) != jsonNotice[JSON_AUTH_PAYLOAD].end() &&
         jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].is_array()) {
+        size_t typeListSize = jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].size();
+        if (typeListSize > MAX_AUTH_TYPE_SIZE) {
+            IAM_LOGE("typeList size %{public}zu exceeds limit", typeListSize);
+            return;
+        }
         for (size_t index = 0; index < jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].size(); index++) {
             if (!jsonNotice[JSON_AUTH_PAYLOAD][JSON_AUTH_TYPE].at(index).is_string()) {
                 notice.typeList.clear();
