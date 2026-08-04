@@ -31,6 +31,15 @@ namespace OHOS {
 namespace UserIam {
 namespace UserAuth {
 
+EngineLoadManager::~EngineLoadManager()
+{
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    if (timerId_ != std::nullopt) {
+        RelativeTimer::GetInstance().Unregister(timerId_.value());
+        timerId_ = std::nullopt;
+    }
+}
+
 EngineLoadManager &EngineLoadManager::GetInstance()
 {
     static EngineLoadManager instance;

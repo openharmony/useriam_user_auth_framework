@@ -16,6 +16,7 @@
 #ifndef IAM_AUTHENTICATION_IMPL_H
 #define IAM_AUTHENTICATION_IMPL_H
 
+#include <atomic>
 #include <cstdint>
 #include <memory>
 
@@ -61,7 +62,7 @@ private:
     std::vector<uint8_t> challenge_ {};
     uint32_t tokenId_ {0};
 
-    bool running_ {false};
+    std::atomic<bool> running_ {false};
 
     int32_t latestError_ = ResultCode::GENERAL_ERROR;
     std::vector<Authentication::AuthExecutorMsg> authExecutorMsgs_ {};
