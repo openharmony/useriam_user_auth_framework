@@ -121,7 +121,13 @@ UserAuthResultCode UserAuthParamUtils::InitAuthType(userAuth::AuthParam const &a
             IAM_LOGE("authType is illegal, %{public}d", type.get_value());
             return UserAuthResultCode::TYPE_NOT_SUPPORT;
         }
-        authParamInner.authTypes.push_back(static_cast<AuthType>(static_cast<std::int32_t>(type.get_value())));
+        AuthType authType = static_cast<AuthType>(static_cast<std::int32_t>(type.get_value()));
+        if (std::find(authParamInner.authTypes.begin(), authParamInner.authTypes.end(), authType) !=
+            authParamInner.authTypes.end()) {
+            IAM_LOGE("duplicate authType:%{public}d", type.get_value());
+            return UserAuthResultCode::OHOS_INVALID_PARAM;
+        }
+        authParamInner.authTypes.push_back(authType);
     }
     IAM_LOGI("authType size:%{public}zu", authParamInner.authTypes.size());
     return UserAuthResultCode::SUCCESS;

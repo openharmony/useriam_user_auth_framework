@@ -80,7 +80,19 @@ HdiEngineImpl::HdiEngineImpl()
 {
 }
 
-HdiEngineImpl::~HdiEngineImpl() = default;
+HdiEngineImpl::~HdiEngineImpl()
+{
+    std::lock_guard<std::recursive_mutex> lock(mutex_);
+    if (driverStatusListener_ != nullptr) {
+        auto servMgr = IServiceManager::Get();
+        if (servMgr != nullptr) {
+            (void)servMgr->UnregisterServiceStatusListener(driverStatusListener_);
+        }
+    }
+    if (driverManagerListener_ != nullptr) {
+        (void)SystemAbilityListener::UnSubscribe(DEVICE_SERVICE_MANAGER_SA_ID, driverManagerListener_);
+    }
+}
 
 IUserAuthEngine &GetUserAuthEngine()
 {

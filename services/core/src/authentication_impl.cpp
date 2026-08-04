@@ -200,10 +200,9 @@ bool AuthenticationImpl::Update(const std::vector<uint8_t> &scheduleResult, Auth
 
 bool AuthenticationImpl::Cancel()
 {
-    if (!running_) {
+    if (!running_.exchange(false)) {
         return false;
     }
-    running_ = false;
 
     auto result = GetUserAuthEngine().CancelAuthentication(contextId_);
     if (result != SUCCESS) {
