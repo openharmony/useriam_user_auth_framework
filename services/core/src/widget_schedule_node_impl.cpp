@@ -93,6 +93,8 @@ void WidgetScheduleNodeImpl::BuildAuthRunningStateTransitions(std::shared_ptr<Fi
 {
     builder->MakeTransition(S_WIDGET_AUTH_RUNNING, E_COMPLETE_AUTH, S_WIDGET_AUTH_FINISHED,
         [this](FiniteStateMachine &machine, uint32_t event) { OnSuccessAuth(machine, event); });
+    builder->MakeTransition(S_WIDGET_AUTH_RUNNING, E_NOTICE_COMPLETE_AUTH, S_WIDGET_AUTH_FINISHED,
+        [this](FiniteStateMachine &machine, uint32_t event) { OnSendAuthResult(machine, event); });
     builder->MakeTransition(S_WIDGET_AUTH_RUNNING, E_STOP_AUTH, S_WIDGET_AUTH_FINISHED,
         [this](FiniteStateMachine &machine, uint32_t event) { OnFailAuth(machine, event); });
     builder->MakeTransition(S_WIDGET_AUTH_RUNNING, E_CANCEL_AUTH, S_WIDGET_AUTH_FINISHED,
