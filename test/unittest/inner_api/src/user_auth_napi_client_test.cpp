@@ -40,6 +40,7 @@ void UserAuthNapiClientTest::SetUp()
 
 void UserAuthNapiClientTest::TearDown()
 {
+    IpcClientUtils::ResetObj();
 }
 
 HWTEST_F(UserAuthNapiClientTest, UserAuthNapiClientBeginWidgetAuth001, TestSize.Level0)
@@ -183,7 +184,7 @@ void UserAuthNapiClientTest::CallRemoteObject(const std::shared_ptr<MockUserAuth
     IpcClientUtils::SetObj(obj);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
     ON_CALL(*obj, SendRequest)
-        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+        .WillByDefault([service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
             service->OnRemoteRequest(code, data, reply, option);
             return OHOS::NO_ERROR;
         });

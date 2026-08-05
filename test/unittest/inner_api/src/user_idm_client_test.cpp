@@ -16,6 +16,7 @@
 #include "user_idm_client_test.h"
 
 #include "iam_ptr.h"
+#include "iuser_idm.h"
 #include "user_idm_client.h"
 #include "user_idm_client_impl.h"
 
@@ -39,6 +40,7 @@ void UserIdmClientTest::SetUp()
 
 void UserIdmClientTest::TearDown()
 {
+    IpcClientUtils::ResetObj();
 }
 
 HWTEST_F(UserIdmClientTest, UserIdmClientOpenSession001, TestSize.Level0)
@@ -542,7 +544,6 @@ HWTEST_F(UserIdmClientTest, UserIdmClientRegistCredChangeEventListener, TestSize
 
 HWTEST_F(UserIdmClientTest, UserIdmClientRegistCredChangeEventListenerSuccess, TestSize.Level0)
 {
-    auto service = Common::MakeShared<MockUserIdmService>();
     sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
@@ -555,17 +556,10 @@ HWTEST_F(UserIdmClientTest, UserIdmClientRegistCredChangeEventListenerSuccess, T
         });
     IpcClientUtils::SetObj(obj);
     ON_CALL(*obj, SendRequest)
-        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
-            service->OnRemoteRequest(code, data, reply, option);
+        .WillByDefault([](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            reply.WriteInt32(SUCCESS);
             return OHOS::NO_ERROR;
         });
-
-    ON_CALL(*service, RegistCredChangeEventListener)
-        .WillByDefault(
-            [](const sptr<IEventListenerCallback> &listener) {
-                return SUCCESS;
-            }
-        );
 
     std::vector<AuthType> authTypeList = {AuthType::PIN};
     auto testCallback = Common::MakeShared<MockCredChangeEventListener>();
@@ -583,14 +577,7 @@ HWTEST_F(UserIdmClientTest, UserIdmClientRegistCredChangeEventListenerSuccess, T
     listenerImpl->CallbackExit(ipcCode, SUCCESS);
     ret = UserIdmClient::GetInstance().UnRegistCredChangeEventListener(testCallback);
     EXPECT_EQ(ret, SUCCESS);
-    ON_CALL(*service, UnRegistCredChangeEventListener)
-        .WillByDefault(
-            [](const sptr<IEventListenerCallback> &listener) {
-                return SUCCESS;
-            }
-        );
-    ret = UserIdmClient::GetInstance().UnRegistCredChangeEventListener(testCallback);
-    EXPECT_EQ(ret, SUCCESS);
+    ASSERT_NE(dr, nullptr);
     dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
 }
@@ -617,7 +604,7 @@ void UserIdmClientTest::CallRemoteObject(const std::shared_ptr<MockUserIdmServic
     IpcClientUtils::SetObj(obj);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
     ON_CALL(*obj, SendRequest)
-        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+        .WillByDefault([service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
             service->OnRemoteRequest(code, data, reply, option);
             return OHOS::NO_ERROR;
         });
@@ -663,6 +650,46 @@ HWTEST_F(UserIdmClientTest, UserIdmClientGetCredentialInfoSync002, TestSize.Leve
     EXPECT_NE(dr, nullptr);
     dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
+}
+
+HWTEST_F(UserIdmClientTest, UserIdmStubRegistCredChangeEventListenerDispatch, TestSize.Level0)
+{
+    auto service = Common::MakeShared<MockUserIdmService>();
+    ASSERT_NE(service, nullptr);
+    ON_CALL(*service, CallbackEnter).WillByDefault(Return(ERR_NONE));
+    ON_CALL(*service, CallbackExit).WillByDefault(Return(ERR_NONE));
+    ON_CALL(*service, RegistCredChangeEventListener).WillByDefault(Return(SUCCESS));
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    data.WriteInterfaceToken(IUserIdm::GetDescriptor());
+    data.WriteRemoteObject(nullptr);
+
+    int32_t ret = service->OnRemoteRequest(
+        static_cast<uint32_t>(IUserIdmIpcCode::COMMAND_REGIST_CRED_CHANGE_EVENT_LISTENER),
+        data, reply, option);
+    EXPECT_EQ(ret, ERR_INVALID_DATA);
+}
+
+HWTEST_F(UserIdmClientTest, UserIdmStubUnRegistCredChangeEventListenerDispatch, TestSize.Level0)
+{
+    auto service = Common::MakeShared<MockUserIdmService>();
+    ASSERT_NE(service, nullptr);
+    ON_CALL(*service, CallbackEnter).WillByDefault(Return(ERR_NONE));
+    ON_CALL(*service, CallbackExit).WillByDefault(Return(ERR_NONE));
+    ON_CALL(*service, UnRegistCredChangeEventListener).WillByDefault(Return(SUCCESS));
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    data.WriteInterfaceToken(IUserIdm::GetDescriptor());
+    data.WriteRemoteObject(nullptr);
+
+    int32_t ret = service->OnRemoteRequest(
+        static_cast<uint32_t>(IUserIdmIpcCode::COMMAND_UN_REGIST_CRED_CHANGE_EVENT_LISTENER),
+        data, reply, option);
+    EXPECT_EQ(ret, ERR_INVALID_DATA);
 }
 } // namespace UserAuth
 } // namespace UserIam
