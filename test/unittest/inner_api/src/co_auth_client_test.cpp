@@ -38,6 +38,7 @@ void CoAuthClientTest::SetUp()
 
 void CoAuthClientTest::TearDown()
 {
+    IpcClientUtils::ResetObj();
 }
 
 HWTEST_F(CoAuthClientTest, CoAuthClientRegister_001, TestSize.Level0)
@@ -103,7 +104,7 @@ void CoAuthClientTest::CallRemoteObject(const std::shared_ptr<MockCoAuthService>
 
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
     ON_CALL(*obj, SendRequest)
-        .WillByDefault([&service, testExecutorIndex](uint32_t code, MessageParcel &data, MessageParcel &reply,
+        .WillByDefault([service, testExecutorIndex](uint32_t code, MessageParcel &data, MessageParcel &reply,
             MessageOption &option) {
             service->OnRemoteRequest(code, data, reply, option);
             uint64_t executorIndex = 0;
