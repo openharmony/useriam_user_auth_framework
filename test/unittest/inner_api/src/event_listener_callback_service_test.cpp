@@ -42,6 +42,7 @@ void EventListenerCallbackServiceTest::SetUp()
 
 void EventListenerCallbackServiceTest::TearDown()
 {
+    IpcClientUtils::ResetObj();
 }
 
 HWTEST_F(EventListenerCallbackServiceTest, RegisterListenerTest, TestSize.Level0)
@@ -85,22 +86,15 @@ HWTEST_F(EventListenerCallbackServiceTest, OnNotifyAuthSuccessEventSuccess, Test
 
 HWTEST_F(EventListenerCallbackServiceTest, OnNotifyAuthSuccessEventWithListenerSuccess, TestSize.Level0)
 {
-    auto mockService = Common::MakeShared<MockUserAuthService>();
-    ASSERT_NE(mockService, nullptr);
     sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     ASSERT_NE(obj, nullptr);
     IpcClientUtils::SetObj(obj);
 
     EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
     ON_CALL(*obj, SendRequest)
-        .WillByDefault([&mockService](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
-            mockService->OnRemoteRequest(code, data, reply, option);
+        .WillByDefault([](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            reply.WriteInt32(SUCCESS);
             return OHOS::NO_ERROR;
-        });
-
-    ON_CALL(*mockService, RegistUserAuthSuccessEventListener)
-        .WillByDefault([](const sptr<IEventListenerCallback> &listener) {
-            return SUCCESS;
         });
 
     auto listener = Common::MakeShared<MockAuthSuccessEventListener>();
@@ -122,27 +116,19 @@ HWTEST_F(EventListenerCallbackServiceTest, OnNotifyAuthSuccessEventWithListenerS
     EXPECT_EQ(ret, SUCCESS);
     auto unregRet = UserAuthClientImpl::Instance().UnRegistUserAuthSuccessEventListener(listener);
     EXPECT_EQ(unregRet, SUCCESS);
-    IpcClientUtils::ResetObj();
 }
 
 HWTEST_F(EventListenerCallbackServiceTest, OnNotifyAuthSuccessEventMultiListenersSuccess, TestSize.Level0)
 {
-    auto mockService = Common::MakeShared<MockUserAuthService>();
-    ASSERT_NE(mockService, nullptr);
     sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     ASSERT_NE(obj, nullptr);
     IpcClientUtils::SetObj(obj);
 
     EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
     ON_CALL(*obj, SendRequest)
-        .WillByDefault([&mockService](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
-            mockService->OnRemoteRequest(code, data, reply, option);
+        .WillByDefault([](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            reply.WriteInt32(SUCCESS);
             return OHOS::NO_ERROR;
-        });
-
-    ON_CALL(*mockService, RegistUserAuthSuccessEventListener)
-        .WillByDefault([](const sptr<IEventListenerCallback> &listener) {
-            return SUCCESS;
         });
 
     auto listener1 = Common::MakeShared<MockAuthSuccessEventListener>();
@@ -172,7 +158,6 @@ HWTEST_F(EventListenerCallbackServiceTest, OnNotifyAuthSuccessEventMultiListener
     EXPECT_EQ(unregRet1, SUCCESS);
     auto unregRet2 = UserAuthClientImpl::Instance().UnRegistUserAuthSuccessEventListener(listener2);
     EXPECT_EQ(unregRet2, SUCCESS);
-    IpcClientUtils::ResetObj();
 }
 } // namespace UserAuth
 } // namespace UserIam
