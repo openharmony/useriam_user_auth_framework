@@ -16,6 +16,7 @@
 #include "user_auth_client_test.h"
 
 #include "iam_ptr.h"
+#include "iuser_auth.h"
 #include "modal_callback_service.h"
 #include "user_auth_client.h"
 #include "user_auth_client_impl.h"
@@ -41,6 +42,7 @@ void UserAuthClientTest::SetUp()
 
 void UserAuthClientTest::TearDown()
 {
+    IpcClientUtils::ResetObj();
 }
 
 HWTEST_F(UserAuthClientTest, UserAuthClientGetEnrolledState001, TestSize.Level0)
@@ -729,7 +731,7 @@ void UserAuthClientTest::CallRemoteObject(const std::shared_ptr<MockUserAuthServ
     IpcClientUtils::SetObj(obj);
     EXPECT_CALL(*obj, SendRequest(_, _, _, _)).Times(1);
     ON_CALL(*obj, SendRequest)
-        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+        .WillByDefault([service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
             service->OnRemoteRequest(code, data, reply, option);
             return OHOS::NO_ERROR;
         });
@@ -752,24 +754,15 @@ HWTEST_F(UserAuthClientTest, UserAuthClientRegistUserAuthSuccessEventListener, T
 
 HWTEST_F(UserAuthClientTest, UserAuthClientRegistUserAuthSuccessEventListenerSuccess, TestSize.Level0)
 {
-    auto service = Common::MakeShared<MockUserAuthService>();
-    EXPECT_NE(service, nullptr);
     sptr<MockRemoteObject> obj(new (std::nothrow) MockRemoteObject());
     EXPECT_NE(obj, nullptr);
     IpcClientUtils::SetObj(obj);
     EXPECT_CALL(*obj, IsProxyObject()).WillRepeatedly(Return(true));
     ON_CALL(*obj, SendRequest)
-        .WillByDefault([&service](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
-            service->OnRemoteRequest(code, data, reply, option);
+        .WillByDefault([](uint32_t code, MessageParcel &data, MessageParcel &reply, MessageOption &option) {
+            reply.WriteInt32(SUCCESS);
             return OHOS::NO_ERROR;
         });
-
-    ON_CALL(*service, RegistUserAuthSuccessEventListener)
-        .WillByDefault(
-            [](const sptr<IEventListenerCallback> &listener) {
-                return SUCCESS;
-            }
-        );
 
     std::vector<AuthType> authTypeList = {AuthType::PIN};
     auto testCallback = Common::MakeShared<MockAuthSuccessEventListener>();
@@ -787,15 +780,6 @@ HWTEST_F(UserAuthClientTest, UserAuthClientRegistUserAuthSuccessEventListenerSuc
     listenerImpl->CallbackExit(ipcCode, SUCCESS);
     ret = UserAuthClientImpl::Instance().UnRegistUserAuthSuccessEventListener(testCallback);
     EXPECT_EQ(ret, SUCCESS);
-    ON_CALL(*service, UnRegistUserAuthSuccessEventListener)
-        .WillByDefault(
-            [](const sptr<IEventListenerCallback> &listener) {
-                return SUCCESS;
-            }
-        );
-    ret = UserAuthClientImpl::Instance().UnRegistUserAuthSuccessEventListener(testCallback);
-    EXPECT_EQ(ret, SUCCESS);
-    IpcClientUtils::ResetObj();
 }
 
 HWTEST_F(UserAuthClientTest, UserAuthClientUnRegistUserAuthSuccessEventListener, TestSize.Level0)
@@ -1060,6 +1044,46 @@ HWTEST_F(UserAuthClientTest, UserAuthClientUnregisterRemoteAuthCallback002, Test
     EXPECT_NE(dr, nullptr);
     dr->OnRemoteDied(obj);
     IpcClientUtils::ResetObj();
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthStubRegistEventListenerDispatch, TestSize.Level0)
+{
+    auto service = Common::MakeShared<MockUserAuthService>();
+    ASSERT_NE(service, nullptr);
+    ON_CALL(*service, CallbackEnter).WillByDefault(Return(ERR_NONE));
+    ON_CALL(*service, CallbackExit).WillByDefault(Return(ERR_NONE));
+    ON_CALL(*service, RegistUserAuthSuccessEventListener).WillByDefault(Return(SUCCESS));
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    data.WriteInterfaceToken(IUserAuth::GetDescriptor());
+    data.WriteRemoteObject(nullptr);
+
+    int32_t ret = service->OnRemoteRequest(
+        static_cast<uint32_t>(IUserAuthIpcCode::COMMAND_REGIST_USER_AUTH_SUCCESS_EVENT_LISTENER),
+        data, reply, option);
+    EXPECT_EQ(ret, ERR_INVALID_DATA);
+}
+
+HWTEST_F(UserAuthClientTest, UserAuthStubUnRegistEventListenerDispatch, TestSize.Level0)
+{
+    auto service = Common::MakeShared<MockUserAuthService>();
+    ASSERT_NE(service, nullptr);
+    ON_CALL(*service, CallbackEnter).WillByDefault(Return(ERR_NONE));
+    ON_CALL(*service, CallbackExit).WillByDefault(Return(ERR_NONE));
+    ON_CALL(*service, UnRegistUserAuthSuccessEventListener).WillByDefault(Return(SUCCESS));
+
+    MessageParcel data;
+    MessageParcel reply;
+    MessageOption option;
+    data.WriteInterfaceToken(IUserAuth::GetDescriptor());
+    data.WriteRemoteObject(nullptr);
+
+    int32_t ret = service->OnRemoteRequest(
+        static_cast<uint32_t>(IUserAuthIpcCode::COMMAND_UN_REGIST_USER_AUTH_SUCCESS_EVENT_LISTENER),
+        data, reply, option);
+    EXPECT_EQ(ret, ERR_INVALID_DATA);
 }
 } // namespace UserAuth
 } // namespace UserIam
