@@ -1593,7 +1593,7 @@ std::shared_ptr<ContextCallback> UserAuthService::GetAuthContextCallback(int32_t
 
 int32_t UserAuthService::Notice(int32_t noticeType, const std::string &eventData)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     if (!IpcCommon::CheckPermission(*this, IS_SYSTEM_APP)) {
         IAM_LOGE("the caller is not a system application");
         return ResultCode::CHECK_SYSTEM_APP_FAILED;
@@ -1637,7 +1637,7 @@ int32_t UserAuthService::RegisterWidgetCallback(int32_t version, const sptr<IWid
 int32_t UserAuthService::GetEnrolledStateImpl(int32_t apiVersion, int32_t authType,
     IpcEnrolledState &ipcEnrolledState)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     if (!IpcCommon::CheckPermission(*this, ACCESS_BIOMETRIC_PERMISSION)) {
         IAM_LOGE("failed to check permission");
         return CHECK_PERMISSION_FAILED;

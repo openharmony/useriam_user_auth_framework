@@ -50,7 +50,7 @@ napi_value UserAuthServiceConstructor(napi_env env, napi_callback_info info)
 
 napi_value GetVersion(napi_env env, napi_callback_info info)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     return UserAuthImpl::GetVersion(env, info);
 }
 

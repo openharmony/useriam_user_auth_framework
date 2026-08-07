@@ -164,7 +164,7 @@ void GetJsonCmd(nlohmann::json &jsonCommand, const WidgetCommand &command)
 
 bool ReadFileIntoJson(const std::string &filePath, nlohmann::json &jsonBuf)
 {
-    IAM_LOGI("ReadFileIntoJson entry");
+    IAM_LOGD("ReadFileIntoJson entry");
     std::string realPath;
     if (!PathToRealPath(filePath, realPath)) {
         IAM_LOGE("Path to realPath failed");
@@ -496,7 +496,7 @@ std::string GetConfigRealPath()
 
 void LoadConfigJsonBuffer(nlohmann::json &jsonBuf)
 {
-    IAM_LOGI("LoadConfig start");
+    IAM_LOGD("LoadConfig start");
     std::string configPath = GetConfigRealPath();
     if (!ReadFileIntoJson(configPath, jsonBuf)) {
         IAM_LOGE("ReadFileIntoJson failed");
@@ -525,7 +525,7 @@ bool GetSceneboardAbilityName(nlohmann::json &jsonBuf, std::string &processName)
 
 bool GetProcessName(nlohmann::json &jsonBuf, std::vector<std::string> &processName)
 {
-    IAM_LOGI("enter");
+    IAM_LOGD("enter");
     if (!GetStringArrayFromJson(jsonBuf, processName, SHWO_WITH_LEVEL_2_WINDOW)) {
         IAM_LOGE("GetStringArrayFromJson failed");
         return false;
