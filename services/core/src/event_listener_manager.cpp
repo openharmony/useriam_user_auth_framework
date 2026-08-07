@@ -148,7 +148,7 @@ void EventListenerManager::EventListenerDeathRecipient::OnRemoteDied(const wptr<
 
 AuthEventListenerManager &AuthEventListenerManager::GetInstance()
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     static AuthEventListenerManager authEventListenerManager;
     return authEventListenerManager;
 }
@@ -168,7 +168,7 @@ void AuthEventListenerManager::OnNotifyAuthSuccessEvent(int32_t userId, AuthType
 
 CredChangeEventListenerManager &CredChangeEventListenerManager::GetInstance()
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     static CredChangeEventListenerManager credChangeEventListenerManager;
     return credChangeEventListenerManager;
 }
