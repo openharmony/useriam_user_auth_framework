@@ -726,7 +726,7 @@ int32_t UserIdmService::EnforceDelUserInner(int32_t userId, std::shared_ptr<Cont
 
 int32_t UserIdmService::ClearRedundancyCredentialInner(const std::string &callerName, int32_t callerType)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     std::vector<int32_t> accountInfo;
     int32_t ret = IpcCommon::GetAllUserId(accountInfo);
     if (ret != SUCCESS) {

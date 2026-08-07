@@ -38,7 +38,7 @@ namespace UserAuth {
 std::optional<std::vector<uint64_t>> SimpleAuthContext::GetPropertyTemplateIds(
     Authentication::AuthResultInfo &resultInfo)
 {
-    IAM_LOGI("start");
+    IAM_LOGD("start");
     auto scheduleList = GetScheduleList();
     IF_FALSE_LOGE_AND_RETURN_VAL(scheduleList.size() == 1, std::nullopt);
     auto scheduleNode = scheduleList[0];
