@@ -89,7 +89,7 @@ UserAuthResultCode UserAuthInstanceV10::Init(napi_env env, napi_callback_info in
         return errCode;
     }
 
-    IAM_LOGE("Init SUCCESS");
+    IAM_LOGI("Init SUCCESS");
     return UserAuthResultCode::SUCCESS;
 }
 
