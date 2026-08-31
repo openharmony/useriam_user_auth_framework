@@ -17,6 +17,7 @@
 #include "hisysevent_adapter.h"
 
 #include <algorithm>
+#include <charconv>
 #include <cinttypes>
 
 #include "accesstoken_kit.h"
@@ -1622,8 +1623,11 @@ int32_t UserAuthService::RegisterWidgetCallback(int32_t version, const sptr<IWid
     uint32_t tokenId = IpcCommon::GetTokenId(*this);
     IAM_LOGE("RegisterWidgetCallback tokenId %{public}s", GET_MASKED_STRING(tokenId).c_str());
 
-    int32_t curVersion = std::stoi(NOTICE_VERSION_STR);
-    if (version != curVersion) {
+    int32_t curVersion = 0;
+    const char *versionBegin = NOTICE_VERSION_STR.data();
+    const char *versionEnd = versionBegin + NOTICE_VERSION_STR.size();
+    auto parsed = std::from_chars(versionBegin, versionEnd, curVersion);
+    if (parsed.ec != std::errc{} || parsed.ptr != versionEnd || version != curVersion) {
         return ResultCode::INVALID_PARAMETERS;
     }
     if (widgetCallback == nullptr) {
